@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('exam_years', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id')->constrained('exam_types')->cascadeOnDelete();
+            $table->foreignId('exam_type_id')->constrained('exam_types')->cascadeOnDelete();
             $table->year('year');
             $table->timestamps();
         });

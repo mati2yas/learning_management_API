@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('prices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id')->constrained('exam_courses')->cascadeOnDelete();
-            $table->foreignId('id')->constrained('exam_types')->cascadeOnDelete();
+            $table->foreignId('exam_courses_id')->constrained('exam_courses')->cascadeOnDelete();
+            
+            $table->foreignId('exam_type_id')->constrained('exam_types')->cascadeOnDelete();
+
             $table->decimal('price', 8, 2);
             $table->decimal('onsale_price', 8, 2)->nullable();
             $table->timestamps();

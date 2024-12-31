@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('exam_chapters', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id')->constrained('grades')->cascadeOnDelete();
+            $table->foreignId('grade_id')->constrained('grades')->cascadeOnDelete();
             $table->string('title');
             $table->unsignedInteger('sequence_order');
             $table->timestamps();

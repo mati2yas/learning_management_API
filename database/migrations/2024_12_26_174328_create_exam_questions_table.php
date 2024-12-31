@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('exam_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id')->nullable()->constrained('exam_courses')->nullOnDelete();
-            $table->foreignId('id')->nullable()->constrained('exam_chapters')->nullOnDelete();
-            $table->foreignId('id')->nullable()->constrained('exam_years')->nullOnDelete();
+            $table->foreignId('exam_course_id')->nullable()->constrained('exam_courses')->nullOnDelete();
+            $table->foreignId('exam_chapter_id')->nullable()->constrained('exam_chapters')->nullOnDelete();
+            $table->foreignId('exam_year_id')->nullable()->constrained('exam_years')->nullOnDelete();
             $table->text('question_text');
             $table->string('exam_type')->nullable(); // Optional field
             $table->json('options');

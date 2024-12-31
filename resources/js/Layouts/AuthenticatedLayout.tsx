@@ -33,6 +33,48 @@ export default function Authenticated({
                                 >
                                     Dashboard
                                 </NavLink>
+
+                                <NavLink
+                                    href={route('dashboard')}   
+                                >
+                                    Courses
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Chapter
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Quizes
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Exam
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Payments
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Notifications
+                                </NavLink>
+                                <NavLink
+                                    href={route('dashboard')}
+                                    
+                                >
+                                    Users
+                                </NavLink>
                             </div>
                         </div>
 

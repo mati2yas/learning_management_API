@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('quiz_questions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('question_number');
-            $table->foreignId('id')->constrained('quizzes')->cascadeOnDelete();
+            $table->foreignId('quizz_id')->constrained('quizzes')->cascadeOnDelete();
             $table->text('text');
             $table->string('question_image_url')->nullable();
             $table->text('text_explanation');

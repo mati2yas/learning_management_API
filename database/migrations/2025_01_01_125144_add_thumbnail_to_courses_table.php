@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Department;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('batches', functdion (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Department::class);
-            $table->string('batch_name');
-            $table->timestamps();
+        Schema::table('courses', function (Blueprint $table) {
+            $table->string('thumbnail')->nullable()->after('course_name');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('batches');
+        Schema::table('courses', function (Blueprint $table) {
+            $table->dropColumn('thumbnail');
+        });
     }
 };

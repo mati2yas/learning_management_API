@@ -35,7 +35,8 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
-                                    href={route('dashboard')}   
+                                    href={route('courses.index')}  
+                                    active={route().current('courses.index')} 
                                 >
                                     Courses
                                 </NavLink>
@@ -176,6 +177,12 @@ export default function Authenticated({
                         <ResponsiveNavLink
                             href={route('dashboard')}
                             active={route().current('dashboard')}
+                        >
+                            Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('courses.index')}
+                            active={route().current('courses.index')}
                         >
                             Dashboard
                         </ResponsiveNavLink>

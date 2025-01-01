@@ -17,7 +17,7 @@ interface Category {
 
 interface Grade {
   id: number;
-  grade_name: string;
+  name: string;
   category_id: number;
 }
 
@@ -101,7 +101,6 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     });
   };
 
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
@@ -164,14 +163,13 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                     <SelectValue placeholder="Select a grade" />
                   </SelectTrigger>
                   <SelectContent>
-                  {grades
-                    .filter((grade) => grade.category_id.toString() === data.category_id)
-                    .map((grade) => (
-                      <SelectItem key={grade.id} value={grade.id.toString()}>
-                        {grade.grade_name || 'Grade'}
-                      </SelectItem>
-                    ))}
-
+                    {grades
+                      .filter((grade) => grade.category_id.toString() === data.category_id)
+                      .map((grade) => (
+                        <SelectItem key={grade.id} value={grade.id.toString()}>
+                          {grade.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <InputError message={errors.grade_id} className="mt-2" />

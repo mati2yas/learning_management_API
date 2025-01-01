@@ -13,7 +13,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 
-Route::post('/ticket-seller-register', [SessionController::class, 'ticketSellerRegister']);
+Route::post('/student-register', [SessionController::class, 'studentRegister']);
 
 Route::post('/login', [SessionController::class, 'login']);
 

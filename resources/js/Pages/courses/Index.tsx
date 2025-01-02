@@ -59,6 +59,7 @@ interface IndexProps extends PageProps {
   grades: Grade[];
   departments: Department[];
   batches: Batch[];
+  courses: Course[];
 }
 
 const dummyCategories: Category[] = [
@@ -85,11 +86,20 @@ const dummyBatches: Batch[] = [
   { id: 2, name: '3rd Year', department_id: 1 },
 ];
 
+
 const generateDummyCourses = (count: number): Course[] => {
+  const courseNames = [
+    "Introduction to Programming", "Data Structures", "Web Development",
+    "Machine Learning", "Database Systems", "Computer Networks",
+    "Artificial Intelligence", "Software Engineering", "Mobile App Development",
+    "Cloud Computing", "Cybersecurity", "Operating Systems",
+    "Computer Graphics", "Algorithms", "Big Data Analytics"
+  ];
+
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
-    name: `Course ${i + 1}`,
-    thumbnail: `https://source.unsplash.com/random/800x600?education&sig=${i}`,
+    name: courseNames[i % courseNames.length],
+    thumbnail: `https://picsum.photos/${200 + i}/${300 + i}`,
     category_id: Math.floor(Math.random() * 4) + 1,
     grade_id: Math.random() > 0.5 ? Math.floor(Math.random() * 12) + 1 : undefined,
     department_id: Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : undefined,
@@ -100,7 +110,7 @@ const generateDummyCourses = (count: number): Course[] => {
 
 const dummyCourses = generateDummyCourses(50);
 
-const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, departments = dummyDepartments, batches = dummyBatches }: IndexProps) => {
+const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, departments = dummyDepartments, batches = dummyBatches, courses = dummyCourses }: IndexProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -120,7 +130,7 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
   const getBatchName = (id: number) => batches.find(b => b.id === id)?.name || '';
 
   useEffect(() => {
-    const filteredCourses = dummyCourses.filter(course => 
+    const filteredCourses = courses.filter(course => 
       (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
       course.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -139,7 +149,7 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
       from: from,
       to: to,
     });
-  }, [selectedCategory, searchQuery, currentPage]);
+  }, [selectedCategory, searchQuery, currentPage, courses]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

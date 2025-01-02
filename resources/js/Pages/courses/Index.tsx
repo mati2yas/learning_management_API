@@ -1,14 +1,14 @@
+import { useState, useEffect } from 'react'
 import { Head } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
-
+import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
+
 import { PageProps } from '@/types'
-import { CreateCourseAlert } from './CreateCourseAlert';
+import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { useState } from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/Components/ui/input';
-import Pagination from '@/Components/Pagination';
+import { Search } from 'lucide-react'
+
 
 interface Category {
   id: number;
@@ -44,15 +44,23 @@ interface Course {
   number_of_topics: number;
 }
 
+interface PaginatedData<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number;
+  to: number;
+}
+
 interface IndexProps extends PageProps {
   categories: Category[];
   grades: Grade[];
   departments: Department[];
   batches: Batch[];
-  courses: Course[];
 }
 
-// Dummy data for visualization
 const dummyCategories: Category[] = [
   { id: 1, name: 'Lower Grades' },
   { id: 2, name: 'Higher Grades' },
@@ -77,104 +85,79 @@ const dummyBatches: Batch[] = [
   { id: 2, name: '3rd Year', department_id: 1 },
 ];
 
-const dummyCourses: Course[] = [
-  {
-    id: 1,
-    name: 'Introduction to Programming',
-    thumbnail: 'https://picsum.photos/200/300',
-    category_id: 1,
-    grade_id: 1,
-    number_of_topics: 10,
-  },
-  {
-    id: 2,
-    name: 'Advanced Mathematics',
-    thumbnail: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
-    category_id: 2,
-    grade_id: 11,
-    number_of_topics: 15,
-  },
-  {
-    id: 3,
-    name: 'Data Structures and Algorithms',
-    thumbnail: 'https://picsum.photos/200',
-    category_id: 3,
-    department_id: 1,
-    batch_id: 1,
-    number_of_topics: 20,
-  },
-  {
-    id: 4,
-    name: 'Creative Writing',
-    thumbnail: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
-    category_id: 4,
-    number_of_topics: 8,
-  },
-  {
-    id: 4,
-    name: 'Marketing',
-    thumbnail: 'https://picsum.photos/300',
-    category_id: 4,
-    number_of_topics: 8,
-  },
-  {
-    id: 4,
-    name: 'Water Color Painting',
-    thumbnail: 'https://picsum.photos/100',
-    category_id: 4,
-    number_of_topics: 8,
-  },
-  {
-    id: 4,
-    name: 'Intro to Programming',
-    thumbnail: 'https://picsum.photos/230',
-    category_id: 4,
-    number_of_topics: 8,
-  },
-  {
-    id: 4,
-    name: 'Accounting',
-    thumbnail: 'https://picsum.photos/250',
-    category_id: 4,
-    number_of_topics: 8,
-  },
-];
+const generateDummyCourses = (count: number): Course[] => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i + 1,
+    name: `Course ${i + 1}`,
+    thumbnail: `https://source.unsplash.com/random/800x600?education&sig=${i}`,
+    category_id: Math.floor(Math.random() * 4) + 1,
+    grade_id: Math.random() > 0.5 ? Math.floor(Math.random() * 12) + 1 : undefined,
+    department_id: Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : undefined,
+    batch_id: Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : undefined,
+    number_of_topics: Math.floor(Math.random() * 20) + 1,
+  }));
+};
 
-interface PaginatedData<T> {
-  data: T[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
+const dummyCourses = generateDummyCourses(50);
 
+const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, departments = dummyDepartments, batches = dummyBatches }: IndexProps) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedCourses, setPaginatedCourses] = useState<PaginatedData<Course>>({
+    data: [],
+    current_page: 1,
+    last_page: 1,
+    per_page: 12,
+    total: 0,
+    from: 1,
+    to: 1,
+  });
 
-
-
-const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, departments = dummyDepartments, batches = dummyBatches, courses = dummyCourses }: IndexProps) => {
   const getCategoryName = (id: number) => categories.find(c => c.id === id)?.name || '';
   const getGradeName = (id: number) => grades.find(g => g.id === id)?.name || '';
   const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.name || '';
   const getBatchName = (id: number) => batches.find(b => b.id === id)?.name || '';
 
+  useEffect(() => {
+    const filteredCourses = dummyCourses.filter(course => 
+      (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
+      course.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+    const total = filteredCourses.length;
+    const lastPage = Math.ceil(total / paginatedCourses.per_page);
+    const from = (currentPage - 1) * paginatedCourses.per_page + 1;
+    const to = Math.min(currentPage * paginatedCourses.per_page, total);
 
-  const filteredCourses = courses.filter(course => 
-    (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
-    course.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    setPaginatedCourses({
+      data: filteredCourses.slice(from - 1, to),
+      current_page: currentPage,
+      last_page: lastPage,
+      per_page: paginatedCourses.per_page,
+      total: total,
+      from: from,
+      to: to,
+    });
+  }, [selectedCategory, searchQuery, currentPage]);
 
   const handlePageChange = (page: number) => {
-    console.log(`Page changed to: ${page}`);
-    // Add your pagination logic here
+    setCurrentPage(page);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
 
   return (
     <AuthenticatedLayout
+     
       header={
         <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-semibold">Courses</h1>
@@ -190,10 +173,9 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
       <Head title='Courses' />
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="w-full sm:w-auto">
-
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -212,18 +194,15 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
                 type="text"
                 placeholder="Search courses..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-full sm:w-[300px] pl-10"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             </div>
           </div>
-
-
-
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {courses.map((course) => (
+              {paginatedCourses.data.map((course) => (
                 <CourseCard
                   key={course.id}
                   id={course.id}
@@ -237,25 +216,15 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
                 />
               ))}
             </div>
-              {courses.length === 0 && (
-                <div className="text-center text-gray-500 mt-8">
-                  No courses found matching your criteria.
-                </div>
-              )}
+            {paginatedCourses.data.length === 0 && (
+              <div className="text-center text-gray-500 mt-8">
+                No courses found matching your criteria.
+              </div>
+            )}
           </div>
           <div className="mt-6">
-            <Pagination
-              currentPage={courses.current_page}
-              lastPage={courses.last_page}
-              total={courses.total}
-              from={courses.from}
-              to={courses.to}
-              onPageChange={handlePageChange}
-            />
           </div>
         </div>
-
-   
       </div>
     </AuthenticatedLayout>
   )

@@ -28,7 +28,7 @@ const chartData = [
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Subscription",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
@@ -37,9 +37,9 @@ export function Revenue() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Area Chart</CardTitle>
+        <CardTitle>Revenue</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          The amount of revenue gained for the last 6 months
         </CardDescription>
       </CardHeader>
       <CardContent>

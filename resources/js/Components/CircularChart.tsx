@@ -35,15 +35,15 @@ const chartConfig = {
     color: "hsl(var(--chart-1))",
   },
   safari: {
-    label: "Safari",
+    label: "Lower Grade",
     color: "hsl(var(--chart-2))",
   },
   firefox: {
-    label: "Firefox",
+    label: "Higher Grade",
     color: "hsl(var(--chart-3))",
   },
   edge: {
-    label: "Edge",
+    label: "Random Courses",
     color: "hsl(var(--chart-4))",
   },
   other: {
@@ -102,7 +102,7 @@ export function CircularChart() {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Courses
                         </tspan>
                       </text>
                     )
@@ -115,7 +115,7 @@ export function CircularChart() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          {/* Trending up by 5.2% this month <TrendingUp className="h-4 w-4" /> */}
         </div>
         <div className="leading-none text-muted-foreground">
           Showing total courses for the last 6 months

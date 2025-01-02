@@ -42,36 +42,42 @@ export default function Authenticated({
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Chapter
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Quizes
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Exam
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Payments
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Notifications
                                 </NavLink>
                                 <NavLink
                                     href={route('dashboard')}
+                                    active={route().current('dashboard')}
                                     
                                 >
                                     Users

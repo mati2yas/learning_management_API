@@ -1,87 +1,123 @@
+import { Edit2, Trash2, Eye } from 'lucide-react'
+import { Button } from "./ui/button"
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "./ui/table"
 
-const invoices = [
+const chapters = [
   {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
+    id: "1",
+    name: "Introduction to Chemistry",
+    totalContent: 5,
+    difficulty: "Beginner",
   },
   {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
+    id: "2",
+    name: "Chemical Kinetics",
+    totalContent: 3,
+    difficulty: "Intermediate",
   },
   {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
+    id: "3",
+    name: "Electro Chemistry",
+    totalContent: 7,
+    difficulty: "Advanced",
   },
   {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
+    id: "4",
+    name: "Chemical Bonds",
+    totalContent: 4,
+    difficulty: "Intermediate",
   },
   {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
+    id: "5",
+    name: "Laboratory Cautions",
+    totalContent: 2,
+    difficulty: "Beginner",
   },
   {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
+    id: "6",
+    name: "Organic Chemistry",
+    totalContent: 6,
+    difficulty: "Advanced",
   },
   {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
+    id: "7",
+    name: "Inorganic Chemistry",
+    totalContent: 5,
+    difficulty: "Intermediate",
   },
 ]
 
-export function TableDemo() {
+export function EnhancedTableDemo() {
   return (
-    <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <Table>
+        <TableCaption className="pb-4">A list of your recent Chapters.</TableCaption>
+        <TableHeader>
+          <TableRow className="bg-gray-100">
+            <TableHead className="w-[100px] font-bold">No.</TableHead>
+            <TableHead className="font-bold">Name</TableHead>
+            <TableHead className="font-bold">Contents</TableHead>
+            <TableHead className="font-bold">Difficulty</TableHead>
+            <TableHead className="text-right font-bold">Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {chapters.map((chapter) => (
+            <TableRow key={chapter.id} className="hover:bg-gray-50 transition-colors">
+              <TableCell className="font-medium">{chapter.id}</TableCell>
+              <TableCell className="font-semibold text-gray-700">{chapter.name}</TableCell>
+              <TableCell>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {chapter.totalContent} items
+                </span>
+              </TableCell>
+              <TableCell>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(chapter.difficulty)}`}>
+                  {chapter.difficulty}
+                </span>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50">
+                    <Edit2 className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
+
+function getDifficultyColor(difficulty: string) {
+  switch (difficulty.toLowerCase()) {
+    case 'beginner':
+      return 'bg-green-100 text-green-800'
+    case 'intermediate':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'advanced':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+

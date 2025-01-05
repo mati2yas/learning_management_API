@@ -2,7 +2,6 @@ import { CircularChart } from '@/Components/CircularChart';
 import { DashboardCards } from '@/Components/dashboard-cards';
 import { PieChartDemo } from '@/Components/PieChartDemo';
 import { Revenue } from '@/Components/Revenue';
-import { TableDemo } from '@/Components/TableDemo';
 import { Button } from '@/Components/ui/button';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';

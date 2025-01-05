@@ -17,19 +17,20 @@ interface Category {
 
 interface Grade {
   id: number;
-  name: string;
+  grade_name: string;
   category_id: number;
+  stream: string;
 }
 
 interface Department {
   id: number;
-  name: string;
+  department_name: string;
   category_id: number;
 }
 
 interface Batch {
   id: number;
-  name: string;
+  batch_name: string;
   department_id: number;
 }
 
@@ -41,23 +42,22 @@ interface CreateCourseAlertProps {
 }
 
 export function CreateCourseAlert({ categories, grades, departments, batches }: CreateCourseAlertProps) {
-  const [isOpen, setIsOpen] = useState(false);
 
-  const { data, setData, post, processing, errors, reset } = useForm({
-    name: '',
+  const [isOpen, setIsOpen] = useState(false);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+
+
+  const { data, setData, post, processing, errors, reset, progress } = useForm({
+    course_name: '',
     category_id: '',
     grade_id: '',
-    stream: '',
     department_id: '',
     batch_id: '',
-    number_of_topics: '',
+    number_of_chapters: '',
     thumbnail: null as File | null,
   });
 
-  const closeDialog = () => {
-    setIsOpen(false);
-    reset();
-  };
+
 
   const handleCategoryChange = (value: string) => {
     setData('category_id', value);
@@ -70,11 +70,6 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     setData('grade_id', value);
     setData('department_id', '');
     setData('batch_id', '');
-    if (value === '11' || value === '12') {
-      setData('stream', 'social');
-    } else {
-      setData('stream', '');
-    }
   };
 
   const handleDepartmentChange = (value: string) => {
@@ -85,6 +80,12 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setData('thumbnail', e.target.files[0]);
+
+      const reader = new FileReader();
+    reader.onload = () => {
+      setThumbnailPreview(reader.result as string); // Set the preview URL
+    };
+    reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
     }
   };
 
@@ -92,8 +93,9 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     e.preventDefault();
     post(route('courses.store'), {
       onSuccess: () => {
-        // toast('A course has been created')
-        closeDialog();
+          // toast('A course has been created')
+          setIsOpen(false); // Only close on successful submission
+          reset();
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);
@@ -123,12 +125,12 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
               <InputLabel htmlFor="name" value="Course Name" />
               <TextInput
                 id="name"
-                name="name"
-                value={data.name}
-                onChange={(e) => setData('name', e.target.value)}
+                name="course_name"
+                value={data.course_name}
+                onChange={(e) => setData('course_name', e.target.value)}
                 required
               />
-              <InputError message={errors.name} className="mt-2" />
+              <InputError message={errors.course_name} className="mt-2" />
             </div>
 
             <div className="mb-4">
@@ -143,7 +145,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
+                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -166,8 +168,12 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                     {grades
                       .filter((grade) => grade.category_id.toString() === data.category_id)
                       .map((grade) => (
-                        <SelectItem key={grade.id} value={grade.id.toString()}>
-                          {grade.name}
+                        <SelectItem className="flex justify-between" key={grade.id} value={grade.id.toString()}>
+                          {grade.grade_name} 
+                          {(grade.grade_name === 'Grade 11' || grade.grade_name === 'Grade 12') && (
+                          <span className="capitalize"> - {grade.stream}</span>
+                        )}
+
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -176,24 +182,6 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
               </div>
             )}
 
-            {(data.grade_id === '11' || data.grade_id === '12') && (
-              <div className="mb-4">
-                <InputLabel htmlFor="stream" value="Stream" />
-                <Select
-                  value={data.stream}
-                  onValueChange={(value) => setData('stream', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a stream" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="social">Social</SelectItem>
-                    <SelectItem value="natural">Natural</SelectItem>
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.stream} className="mt-2" />
-              </div>
-            )}
 
             {data.category_id && (
               <div className="mb-4">
@@ -209,12 +197,14 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                   <SelectContent>
                     {departments
                       .filter((dept) => dept.category_id.toString() === data.category_id)
+                      .sort((a, b) => a.department_name.localeCompare(b.department_name)) // Sort departments by name
                       .map((dept) => (
                         <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.name}
+                          {dept.department_name}
                         </SelectItem>
                       ))}
                   </SelectContent>
+
                 </Select>
                 <InputError message={errors.department_id} className="mt-2" />
               </div>
@@ -235,7 +225,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                       .filter((batch) => batch.department_id.toString() === data.department_id)
                       .map((batch) => (
                         <SelectItem key={batch.id} value={batch.id.toString()}>
-                          {batch.name}
+                          {batch.batch_name}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -246,15 +236,15 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
 
             <div className="mb-4">
               <InputLabel htmlFor="number_of_topics" value="Number of Topics" />
-              <TextInput
+              <input
                 id="number_of_topics"
-                name="number_of_topics"
+                name="number_of_chapters"
                 type="number"
-                value={data.number_of_topics}
-                onChange={(e) => setData('number_of_topics', e.target.value)}
+                value={data.number_of_chapters}
+                onChange={(e) => setData('number_of_chapters', e.target.value)}
                 required
               />
-              <InputError message={errors.number_of_topics} className="mt-2" />
+              <InputError message={errors.number_of_chapters} className="mt-2" />
             </div>
 
             <div className="mb-4">
@@ -267,19 +257,32 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 accept="image/*"
                 className="mt-1 block w-full"
               />
+                {thumbnailPreview && (
+                  <div className="mt-2">
+                    <img src={thumbnailPreview} alt="Thumbnail Preview" className="w-32 h-32 object-cover" />
+                  </div>
+                )}
+                {progress && (
+                  <progress value={progress.percentage} max="100">
+                    {progress.percentage}%
+                  </progress>
+                )}
               <InputError message={errors.thumbnail} className="mt-2" />
             </div>
 
             <div className="mt-6 flex gap-x-2">
-              <AlertDialogCancel onClick={closeDialog}>
+              <AlertDialogCancel onClick={() => {
+              setIsOpen(false);
+              reset();
+            }}>
                 Cancel
               </AlertDialogCancel>
 
-              <AlertDialogAction>
+             
                 <PrimaryButton type="submit" disabled={processing}>
                   Add Course
                 </PrimaryButton>
-              </AlertDialogAction>
+          
             </div>
           </form>
         </div>

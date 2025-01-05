@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->callOnce(RoleSeeder::class);
         $this->callOnce(CategorySeeder::class);
         $this->callOnce(GradeSeeder::class);
+        $this->callOnce(DepartmentSeeder::class);
+        $this->callOnce(BatchSeeder::class);
     }
 }

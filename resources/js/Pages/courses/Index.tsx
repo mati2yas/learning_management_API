@@ -3,46 +3,38 @@ import { Head } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
-
 import { PageProps } from '@/types'
 import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
+import { Course } from '@/types/course'
 
 
 interface Category {
   id: number;
+  course_name: string;
   name: string;
 }
 
 interface Grade {
   id: number;
-  name: string;
   category_id: number;
+  grade_name: string;
+  stream: string;
 }
 
 interface Department {
   id: number;
-  name: string;
+  department_name: string;
   category_id: number;
 }
 
 interface Batch {
   id: number;
-  name: string;
+  batch_name: string;
   department_id: number;
 }
 
-interface Course {
-  id: number;
-  name: string;
-  thumbnail: string;
-  category_id: number;
-  grade_id?: number;
-  department_id?: number;
-  batch_id?: number;
-  number_of_topics: number;
-}
 
 interface PaginatedData<T> {
   data: T[];
@@ -62,55 +54,16 @@ interface IndexProps extends PageProps {
   courses: Course[];
 }
 
-const dummyCategories: Category[] = [
-  { id: 1, name: 'Lower Grades' },
-  { id: 2, name: 'Higher Grades' },
-  { id: 3, name: 'University' },
-  { id: 4, name: 'Random Courses' },
-];
 
-const dummyGrades: Grade[] = [
-  { id: 1, name: 'Grade 1', category_id: 1 },
-  { id: 2, name: 'Grade 2', category_id: 1 },
-  { id: 11, name: 'Grade 11', category_id: 2 },
-  { id: 12, name: 'Grade 12', category_id: 2 },
-];
+const Index = ({
+  auth,
+  categories = [],
+  grades = [],
+  departments = [],
+  batches = [],
+  courses = [],
+}: IndexProps) => {
 
-const dummyDepartments: Department[] = [
-  { id: 1, name: 'Computer Science', category_id: 3 },
-  { id: 2, name: 'Freshman', category_id: 3 },
-];
-
-const dummyBatches: Batch[] = [
-  { id: 1, name: '2nd Year', department_id: 1 },
-  { id: 2, name: '3rd Year', department_id: 1 },
-];
-
-
-const generateDummyCourses = (count: number): Course[] => {
-  const courseNames = [
-    "Introduction to Programming", "Data Structures", "Web Development",
-    "Machine Learning", "Database Systems", "Computer Networks",
-    "Artificial Intelligence", "Software Engineering", "Mobile App Development",
-    "Cloud Computing", "Cybersecurity", "Operating Systems",
-    "Computer Graphics", "Algorithms", "Big Data Analytics"
-  ];
-
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
-    name: courseNames[i % courseNames.length],
-    thumbnail: `https://picsum.photos/${200 + i}/${300 + i}`,
-    category_id: Math.floor(Math.random() * 4) + 1,
-    grade_id: Math.random() > 0.5 ? Math.floor(Math.random() * 12) + 1 : undefined,
-    department_id: Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : undefined,
-    batch_id: Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 1 : undefined,
-    number_of_topics: Math.floor(Math.random() * 20) + 1,
-  }));
-};
-
-const dummyCourses = generateDummyCourses(50);
-
-const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, departments = dummyDepartments, batches = dummyBatches, courses = dummyCourses }: IndexProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,14 +78,14 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
   });
 
   const getCategoryName = (id: number) => categories.find(c => c.id === id)?.name || '';
-  const getGradeName = (id: number) => grades.find(g => g.id === id)?.name || '';
-  const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.name || '';
-  const getBatchName = (id: number) => batches.find(b => b.id === id)?.name || '';
+  const getGradeName = (id: number) => grades.find(g => g.id === id)?.grade_name || '';
+  const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.department_name || '';
+  const getBatchName = (id: number) => batches.find(b => b.id === id)?.batch_name || '';
 
   useEffect(() => {
     const filteredCourses = courses.filter(course => 
       (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
-      course.name.toLowerCase().includes(searchQuery.toLowerCase())
+      course.course_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const total = filteredCourses.length;
@@ -167,7 +120,6 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
 
   return (
     <AuthenticatedLayout
-     
       header={
         <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-semibold">Courses</h1>
@@ -193,9 +145,10 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
                   <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
+                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
                     </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
@@ -216,13 +169,13 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
                 <CourseCard
                   key={course.id}
                   id={course.id}
-                  name={course.name}
+                  name={course.course_name}
                   thumbnail={course.thumbnail}
                   category={getCategoryName(course.category_id)}
                   grade={course.grade_id ? getGradeName(course.grade_id) : undefined}
                   department={course.department_id ? getDepartmentName(course.department_id) : undefined}
                   batch={course.batch_id ? getBatchName(course.batch_id) : undefined}
-                  topicsCount={course.number_of_topics}
+                  topicsCount={course.number_of_chapters}
                 />
               ))}
             </div>
@@ -241,4 +194,5 @@ const Index = ({ auth, categories = dummyCategories, grades = dummyGrades, depar
 }
 
 export default Index
+
 

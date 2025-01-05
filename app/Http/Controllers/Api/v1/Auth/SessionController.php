@@ -52,11 +52,11 @@ class SessionController extends Controller
         
     }
 
-    public function studetnRegister(Request $request){
+    public function studentRegister(Request $request){
         $attrs = Validator::make($request->all(),[
             'name'=> 'required',
             'email'=> 'required|email|unique:users,email',
-            'password'=> ['required', RulesPassword::min(4)],
+            'password'=> ['required', RulesPassword::min(4), 'confirmed'],
         ]);
 
         if($attrs->fails()){
@@ -136,7 +136,7 @@ class SessionController extends Controller
         $attrs = Validator::make($request->all(),[
             'name'=> 'required',
             'email'=> 'required|email|unique:users,email',
-            'password'=> ['required', RulesPassword::min(4)],
+            'password'=> ['required', RulesPassword::min(4), 'confirmed'],
         ]);
 
         if($attrs->fails()){
@@ -173,6 +173,16 @@ class SessionController extends Controller
             'data'=> $user,
             'id'=> Auth::user()->id
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        return response()->json(
+            [
+                'message' => 'Logged out'
+            ]
+        );
     }
 
     public function destroy(Request $request){

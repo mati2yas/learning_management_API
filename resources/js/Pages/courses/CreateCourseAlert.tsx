@@ -233,7 +233,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 <InputError message={errors.batch_id} className="mt-2" />
               </div>
             )}
-
+{/* 
             <div className="mb-4">
               <InputLabel htmlFor="number_of_topics" value="Number of Topics" />
               <input
@@ -245,7 +245,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 required
               />
               <InputError message={errors.number_of_chapters} className="mt-2" />
-            </div>
+            </div> */}
 
             <div className="mb-4">
               <InputLabel htmlFor="thumbnail" value="Course Thumbnail" />

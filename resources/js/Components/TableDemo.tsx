@@ -9,53 +9,62 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table"
+import { Chapter } from '@/types';
 
-const chapters = [
-  {
-    id: "1",
-    name: "Introduction to Chemistry",
-    totalContent: 5,
-    difficulty: "Beginner",
-  },
-  {
-    id: "2",
-    name: "Chemical Kinetics",
-    totalContent: 3,
-    difficulty: "Intermediate",
-  },
-  {
-    id: "3",
-    name: "Electro Chemistry",
-    totalContent: 7,
-    difficulty: "Advanced",
-  },
-  {
-    id: "4",
-    name: "Chemical Bonds",
-    totalContent: 4,
-    difficulty: "Intermediate",
-  },
-  {
-    id: "5",
-    name: "Laboratory Cautions",
-    totalContent: 2,
-    difficulty: "Beginner",
-  },
-  {
-    id: "6",
-    name: "Organic Chemistry",
-    totalContent: 6,
-    difficulty: "Advanced",
-  },
-  {
-    id: "7",
-    name: "Inorganic Chemistry",
-    totalContent: 5,
-    difficulty: "Intermediate",
-  },
-]
+interface TableDemoProps{
+  chapters: Chapter[];
+}
 
-export function EnhancedTableDemo() {
+// const chapters = [
+//   {
+//     id: "1",
+//     name: "Introduction to Chemistry",
+//     totalContent: 5,
+ 
+//   },
+//   {
+//     id: "2",
+//     name: "Chemical Kinetics",
+//     totalContent: 3,
+ 
+//   },
+//   {
+//     id: "3",
+//     name: "Electro Chemistry",
+//     totalContent: 7,
+   
+//   },
+//   {
+//     id: "4",
+//     name: "Chemical Bonds",
+//     totalContent: 4,
+   
+//   },
+//   {
+//     id: "5",
+//     name: "Laboratory Cautions",
+//     totalContent: 2,
+  
+//   },
+//   {
+//     id: "6",
+//     name: "Organic Chemistry",
+//     totalContent: 6,
+
+//   },
+//   {
+//     id: "7",
+//     name: "Inorganic Chemistry",
+//     totalContent: 5,
+//   },
+// ]
+
+
+
+export function EnhancedTableDemo({
+  chapters,
+}: TableDemoProps) {
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <Table>
@@ -65,25 +74,20 @@ export function EnhancedTableDemo() {
             <TableHead className="w-[100px] font-bold">No.</TableHead>
             <TableHead className="font-bold">Name</TableHead>
             <TableHead className="font-bold">Contents</TableHead>
-            <TableHead className="font-bold">Difficulty</TableHead>
             <TableHead className="text-right font-bold">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {chapters.map((chapter) => (
             <TableRow key={chapter.id} className="hover:bg-gray-50 transition-colors">
-              <TableCell className="font-medium">{chapter.id}</TableCell>
-              <TableCell className="font-semibold text-gray-700">{chapter.name}</TableCell>
+              <TableCell className="font-medium">{chapter.order}</TableCell>
+              <TableCell className="font-semibold text-gray-700">{chapter.title}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {chapter.totalContent} items
+                  {chapter.contents_count} items
                 </span>
               </TableCell>
-              <TableCell>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(chapter.difficulty)}`}>
-                  {chapter.difficulty}
-                </span>
-              </TableCell>
+
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">

@@ -17,14 +17,28 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+
+        $query = Course::query();
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        if ($request->filled('search')) {
+            $query->where('course_name', 'like', '%' . $request->search . '%');
+        }
+
+        $courses = $query->latest()->paginate(16);
+
         return Inertia::render('courses/Index',[
             'categories' => Category::all(),
             'grades' => Grade::all(),
             'departments' => Department::all(),
             'batches' => Batch::all(),
-            'courses' => Course::all(),
+            'courses' => $courses,
+            'filters' => $request->only(['category', 'search']),
         ]);
     }
 
@@ -81,6 +95,7 @@ class CourseController extends Controller
             $batch_name = Batch::findOrFail($course->batch_id)->batch_name;
         }
 
+        $chapters = $course->chapters()->withCount('contents')->get();
 
 
         return Inertia::render('courses/Show', [
@@ -89,6 +104,11 @@ class CourseController extends Controller
             'category_name' => $category_name,
             'department_name' => $department_name,
             'batch_name' => $batch_name,
+            'chapters' => $chapters,
+            'categories' => Category::all(),
+            'grades' => Grade::all(),
+            'departments' => Department::all(),
+            'batches' => Batch::all(),
         ]);
 
         
@@ -105,16 +125,43 @@ class CourseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Course $course)
     {
-        //
+        // dd($request->all());
+        // try {
+            $attrs = $request->validate([
+                'course_name' => 'required|max:100',
+                'category_id' => 'required',
+                'grade_id' => 'nullable',
+                'department_id' => 'nullable',
+                'batch_id' => 'nullable',
+                'number_of_chapters' => 'required|integer',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+        // } catch (\Illuminate\Validation\ValidationException $e) {
+        //     dd($e->errors());
+        // }
+        
+
+    
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('thumbnail', 'public'); 
+            $attrs['thumbnail'] = $path;
+        }
+    
+        $course->update($attrs);
+    
+        return redirect()->route('courses.show', $course->id)->with('success', 'Course updated successfully');
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Course $course)
     {
-        //
+        $course_name = $course->course_name;
+        $course->delete();
+        return redirect()->route('courses.index')->with('success', 'Course ' . $course_name . ' deleted successfully');
     }
 }

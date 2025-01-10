@@ -6,6 +6,10 @@ import { Button } from "@/Components/ui/button";
 import { EnhancedTableDemo } from "@/Components/TableDemo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import CreateChapter from './CreateChapter';
+import DeleteCourseAlert from "./DeleteCourseAlert";
+import { Category, Department, Grade, Batch, Chapter } from '@/types/index.d'
+import { UpdateCourseAlert } from "./UpdateCourseAlert";
 
 interface ShowProps {
   course: Course;
@@ -13,9 +17,27 @@ interface ShowProps {
   category_name: string;
   department_name: string;
   batch_name: string;
+  chapters: Chapter[];
+  categories: Category[];
+  grades: Grade[];
+  departments: Department[];
+  batches: Batch[];
 }
 
-const Show = ({course, thumbnail, category_name, department_name, batch_name}: ShowProps) => {
+
+const Show = ({
+  course, 
+  thumbnail, 
+  category_name, 
+  department_name, 
+  batch_name, 
+  chapters,
+  categories,
+  grades,
+  departments,
+  batches,
+}: ShowProps) => {
+  console.log(chapters)
   return (
     <AuthenticatedLayout
       header={
@@ -62,21 +84,31 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
                   <CardTitle>Admin Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    onClick={() => handleUpdate(course)}
+                  {/* <Button 
+                    onClick={() => handleUpdate(course.id)}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
                     <Pencil className="w-5 h-5 mr-2" />
                     Update Course
-                  </Button>
-                  <Button 
-                    onClick={() => handleDelete(course)}
+                  </Button> */}
+                  <UpdateCourseAlert 
+                    course={course}
+                    categories={categories}
+                    grades={grades}
+                    departments={departments}
+                    batches={batches}
+                    thumbnail={thumbnail}
+                  />
+                  
+                  {/* <Button 
+                    onClick={() => handleDelete(course.id)}
                     variant="destructive"
                     className="w-full"
                   >
                     <Trash2 className="w-5 h-5 mr-2" />
                     Delete Course
-                  </Button>
+                  </Button> */}
+                  <DeleteCourseAlert id={course.id} />
                 </CardContent>
               </Card>
               
@@ -98,10 +130,10 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Chapters</CardTitle>
-                <Button>
-                  <PlusCircle className="w-5 h-5 mr-2" />
-                  Add Chapter
-                </Button>
+                <CreateChapter 
+                  id={course.id}
+                  course_name={course.course_name}
+                />
               </div>
             </CardHeader>
             <CardContent>
@@ -111,13 +143,19 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
                   <TabsTrigger value="grid">Grid View</TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <EnhancedTableDemo />
+                  <EnhancedTableDemo chapters={chapters} />
                 </TabsContent>
                 <TabsContent value="grid">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                    {[...Array(6)].map((_, index) => (
-                      <ChapterCard key={index} />
-                    ))}
+                    {
+                      chapters.map((chapter, index) => 
+                      <ChapterCard 
+                      key={index}
+                          chapter={chapter}
+                      />)
+                    }
+                      
+                    
                   </div>
                 </TabsContent>
               </Tabs>
@@ -150,27 +188,31 @@ const StatItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 )
 
-const ChapterCard = () => (
+interface ChapterCardProps {
+  chapter: Chapter;
+}
+
+const ChapterCard = ({chapter}:ChapterCardProps) => (
   <Card>
     <CardContent className="p-4">
-      <h3 className="font-semibold mb-2">Chapter Title</h3>
-      <p className="text-sm text-gray-600 mb-4">Brief description of the chapter content goes here.</p>
+      <h3 className="font-semibold mb-2">{chapter.title}</h3>
+      <p className="text-sm text-gray-600 mb-4">{chapter.description}</p>
       <div className="flex justify-between items-center">
-        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">5 lessons</span>
+        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{chapter.contents_count} lessons</span>
         <Button variant="outline" size="sm">View</Button>
       </div>
     </CardContent>
   </Card>
 )
 
-const handleUpdate = (course: Course) => {
-  // Implement update logic here
-  console.log('Update course:', course.id);
+const handleUpdate = (course_id: number) => {
+  // 
+ 
 };
 
-const handleDelete = (course: Course) => {
+const handleDelete = (course_id: number) => {
   // Implement delete logic here
-  console.log('Delete course:', course.id);
+  console.log('Delete course');
 };
 
 export default Show

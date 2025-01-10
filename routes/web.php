@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\ChapterController;
 use App\Http\Controllers\Web\CourseController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -26,5 +27,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->resource('courses', CourseController::class);
+
+Route::middleware(['auth', 'verified'])->resource('chapters', ChapterController::class);
+
 
 require __DIR__.'/auth.php';

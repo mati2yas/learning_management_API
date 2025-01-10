@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as RulesPassword;
 
 class SessionController extends Controller
@@ -135,7 +136,14 @@ class SessionController extends Controller
     {
         $attrs = Validator::make($request->all(),[
             'name'=> 'required',
-            'email'=> 'required|email|unique:users,email',
+            'email'=> [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class)->ignore($request->user()->id),
+            ],
             'password'=> ['required', RulesPassword::min(4), 'confirmed'],
         ]);
 

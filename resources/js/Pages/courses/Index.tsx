@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Head } from '@inertiajs/react'
+import React, { useState, useCallback } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
@@ -7,116 +7,88 @@ import { PageProps } from '@/types'
 import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
-import { Course } from '@/types/course'
+import { Category, Department, Grade, Batch } from '@/types/index.d'
+import { Button } from '@/Components/ui/button'
 
-
-interface Category {
+interface Course {
   id: number;
   course_name: string;
-  name: string;
-}
-
-interface Grade {
-  id: number;
+  thumbnail: string;
   category_id: number;
-  grade_name: string;
-  stream: string;
+  grade_id: number | null;
+  department_id: number | null;
+  batch_id: number | null;
+  number_of_chapters: number;
 }
-
-interface Department {
-  id: number;
-  department_name: string;
-  category_id: number;
-}
-
-interface Batch {
-  id: number;
-  batch_name: string;
-  department_id: number;
-}
-
 
 interface PaginatedData<T> {
-  data: T[];
   current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
+  data: T[];
+  first_page_url: string;
   from: number;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{ url: string | null; label: string; active: boolean }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
   to: number;
+  total: number;
 }
 
 interface IndexProps extends PageProps {
+  courses: PaginatedData<Course>;
   categories: Category[];
   grades: Grade[];
   departments: Department[];
   batches: Batch[];
-  courses: Course[];
+  filters: {
+    category?: string;
+    search?: string;
+  };
 }
 
-
-const Index = ({
+const Index: React.FC<IndexProps> = ({
   auth,
-  categories = [],
-  grades = [],
-  departments = [],
-  batches = [],
-  courses = [],
-}: IndexProps) => {
-
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedCourses, setPaginatedCourses] = useState<PaginatedData<Course>>({
-    data: [],
-    current_page: 1,
-    last_page: 1,
-    per_page: 12,
-    total: 0,
-    from: 1,
-    to: 1,
+  courses,
+  categories,
+  grades,
+  departments,
+  batches,
+  filters,
+}) => {
+  const { data, setData, get, processing } = useForm({
+    category: filters.category || 'all',
+    search: filters.search || '',
   });
+
+ 
+
+  const handleCategoryChange = (value: string) => {
+    console.log(value)
+    setData('category', value === 'all' ? '' : value);
+    get(route('courses.index'), {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['courses'],
+    });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setData('search', query);
+    get(route('courses.index'), {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['courses'],
+    });
+  };
 
   const getCategoryName = (id: number) => categories.find(c => c.id === id)?.name || '';
   const getGradeName = (id: number) => grades.find(g => g.id === id)?.grade_name || '';
   const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.department_name || '';
   const getBatchName = (id: number) => batches.find(b => b.id === id)?.batch_name || '';
-
-  useEffect(() => {
-    const filteredCourses = courses.filter(course => 
-      (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
-      course.course_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const total = filteredCourses.length;
-    const lastPage = Math.ceil(total / paginatedCourses.per_page);
-    const from = (currentPage - 1) * paginatedCourses.per_page + 1;
-    const to = Math.min(currentPage * paginatedCourses.per_page, total);
-
-    setPaginatedCourses({
-      data: filteredCourses.slice(from - 1, to),
-      current_page: currentPage,
-      last_page: lastPage,
-      per_page: paginatedCourses.per_page,
-      total: total,
-      from: from,
-      to: to,
-    });
-  }, [selectedCategory, searchQuery, currentPage, courses]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-  };
 
   return (
     <AuthenticatedLayout
@@ -137,7 +109,7 @@ const Index = ({
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="w-full sm:w-auto">
-              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+              <Select value={data.category || 'all'} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -148,7 +120,6 @@ const Index = ({
                       {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
                     </SelectItem>
                   ))}
-
                 </SelectContent>
               </Select>
             </div>
@@ -156,7 +127,7 @@ const Index = ({
               <Input
                 type="text"
                 placeholder="Search courses..."
-                value={searchQuery}
+                value={data.search}
                 onChange={handleSearchChange}
                 className="w-full sm:w-[300px] pl-10"
               />
@@ -165,7 +136,7 @@ const Index = ({
           </div>
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {paginatedCourses.data.map((course) => (
+              {courses.data.map((course) => (
                 <CourseCard
                   key={course.id}
                   id={course.id}
@@ -179,13 +150,26 @@ const Index = ({
                 />
               ))}
             </div>
-            {paginatedCourses.data.length === 0 && (
+            {courses.data.length === 0 && (
               <div className="text-center text-gray-500 mt-8">
                 No courses found matching your criteria.
               </div>
             )}
           </div>
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            {courses.links.map((link, index) => (
+              <Link
+                key={index}
+                href={link.url || '#'}
+                className={`px-4 py-2 border rounded ${
+                  link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'
+                } ${!link.url ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
+                preserveScroll
+                preserveState
+              >
+                <span dangerouslySetInnerHTML={{ __html: link.label }}></span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -194,5 +178,7 @@ const Index = ({
 }
 
 export default Index
+
+
 
 

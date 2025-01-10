@@ -8,29 +8,40 @@ import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Category, Grade, Department, Batch } from "@/types";
+import { Course } from "@/types/course";
+import { Pencil } from "lucide-react";
 
 
-interface CreateCourseAlertProps {
+interface UpdateCourseAlertProps {
   categories: Category[];
   grades: Grade[];
   departments: Department[];
   batches: Batch[];
+  course: Course;
+  thumbnail: string;
 }
 
-export function CreateCourseAlert({ categories, grades, departments, batches }: CreateCourseAlertProps) {
+export function UpdateCourseAlert({ 
+  course,   
+  categories,
+  grades,
+  departments,
+  batches,
+  thumbnail,
+}: UpdateCourseAlertProps) {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail);
 
 
-  const { data, setData, post, processing, errors, reset, progress } = useForm({
-    course_name: '',
-    category_id: '',
-    grade_id: '',
-    department_id: '',
-    batch_id: '',
-    number_of_chapters: '',
-    thumbnail: null as File | null,
+  const { data, setData, put, processing, errors, reset, progress } = useForm({
+    course_name: course.course_name,
+    category_id: course.category_id.toString(),
+    grade_id: course.grade_id?.toString() || '',
+    department_id: course.department_id?.toString() || '',
+    batch_id: course.batch_id?.toString() || '',
+    number_of_chapters: course.number_of_chapters.toString(),
+    thumbnail: course.thumbnail as unknown as File | null,
   });
 
 
@@ -62,15 +73,17 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     };
     reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
     }
+    console.log(data);
   };
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    post(route('courses.store'), {
+  console.log(data);
+    put(route('courses.update', course.id), {
       onSuccess: () => {
-          // toast('A course has been created')
-          setIsOpen(false); // Only close on successful submission
-          reset();
+        console.log(data);
+        setIsOpen(false);
+        reset();
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);
@@ -81,8 +94,9 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
-          Add Course
+        <Button  className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsOpen(true)}>
+          <Pencil className="w-5 h-5 mr-2" />
+          Update Course
         </Button>
       </AlertDialogTrigger>
 
@@ -97,7 +111,6 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
         <div className="flex justify-center items-center">
           <form onSubmit={submit}>
             <div className="mb-4">
-
               <InputLabel htmlFor="name" value="Course Name" />
               <TextInput
                 id="name"
@@ -256,7 +269,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
 
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Add Course
+                  Update Course
                 </PrimaryButton>
           
             </div>
@@ -266,4 +279,6 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     </AlertDialog>
   );
 }
+
+
 

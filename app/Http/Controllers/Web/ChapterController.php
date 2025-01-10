@@ -63,7 +63,16 @@ class ChapterController extends Controller
      */
     public function update(Request $request, Chapter $chapter)
     {
-        //
+        $attrs = $request->validate([
+            'course_id' => 'required',
+            'order' => 'required',
+            'title' => 'required',
+        ]);
+
+        $chapter->update($attrs);
+
+
+        return to_route('courses.show', $chapter->course_id);
     }
 
     /**
@@ -71,6 +80,9 @@ class ChapterController extends Controller
      */
     public function destroy(Chapter $chapter)
     {
-        //
+        $course_id = $chapter->course_id;
+        $chapter->delete();
+
+        return to_route('courses.show', $course_id);
     }
 }

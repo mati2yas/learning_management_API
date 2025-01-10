@@ -10,6 +10,7 @@ import CreateChapter from './CreateChapter';
 import DeleteCourseAlert from "./DeleteCourseAlert";
 import { Category, Department, Grade, Batch, Chapter } from '@/types/index.d'
 import { UpdateCourseAlert } from "./UpdateCourseAlert";
+import ChapterCard from "@/Components/ChapterCard";
 
 interface ShowProps {
   course: Course;
@@ -84,13 +85,7 @@ const Show = ({
                   <CardTitle>Admin Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* <Button 
-                    onClick={() => handleUpdate(course.id)}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Pencil className="w-5 h-5 mr-2" />
-                    Update Course
-                  </Button> */}
+
                   <UpdateCourseAlert 
                     course={course}
                     categories={categories}
@@ -100,14 +95,6 @@ const Show = ({
                     thumbnail={thumbnail}
                   />
                   
-                  {/* <Button 
-                    onClick={() => handleDelete(course.id)}
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    <Trash2 className="w-5 h-5 mr-2" />
-                    Delete Course
-                  </Button> */}
                   <DeleteCourseAlert id={course.id} />
                 </CardContent>
               </Card>
@@ -188,22 +175,6 @@ const StatItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 )
 
-interface ChapterCardProps {
-  chapter: Chapter;
-}
-
-const ChapterCard = ({chapter}:ChapterCardProps) => (
-  <Card>
-    <CardContent className="p-4">
-      <h3 className="font-semibold mb-2">{chapter.title}</h3>
-      <p className="text-sm text-gray-600 mb-4">{chapter.description}</p>
-      <div className="flex justify-between items-center">
-        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{chapter.contents_count} lessons</span>
-        <Button variant="outline" size="sm">View</Button>
-      </div>
-    </CardContent>
-  </Card>
-)
 
 const handleUpdate = (course_id: number) => {
   // 

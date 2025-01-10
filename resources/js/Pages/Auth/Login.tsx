@@ -100,6 +100,10 @@ export default function Login({
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Log in
                     </PrimaryButton>
+
+                    <Link href={'/register'} className="ms-4">
+                        <PrimaryButton>Register</PrimaryButton>
+                    </Link>
                 </div>
             </form>
         </GuestLayout>

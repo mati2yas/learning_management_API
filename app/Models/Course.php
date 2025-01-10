@@ -9,4 +9,14 @@ class Course extends Model
 {
     /** @use HasFactory<\Database\Factories\CourseFactory> */
     use HasFactory;
+    
+    protected $fillable = [
+        'course_name',
+        'category_id',
+        'number_of_chapters',
+    ];
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
 }

@@ -9,4 +9,9 @@ class Content extends Model
 {
     /** @use HasFactory<\Database\Factories\ContentFactory> */
     use HasFactory;
+
+    public function chapter()
+    {
+        return $this->belongsTo(Chapter::class);
+    }
 }

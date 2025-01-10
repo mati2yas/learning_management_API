@@ -1,3 +1,6 @@
+import exp from "constants";
+import { QuizQuestion, Content } from '@/types';
+
 export interface User {
     id: number;
     name: string;
@@ -14,3 +17,72 @@ export type PageProps<
 };
 
 
+export interface Category {
+    id: number;
+    course_name: string;
+    name: string;
+}
+
+export interface Grade {
+    id: number;
+    grade_name: string;
+    category_id: number;
+    stream: string;
+}
+
+export interface Department {
+    id: number;
+    department_name: string;
+    category_id: number;
+}
+
+
+export interface Batch {
+    id: number;
+    batch_name: string;
+    department_id: number;
+}
+
+export interface Chapter{
+    estimated_time: ReactNode;
+    order: ReactNode;
+    id: number;
+    title: string;
+    description?: string;
+    course_id: number;
+    contents_count?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Quiz{
+    questions: any;
+    questions: any;
+    id: number;
+    chapter_id: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface QuizQuestion{
+    id: number;
+    quiz_id: number;
+    text: string;
+    question_image_url: string;
+    text_explanation: string;
+    video_explanation_url: string;
+    options: JSON;
+    answer: JSON;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Content{
+    id: number;
+    chapter_id: number;
+    name: string;
+    order: number;
+    url: string;
+    created_at?: string;
+    updated_at?: string;
+}

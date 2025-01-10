@@ -12,7 +12,7 @@ interface CourseCardProps {
   grade?: string
   department?: string
   batch?: string
-  topicsCount: number
+  topicsCount: number;
 }
 
 export function CourseCard({ id, name, thumbnail, category, grade, department, batch, topicsCount }: CourseCardProps) {

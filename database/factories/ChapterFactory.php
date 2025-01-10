@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Chapters>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Chapter>
  */
-class ChaptersFactory extends Factory
+class ChapterFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,8 @@ class ChaptersFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            "title" => fake()->sentence(),
+            "order" => fake()->numberBetween(1, 10),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ChapterController extends Controller
 {
@@ -47,7 +48,13 @@ class ChapterController extends Controller
      */
     public function show(Chapter $chapter)
     {
-        //
+        // dd($chapter);
+        return Inertia::render('Chapters/Show', 
+        // props: [
+        //     'chapter' => $chapter,
+        //     'contents' => $chapter->contents,
+        // ]
+        );
     }
 
     /**

@@ -31,7 +31,7 @@ export function UpdateCourseAlert({
 }: UpdateCourseAlertProps) {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail);
+  // const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail);
 
 
   const { data, setData, put, processing, errors, reset, progress } = useForm({
@@ -63,27 +63,25 @@ export function UpdateCourseAlert({
     setData('grade_id', '');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setData('thumbnail', e.target.files[0]);
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files[0]) {
+  //     setData('thumbnail', e.target.files[0]);
 
-      const reader = new FileReader();
-    reader.onload = () => {
-      setThumbnailPreview(reader.result as string); // Set the preview URL
-    };
-    reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
-    }
-    console.log(data);
-  };
+  //     const reader = new FileReader();
+  //   reader.onload = () => {
+  //     setThumbnailPreview(reader.result as string); // Set the preview URL
+  //   };
+  //   reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
+  //   }
+  //   console.log(data);
+  // };
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-  console.log(data);
+
     put(route('courses.update', course.id), {
       onSuccess: () => {
-        console.log(data);
         setIsOpen(false);
-        reset();
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);
@@ -236,7 +234,7 @@ export function UpdateCourseAlert({
               <InputError message={errors.number_of_chapters} className="mt-2" />
             </div>
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <InputLabel htmlFor="thumbnail" value="Course Thumbnail" />
               <input
                 type="file"
@@ -257,7 +255,7 @@ export function UpdateCourseAlert({
                   </progress>
                 )}
               <InputError message={errors.thumbnail} className="mt-2" />
-            </div>
+            </div> */}
 
             <div className="mt-6 flex gap-x-2">
               <AlertDialogCancel onClick={() => {

@@ -21,7 +21,7 @@ const DeleteCourseAlert = ({id}: DeleteCourseAlertProps) => {
 
   return (
   <AlertDialog>
-    <AlertDialogTrigger>
+    <AlertDialogTrigger asChild>
       <Button 
         variant="destructive"
         className="w-full"

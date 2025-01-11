@@ -1,25 +1,27 @@
-
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { Link } from '@inertiajs/react'
 import { ScrollArea } from '@/Components/ui/scroll-area'
 import { Button } from '@/Components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+interface Content {
+  content_id: string
+  name: string
+}
+
 interface Chapter {
   chapter_id: string
   title: string
-  contents: { content_id: string; name: string }[]
+  contents: Content[]
 }
 
 interface ChapterSidebarProps {
   currentContentId: string
-  chapter: string
+  chapters: Chapter[]
 }
 
-export default function ChapterSidebar({ currentContentId, chapterId }: ChapterSidebarProps) {
-
+export default function ChapterSidebar({ currentContentId, chapters }: ChapterSidebarProps) {
   const [isOpen, setIsOpen] = useState(true)
-
-
 
   return (
     <div className={`relative transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-16'}`}>

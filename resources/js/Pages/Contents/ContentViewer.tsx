@@ -4,7 +4,11 @@ import { Button } from '@/Components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ContentViewerProps {
-  url: string
+
+  url: string;
+
+  type: string;
+
 }
 
 const ContentViewer = ({ url }: ContentViewerProps) => {

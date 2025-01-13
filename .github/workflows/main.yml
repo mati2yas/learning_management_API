@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - development-1
       
 jobs:
   FTP-Deploy-Action:

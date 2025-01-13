@@ -15,8 +15,24 @@ class Course extends Model
         'category_id',
         'number_of_chapters',
     ];
-    public function chapters()
+
+    public function department()
     {
-        return $this->hasMany(Chapter::class);
+        return $this->belongsTo(Department::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
     }
 }

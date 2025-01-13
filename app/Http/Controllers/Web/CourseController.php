@@ -136,7 +136,7 @@ class CourseController extends Controller
                 'department_id' => 'nullable',
                 'batch_id' => 'nullable',
                 'number_of_chapters' => 'required|integer',
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                // 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
         // } catch (\Illuminate\Validation\ValidationException $e) {
         //     dd($e->errors());

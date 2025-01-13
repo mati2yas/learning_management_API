@@ -94,7 +94,7 @@ const ChapterDetail = ({ chapter, contents, quiz }: ChapterDetailProps) => {
                   <CardTitle>Content Viewer</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ContentViewer url={contents[0]?.url || ''} />
+                  <ContentViewer url={contents[0]?.url || ''} type={''} />
                 </CardContent>
               </Card>
 

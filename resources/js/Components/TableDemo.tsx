@@ -14,6 +14,7 @@ import EditChapterAlert from '@/Pages/Chapters/EditChapterAlert';
 import DeleteChapterAlert from '@/Pages/Chapters/DeleteChapterAlert';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Link } from '@inertiajs/react';
 
 dayjs.extend(relativeTime);
 
@@ -55,10 +56,13 @@ export function EnhancedTableDemo({
               <TableCell className=' text-nowrap' >{dayjs(chapter.updated_at).fromNow()}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
+                  <Link href={route('chapters.show', chapter.id)}>
+                    <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                  </Link>
+
                   <EditChapterAlert chapter={chapter} />
                   <DeleteChapterAlert id={chapter.id} name={chapter.title} />
                 </div>

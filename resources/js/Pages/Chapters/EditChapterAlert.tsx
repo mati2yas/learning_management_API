@@ -89,12 +89,11 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
             }}>
                 Cancel
               </AlertDialogCancel>
-
              
                 <PrimaryButton type="submit" disabled={processing}>
                   Edit Chapter
                 </PrimaryButton>
-          
+
             </div>
           </form>
         </div>

@@ -44,7 +44,6 @@ export function UpdateCourseAlert({
     thumbnail: course.thumbnail as unknown as File | null,
   });
 
-
   const handleCategoryChange = (value: string) => {
     setData('category_id', value);
     setData('grade_id', '');

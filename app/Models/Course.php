@@ -16,6 +16,11 @@ class Course extends Model
         'number_of_chapters',
     ];
 
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);

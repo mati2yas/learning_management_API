@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\ChapterController;
+use App\Http\Controllers\Web\ContentController;
 use App\Http\Controllers\Web\CourseController;
+use App\Models\Course;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,6 +31,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->resource('courses', CourseController::class);
 
 Route::middleware(['auth', 'verified'])->resource('chapters', ChapterController::class);
+
+Route::middleware(['auth', 'verified'])->resource('contents', ContentController::class);
+
+Route::get('/random', fn() => Course::paginate(10));
 
 
 require __DIR__.'/auth.php';

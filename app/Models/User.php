@@ -41,6 +41,22 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<string, string>
      */
+
+    public function saves(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Save::class);
+    }
+
+    public function likes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function paidCourses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaidCourse::class);
+    }
+
     protected function casts(): array
     {
         return [

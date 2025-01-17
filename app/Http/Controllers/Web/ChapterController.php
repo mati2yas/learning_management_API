@@ -38,7 +38,10 @@ class ChapterController extends Controller
 
         $chapter = Chapter::create($attrs);
 
+        $chapter->course->increment('number_of_chapters');
 
+
+ 
         return redirect()->route('courses.show', $chapter->course_id);
         
     }

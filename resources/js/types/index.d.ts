@@ -1,5 +1,7 @@
 import exp from "constants";
 import { QuizQuestion, Content } from '@/types';
+import { Course } from './course';
+import { Youtube } from 'lucide-react';
 
 export interface User {
     id: number;
@@ -83,6 +85,58 @@ export interface Content{
     name: string;
     order: number;
     url: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface Course{
+    id: number;
+    course_name: string;
+    thumbnail: string;
+    category_id: number;
+    grade_id: number;
+    department_id: number;
+    batch_id: number;
+    number_of_chapters: number;
+    saves: number;
+    likes: number;
+    price_one_month: number;
+    price_three_month: number;
+    price_six_month: number;
+    price_one_year: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface IndexProps {
+    auth: any;
+    courses: {
+      data: Course[]
+      links: Array<{
+        url: string | null;
+        active: boolean;
+        label: string;
+      }>;
+    };
+    categories: Array<{ id: number; name: string; course_name: string }>;
+    grades: Array<{ id: number; grade_name: string; category_id: number; stream: string }>;
+    departments: Array<{ id: number; department_name: string; category_id: number }>;
+    batches: Array<{ id: number; batch_name: string; department_id: number }>;
+    filters: {
+      category: string;
+      search: string;
+    };
+  }
+
+
+export interface Content{
+    id: number;
+    chapter_id: number;
+    name: string;
+    order: number;
+    text_content: string;
+    youtube_url: string;
+    file_path: string;
     created_at?: string;
     updated_at?: string;
 }

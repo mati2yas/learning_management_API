@@ -1,4 +1,4 @@
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useState, useEffect } from "react";
 import { Button } from "@/Components/ui/button";
 import { useForm } from "@inertiajs/react";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -9,8 +9,7 @@ import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescript
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Category, Grade, Department, Batch } from "@/types";
 import { Course } from "@/types/course";
-import { Pencil } from "lucide-react";
-
+import { Pencil } from 'lucide-react';
 
 interface UpdateCourseAlertProps {
   categories: Category[];
@@ -31,8 +30,7 @@ export function UpdateCourseAlert({
 }: UpdateCourseAlertProps) {
 
   const [isOpen, setIsOpen] = useState(false);
-  // const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail);
-
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail);
 
   const { data, setData, put, processing, errors, reset, progress } = useForm({
     course_name: course.course_name,
@@ -40,9 +38,20 @@ export function UpdateCourseAlert({
     grade_id: course.grade_id?.toString() || '',
     department_id: course.department_id?.toString() || '',
     batch_id: course.batch_id?.toString() || '',
-    number_of_chapters: course.number_of_chapters.toString(),
-    thumbnail: course.thumbnail as unknown as File | null,
+    price_one_month: course.price_one_month?.toString(),
+    price_three_month: course.price_three_month?.toString(),
+    price_six_month: course.price_six_month?.toString(),
+    price_one_year: course.price_one_year?.toString(),
+    thumbnail: null as File | null,
   });
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailPreview && thumbnailPreview !== thumbnail) {
+        URL.revokeObjectURL(thumbnailPreview);
+      }
+    };
+  }, [thumbnailPreview, thumbnail]);
 
   const handleCategoryChange = (value: string) => {
     setData('category_id', value);
@@ -62,27 +71,37 @@ export function UpdateCourseAlert({
     setData('grade_id', '');
   };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     setData('thumbnail', e.target.files[0]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setData('thumbnail', file);
 
-  //     const reader = new FileReader();
-  //   reader.onload = () => {
-  //     setThumbnailPreview(reader.result as string); // Set the preview URL
-  //   };
-  //   reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
-  //   }
-  //   console.log(data);
-  // };
+      const reader = new FileReader();
+      reader.onload = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
+    const formData = new FormData();
+    (Object.keys(data) as (keyof typeof data)[]).forEach(key => {
+      if (data[key] !== null) {
+        formData.append(key, data[key] as any);
+      }
+    });
+
     put(route('courses.update', course.id), {
+      forceFormData: true,
+      preserveState: true,
+      preserveScroll: true,
       onSuccess: () => {
         setIsOpen(false);
       },
-      onError: (errors) => {
+      onError: (errors: any) => {
         console.log('Validation errors:', errors);
       },
     });
@@ -91,7 +110,7 @@ export function UpdateCourseAlert({
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button  className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsOpen(true)}>
+        <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsOpen(true)}>
           <Pencil className="w-5 h-5 mr-2" />
           Update Course
         </Button>
@@ -99,9 +118,9 @@ export function UpdateCourseAlert({
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Create a Course</AlertDialogTitle>
+          <AlertDialogTitle>Update Course</AlertDialogTitle>
           <AlertDialogDescription>
-            Fill all the required data
+            Update the course details
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -131,7 +150,7 @@ export function UpdateCourseAlert({
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -159,7 +178,6 @@ export function UpdateCourseAlert({
                           {(grade.grade_name === 'Grade 11' || grade.grade_name === 'Grade 12') && (
                           <span className="capitalize"> - {grade.stream}</span>
                         )}
-
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -167,7 +185,6 @@ export function UpdateCourseAlert({
                 <InputError message={errors.grade_id} className="mt-2" />
               </div>
             )}
-
 
             {data.category_id && (
               <div className="mb-4">
@@ -183,14 +200,13 @@ export function UpdateCourseAlert({
                   <SelectContent>
                     {departments
                       .filter((dept) => dept.category_id.toString() === data.category_id)
-                      .sort((a, b) => a.department_name.localeCompare(b.department_name)) // Sort departments by name
+                      .sort((a, b) => a.department_name.localeCompare(b.department_name))
                       .map((dept) => (
                         <SelectItem key={dept.id} value={dept.id.toString()}>
                           {dept.department_name}
                         </SelectItem>
                       ))}
                   </SelectContent>
-
                 </Select>
                 <InputError message={errors.department_id} className="mt-2" />
               </div>
@@ -221,19 +237,61 @@ export function UpdateCourseAlert({
             )}
 
             <div className="mb-4">
-              <InputLabel htmlFor="number_of_topics" value="Number of Topics" />
-              <input
-                id="number_of_topics"
-                name="number_of_chapters"
+              <InputLabel htmlFor="price_one_month" value="Price for 1 Month" />
+              <TextInput
+                id="price_one_month"
+                name="price_one_month"
                 type="number"
-                value={data.number_of_chapters}
-                onChange={(e) => setData('number_of_chapters', e.target.value)}
+                value={data.price_one_month}
+                onChange={(e) => setData('price_one_month', e.target.value)}
                 required
               />
-              <InputError message={errors.number_of_chapters} className="mt-2" />
+              <InputError message={errors.price_one_month} className="mt-2" />
             </div>
 
-            {/* <div className="mb-4">
+            <div className="mb-4">
+              <InputLabel htmlFor="price_three_month" value="Price for Three Months" />
+              <TextInput
+                id="price_three_month"
+                name="price_three_month"
+                type="number"
+                value={data.price_three_month}
+                onChange={(e) => setData('price_three_month', e.target.value)}
+                required
+              />
+              <InputError message={errors.price_three_month} className="mt-2" />
+            </div>
+
+            <div className="mb-4">
+              <InputLabel htmlFor="price_six_month" value="Price for Six Months" />
+              <TextInput
+                id="price_six_month"
+                name="price_six_month"
+                type="number"
+                value={data.price_six_month}
+                onChange={(e) => setData('price_six_month', e.target.value)}
+                required
+              />
+              <InputError message={errors.price_six_month} className="mt-2" />
+            </div>
+
+            <div className="mb-4">
+              <InputLabel htmlFor="price_one_year" value="Price for One Year" />
+              <TextInput
+                id="price_one_year"
+                name="price_one_year"
+                type="number"
+                value={data.price_one_year}
+                onChange={(e) => setData('price_one_year', e.target.value)}
+                required
+              />
+              <InputError message={errors.price_one_year} className="mt-2" />
+            </div>
+
+
+
+
+            <div className="mb-4">
               <InputLabel htmlFor="thumbnail" value="Course Thumbnail" />
               <input
                 type="file"
@@ -243,32 +301,29 @@ export function UpdateCourseAlert({
                 accept="image/*"
                 className="mt-1 block w-full"
               />
-                {thumbnailPreview && (
-                  <div className="mt-2">
-                    <img src={thumbnailPreview} alt="Thumbnail Preview" className="w-32 h-32 object-cover" />
-                  </div>
-                )}
-                {progress && (
-                  <progress value={progress.percentage} max="100">
-                    {progress.percentage}%
-                  </progress>
-                )}
+              {thumbnailPreview && (
+                <div className="mt-2">
+                  <img src={thumbnailPreview || "/placeholder.svg"} alt="Thumbnail Preview" className="w-32 h-32 object-cover" />
+                </div>
+              )}
+              {progress && (
+                <progress value={progress.percentage} max="100">
+                  {progress.percentage}%
+                </progress>
+              )}
               <InputError message={errors.thumbnail} className="mt-2" />
-            </div> */}
+            </div>
 
             <div className="mt-6 flex gap-x-2">
               <AlertDialogCancel onClick={() => {
-              setIsOpen(false);
-              reset();
-            }}>
+                setIsOpen(false);
+                reset();
+              }}>
                 Cancel
               </AlertDialogCancel>
-
-             
-                <PrimaryButton type="submit" disabled={processing}>
-                  Update Course
-                </PrimaryButton>
-          
+              <PrimaryButton type="submit" disabled={processing}>
+                Update Course
+              </PrimaryButton>
             </div>
           </form>
         </div>
@@ -276,6 +331,4 @@ export function UpdateCourseAlert({
     </AlertDialog>
   );
 }
-
-
 

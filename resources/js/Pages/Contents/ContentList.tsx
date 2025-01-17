@@ -1,41 +1,45 @@
 import React from 'react'
+import { FileText, Youtube, File, Edit, Trash2 } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
-import { Pencil, Trash2 } from 'lucide-react'
 
 interface Content {
   id: number
   name: string
-  type: string
-  url: string
+  url?: string
+  content?: string
+  type: 'youtube' | 'document' | 'text'
+  order: number
 }
 
 interface ContentListProps {
   contents: Content[]
+  onEdit: (content: Content) => void
+  onDelete: (content: Content) => void
 }
 
-const ContentList: React.FC<ContentListProps> = ({ contents }) => {
+const ContentList: React.FC<ContentListProps> = ({ contents, onEdit, onDelete }) => {
   return (
-    <div className="space-y-4">
-      {contents.map((content, index) => (
-        <div key={content.id} className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-          <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center mr-4">
-            {index + 1}
+    <ul className="space-y-2">
+      {contents.map((content) => (
+        <li key={content.id} className="flex items-center justify-between p-2 hover:bg-gray-100 rounded">
+          <div className="flex items-center">
+            {content.type === 'youtube' && <Youtube className="w-5 h-5 mr-2 text-red-500" />}
+            {content.type === 'document' && <File className="w-5 h-5 mr-2 text-blue-500" />}
+            {content.type === 'text' && <FileText className="w-5 h-5 mr-2 text-green-500" />}
+            <span className="mr-2">{content.order}.</span>
+            <span>{content.name}</span>
           </div>
-          <div className="flex-grow">
-            <h3 className="font-semibold">{content.name}</h3>
-            <p className="text-sm text-gray-600">{content.type.charAt(0).toUpperCase() + content.type.slice(1)}</p>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <Pencil className="h-4 w-4 mr-2" /> Edit
+          <div>
+            <Button variant="ghost" size="sm" onClick={() => onEdit(content)}>
+              <Edit className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="sm">
-              <Trash2 className="h-4 w-4 mr-2" /> Delete
+            <Button variant="ghost" size="sm" onClick={() => onDelete(content)}>
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }
 

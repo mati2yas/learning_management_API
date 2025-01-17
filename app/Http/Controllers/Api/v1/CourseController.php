@@ -12,10 +12,17 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
+    public function index(Request $request) {
+        $courses = Course::query();
+
+        if (request()->filled('category')) {
+            $courses->where('category_name', request('category'));
+        }
+
+        $courses = $courses->latest()->paginate(10);
 
         return CourseResource::collection(
-            Course::with('department','category','grade', 'batch')->paginate(10)
+            $courses
         );
     }
 

@@ -1,53 +1,12 @@
-import React, { useState, useCallback } from 'react'
-import { Head, Link, useForm } from '@inertiajs/react'
+import React from 'react'
+import { Head, Link, useForm, router } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
-import { PageProps } from '@/types'
 import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
-import { Category, Department, Grade, Batch } from '@/types/index.d'
-import { Button } from '@/Components/ui/button'
-
-interface Course {
-  id: number;
-  course_name: string;
-  thumbnail: string;
-  category_id: number;
-  grade_id: number | null;
-  department_id: number | null;
-  batch_id: number | null;
-  number_of_chapters: number;
-}
-
-interface PaginatedData<T> {
-  current_page: number;
-  data: T[];
-  first_page_url: string;
-  from: number;
-  last_page: number;
-  last_page_url: string;
-  links: Array<{ url: string | null; label: string; active: boolean }>;
-  next_page_url: string | null;
-  path: string;
-  per_page: number;
-  prev_page_url: string | null;
-  to: number;
-  total: number;
-}
-
-interface IndexProps extends PageProps {
-  courses: PaginatedData<Course>;
-  categories: Category[];
-  grades: Grade[];
-  departments: Department[];
-  batches: Batch[];
-  filters: {
-    category?: string;
-    search?: string;
-  };
-}
+import { IndexProps } from '@/types/index.d'
 
 const Index: React.FC<IndexProps> = ({
   auth,
@@ -58,49 +17,49 @@ const Index: React.FC<IndexProps> = ({
   batches,
   filters,
 }) => {
-  const { data, setData, get, processing } = useForm({
-    category: filters.category || 'all',
+  const { data, setData } = useForm({
+    category: filters.category || '',
     search: filters.search || '',
   });
 
- 
-
   const handleCategoryChange = (value: string) => {
-    console.log(value)
-    setData('category', value === 'all' ? '' : value);
-    get(route('courses.index'), {
-      preserveState: true,
-      preserveScroll: true,
-      only: ['courses'],
-    });
+    const categoryValue = value === 'all' ? '' : value;
+    setData('category', categoryValue);
+    updateFilters({ category: categoryValue });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setData('search', query);
-    get(route('courses.index'), {
+    updateFilters({ search: query });
+  };
+
+  const updateFilters = (newFilters: Partial<typeof data>) => {
+    router.get(route('courses.index'), { ...data, ...newFilters }, {
       preserveState: true,
       preserveScroll: true,
       only: ['courses'],
     });
   };
 
-  const getCategoryName = (id: number) => categories.find(c => c.id === id)?.name || '';
-  const getGradeName = (id: number) => grades.find(g => g.id === id)?.grade_name || '';
-  const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.department_name || '';
-  const getBatchName = (id: number) => batches.find(b => b.id === id)?.batch_name || '';
+  const getCategoryName = (id: number) => categories.find((c: { id: number }) => c.id === id)?.name || '';
+  const getGradeName = (id: number) => grades.find((g: { id: number }) => g.id === id)?.grade_name || '';
+  const getDepartmentName = (id: number) => departments.find((d: { id: number }) => d.id === id)?.department_name || '';
+  const getBatchName = (id: number) => batches.find((b: { id: number }) => b.id === id)?.batch_name || '';
 
   return (
     <AuthenticatedLayout
       header={
         <div className='flex justify-between items-center'>
-          <h1 className="text-2xl font-semibold">Courses</h1>
-          <CreateCourseAlert
-            categories={categories}
-            grades={grades}
-            departments={departments}
-            batches={batches}
-          />
+          <React.Fragment>
+            <h1 className="text-2xl font-semibold">Courses</h1>
+            <CreateCourseAlert
+              categories={categories}
+              grades={grades}
+              departments={departments}
+              batches={batches}
+            />
+          </React.Fragment>
         </div>
       }
     >
@@ -115,9 +74,9 @@ const Index: React.FC<IndexProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                  {categories.map((category: { id: React.Key | null | undefined; name: string }) => (
+                    <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
+                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -139,7 +98,7 @@ const Index: React.FC<IndexProps> = ({
               {courses.data.map((course) => (
                 <CourseCard
                   key={course.id}
-                  id={course.id}
+                  id={Number(course.id)}
                   name={course.course_name}
                   thumbnail={course.thumbnail}
                   category={getCategoryName(course.category_id)}
@@ -147,7 +106,13 @@ const Index: React.FC<IndexProps> = ({
                   department={course.department_id ? getDepartmentName(course.department_id) : undefined}
                   batch={course.batch_id ? getBatchName(course.batch_id) : undefined}
                   topicsCount={course.number_of_chapters}
-                />
+                  saves={course.saves}
+                  likes={course.likes} 
+                  price_one_month={course.price_one_month} 
+                  price_three_month={course.price_three_month} 
+                  price_six_month={course.price_six_month} 
+                  price_one_year={course.price_one_year}                  
+                  />
               ))}
             </div>
             {courses.data.length === 0 && (
@@ -157,7 +122,7 @@ const Index: React.FC<IndexProps> = ({
             )}
           </div>
           <div className="mt-6 flex justify-center items-center space-x-2">
-            {courses.links.map((link, index) => (
+            {courses.links.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
               <Link
                 key={index}
                 href={link.url || '#'}
@@ -178,7 +143,3 @@ const Index: React.FC<IndexProps> = ({
 }
 
 export default Index
-
-
-
-

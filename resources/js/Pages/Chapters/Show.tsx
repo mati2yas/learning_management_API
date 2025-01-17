@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Head } from "@inertiajs/react"
+import { Head, router } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { BookOpen, Clock, List, Grid, ArrowLeft, Plus } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
@@ -10,8 +10,10 @@ import ContentGrid from '../Contents/ContentGrid'
 import QuizList from '../Quiz/QuizList'
 import AddContentModal from '../Contents/AddContentModal'
 import AddQuizModal from '../Quiz/AddQuizModal'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/Components/ui/alert-dialog"
+import EditContentModal from '../Contents/EditContentModal'
 
-// Dummy data (to be used alongside real prop data for future integration)
+// Updated dummy data
 const dummyChapter = {
   id: 1,
   title: "Introduction to React Hooks",
@@ -19,11 +21,11 @@ const dummyChapter = {
   estimated_time: 45,
 }
 
-const dummyContents = [
-  { id: 1, name: "What are React Hooks?", url: "https://example.com/video1.mp4", type: "video" },
-  { id: 2, name: "useState Hook", url: "https://example.com/doc1.pdf", type: "pdf" },
-  { id: 3, name: "useEffect Hook", url: "https://example.com/video2.mp4", type: "video" },
-  { id: 4, name: "Custom Hooks", url: "https://example.com/doc2.pdf", type: "pdf" },
+const dummyContents: Content[] = [
+  { id: 1, name: "What are React Hooks?", url: "https://youtu.be/example1", type: "youtube", order: 1 },
+  { id: 2, name: "useState Hook", url: "https://example.com/doc1.pdf", type: "document", order: 2 },
+  { id: 3, name: "useEffect Hook", content: "The useEffect Hook allows you to perform side effects in your components...", type: "text", order: 3 },
+  { id: 4, name: "Custom Hooks", url: "https://example.com/doc2.pdf", type: "document", order: 4 },
 ]
 
 const dummyQuizzes = [
@@ -39,9 +41,19 @@ const dummyQuizzes = [
   },
 ]
 
+
+interface Content {
+  id: number
+  name: string
+  url?: string
+  content?: string
+  type: 'youtube' | 'document' | 'text'
+  order: number
+}
+
 interface ChapterDetailProps {
   chapter: typeof dummyChapter
-  contents: typeof dummyContents
+  contents: Content[]
   quizzes: typeof dummyQuizzes
 }
 
@@ -51,7 +63,33 @@ const Show: React.FC<ChapterDetailProps> = ({
   quizzes = dummyQuizzes 
 }) => {
   const [isAddContentModalOpen, setIsAddContentModalOpen] = useState(false)
+  const [isEditContentModalOpen, setIsEditContentModalOpen] = useState(false)
   const [isAddQuizModalOpen, setIsAddQuizModalOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null)
+
+  const sortedContents = [...contents].sort((a, b) => a.order - b.order)
+
+  const handleEditContent = (content: Content) => {
+    setSelectedContent(content)
+    setIsEditContentModalOpen(true)
+  }
+
+  const handleDeleteContent = (content: Content) => {
+    setSelectedContent(content)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (selectedContent) {
+      router.delete(route('contents.destroy', selectedContent.id), {
+        onSuccess: () => {
+          setIsDeleteDialogOpen(false)
+          setSelectedContent(null)
+        },
+      })
+    }
+  }
 
   return (
     <AuthenticatedLayout
@@ -103,10 +141,18 @@ const Show: React.FC<ChapterDetailProps> = ({
                     <TabsTrigger value="grid"><Grid className="w-4 h-4 mr-2" /> Grid View</TabsTrigger>
                   </TabsList>
                   <TabsContent value="list">
-                    <ContentList contents={contents} />
+                    <ContentList 
+                      contents={sortedContents} 
+                      onEdit={handleEditContent}
+                      onDelete={handleDeleteContent}
+                    />
                   </TabsContent>
                   <TabsContent value="grid">
-                    <ContentGrid contents={contents} />
+                    <ContentGrid 
+                      contents={sortedContents}
+                      onEdit={handleEditContent}
+                      onDelete={handleDeleteContent}
+                    />
                   </TabsContent>
                 </Tabs>
               </CardContent>
@@ -132,11 +178,37 @@ const Show: React.FC<ChapterDetailProps> = ({
       <AddContentModal 
         isOpen={isAddContentModalOpen} 
         onClose={() => setIsAddContentModalOpen(false)} 
+        chapterId={chapter.id}
       />
+      {selectedContent && (
+        <EditContentModal 
+          isOpen={isEditContentModalOpen} 
+          onClose={() => {
+            setIsEditContentModalOpen(false)
+            setSelectedContent(null)
+          }} 
+          content={selectedContent}
+        />
+      )}
       <AddQuizModal 
         isOpen={isAddQuizModalOpen} 
         onClose={() => setIsAddQuizModalOpen(false)} 
       />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this content?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the content
+              from the chapter.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AuthenticatedLayout>
   )
 }

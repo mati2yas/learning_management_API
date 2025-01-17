@@ -8,7 +8,7 @@ import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Category, Grade, Department, Batch } from "@/types";
-
+import { ScrollArea } from "@/Components/ui/scroll-area";
 
 interface CreateCourseAlertProps {
   categories: Category[];
@@ -29,7 +29,10 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
     grade_id: '',
     department_id: '',
     batch_id: '',
-    number_of_chapters: '',
+    price_one_month: '',
+    price_three_month: '',
+    price_six_month: '',
+    price_one_year: '',
     thumbnail: null as File | null,
   });
 
@@ -86,7 +89,7 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Create a Course</AlertDialogTitle>
           <AlertDialogDescription>
@@ -94,10 +97,9 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
-          <form onSubmit={submit}>
-            <div className="mb-4">
-
+        <ScrollArea className="h-[60vh] px-4">
+          <form onSubmit={submit} className="space-y-4">
+            <div>
               <InputLabel htmlFor="name" value="Course Name" />
               <TextInput
                 id="name"
@@ -105,125 +107,172 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 value={data.course_name}
                 onChange={(e) => setData('course_name', e.target.value)}
                 required
+                className="w-full"
               />
               <InputError message={errors.course_name} className="mt-2" />
             </div>
 
-            <div className="mb-4">
-              <InputLabel htmlFor="category" value="Category" />
-              <Select
-                value={data.category_id}
-                onValueChange={handleCategoryChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <InputError message={errors.category_id} className="mt-2" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <InputLabel htmlFor="category" value="Category" />
+                <Select
+                  value={data.category_id}
+                  onValueChange={handleCategoryChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <InputError message={errors.category_id} className="mt-2" />
+              </div>
+
+              {data.category_id && (
+                <div>
+                  <InputLabel htmlFor="grade" value="Grade" />
+                  <Select
+                    value={data.grade_id}
+                    onValueChange={handleGradeChange}
+                    disabled={!!data.department_id}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {grades
+                        .filter((grade) => grade.category_id.toString() === data.category_id)
+                        .map((grade) => (
+                          <SelectItem className="flex justify-between" key={grade.id} value={grade.id.toString()}>
+                            {grade.grade_name} 
+                            {(grade.grade_name === 'Grade 11' || grade.grade_name === 'Grade 12') && (
+                            <span className="capitalize"> - {grade.stream}</span>
+                          )}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.grade_id} className="mt-2" />
+                </div>
+              )}
             </div>
 
-            {data.category_id && (
-              <div className="mb-4">
-                <InputLabel htmlFor="grade" value="Grade" />
-                <Select
-                  value={data.grade_id}
-                  onValueChange={handleGradeChange}
-                  disabled={!!data.department_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {grades
-                      .filter((grade) => grade.category_id.toString() === data.category_id)
-                      .map((grade) => (
-                        <SelectItem className="flex justify-between" key={grade.id} value={grade.id.toString()}>
-                          {grade.grade_name} 
-                          {(grade.grade_name === 'Grade 11' || grade.grade_name === 'Grade 12') && (
-                          <span className="capitalize"> - {grade.stream}</span>
-                        )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {data.category_id && (
+                <div>
+                  <InputLabel htmlFor="department" value="Department" />
+                  <Select
+                    value={data.department_id}
+                    onValueChange={handleDepartmentChange}
+                    disabled={!!data.grade_id}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments
+                        .filter((dept) => dept.category_id.toString() === data.category_id)
+                        .sort((a, b) => a.department_name.localeCompare(b.department_name))
+                        .map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id.toString()}>
+                            {dept.department_name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.department_id} className="mt-2" />
+                </div>
+              )}
 
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.grade_id} className="mt-2" />
-              </div>
-            )}
-
-
-            {data.category_id && (
-              <div className="mb-4">
-                <InputLabel htmlFor="department" value="Department" />
-                <Select
-                  value={data.department_id}
-                  onValueChange={handleDepartmentChange}
-                  disabled={!!data.grade_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments
-                      .filter((dept) => dept.category_id.toString() === data.category_id)
-                      .sort((a, b) => a.department_name.localeCompare(b.department_name)) // Sort departments by name
-                      .map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.department_name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-
-                </Select>
-                <InputError message={errors.department_id} className="mt-2" />
-              </div>
-            )}
-
-            {data.department_id && (
-              <div className="mb-4">
-                <InputLabel htmlFor="batch" value="Batch" />
-                <Select
-                  value={data.batch_id}
-                  onValueChange={(value) => setData('batch_id', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a batch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {batches
-                      .filter((batch) => batch.department_id.toString() === data.department_id)
-                      .map((batch) => (
-                        <SelectItem key={batch.id} value={batch.id.toString()}>
-                          {batch.batch_name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.batch_id} className="mt-2" />
-              </div>
-            )}
-
-            <div className="mb-4">
-              <InputLabel htmlFor="number_of_topics" value="Number of Topics" />
-              <input
-                id="number_of_topics"
-                name="number_of_chapters"
-                type="number"
-                value={data.number_of_chapters}
-                onChange={(e) => setData('number_of_chapters', e.target.value)}
-                required
-              />
-              <InputError message={errors.number_of_chapters} className="mt-2" />
+              {data.department_id && (
+                <div>
+                  <InputLabel htmlFor="batch" value="Batch" />
+                  <Select
+                    value={data.batch_id}
+                    onValueChange={(value) => setData('batch_id', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a batch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {batches
+                        .filter((batch) => batch.department_id.toString() === data.department_id)
+                        .map((batch) => (
+                          <SelectItem key={batch.id} value={batch.id.toString()}>
+                            {batch.batch_name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.batch_id} className="mt-2" />
+                </div>
+              )}
             </div>
 
-            <div className="mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <InputLabel htmlFor="price_one_month" value="Price for One Month" />
+                <TextInput
+                  id="price_one_month"
+                  name="price_one_month"
+                  type="number"
+                  value={data.price_one_month}
+                  onChange={(e) => setData('price_one_month', e.target.value)}
+                  required
+                  className="w-full"
+                />
+                <InputError message={errors.price_one_month} className="mt-2" />
+              </div>
+
+              <div>
+                <InputLabel htmlFor="price_three_month" value="Price for Three Months" />
+                <TextInput
+                  id="price_three_month"
+                  name="price_three_month"
+                  type="number"
+                  value={data.price_three_month}
+                  onChange={(e) => setData('price_three_month', e.target.value)}
+                  required
+                  className="w-full"
+                />
+                <InputError message={errors.price_three_month} className="mt-2" />
+              </div>
+
+              <div>
+                <InputLabel htmlFor="price_six_month" value="Price for Six Months" />
+                <TextInput
+                  id="price_six_month"
+                  name="price_six_month"
+                  type="number"
+                  value={data.price_six_month}
+                  onChange={(e) => setData('price_six_month', e.target.value)}
+                  required
+                  className="w-full"
+                />
+                <InputError message={errors.price_six_month} className="mt-2" />
+              </div>
+
+              <div>
+                <InputLabel htmlFor="price_one_year" value="Price for One Year" />
+                <TextInput
+                  id="price_one_year"
+                  name="price_one_year"
+                  type="number"
+                  value={data.price_one_year}
+                  onChange={(e) => setData('price_one_year', e.target.value)}
+                  required
+                  className="w-full"
+                />
+                <InputError message={errors.price_one_year} className="mt-2" />
+              </div>
+            </div>
+
+            <div>
               <InputLabel htmlFor="thumbnail" value="Course Thumbnail" />
               <input
                 type="file"
@@ -233,35 +282,32 @@ export function CreateCourseAlert({ categories, grades, departments, batches }: 
                 accept="image/*"
                 className="mt-1 block w-full"
               />
-                {thumbnailPreview && (
-                  <div className="mt-2">
-                    <img src={thumbnailPreview} alt="Thumbnail Preview" className="w-32 h-32 object-cover" />
-                  </div>
-                )}
-                {progress && (
-                  <progress value={progress.percentage} max="100">
-                    {progress.percentage}%
-                  </progress>
-                )}
+              {thumbnailPreview && (
+                <div className="mt-2">
+                  <img src={thumbnailPreview || "/placeholder.svg"} alt="Thumbnail Preview" className="w-32 h-32 object-cover" />
+                </div>
+              )}
+              {progress && (
+                <progress value={progress.percentage} max="100">
+                  {progress.percentage}%
+                </progress>
+              )}
               <InputError message={errors.thumbnail} className="mt-2" />
             </div>
 
-            <div className="mt-6 flex gap-x-2">
+            <div className="flex justify-end gap-x-2">
               <AlertDialogCancel onClick={() => {
-              setIsOpen(false);
-              reset();
-            }}>
+                setIsOpen(false);
+                reset();
+              }}>
                 Cancel
               </AlertDialogCancel>
-
-             
-                <PrimaryButton type="submit" disabled={processing}>
-                  Add Course
-                </PrimaryButton>
-          
+              <PrimaryButton type="submit" disabled={processing}>
+                Add Course
+              </PrimaryButton>
             </div>
           </form>
-        </div>
+        </ScrollArea>
       </AlertDialogContent>
     </AlertDialog>
   );

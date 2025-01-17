@@ -22,8 +22,9 @@ class CourseController extends Controller
 
         $query = Course::query();
 
+
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            $query->where('category_id', $request->input('category'));
         }
 
         if ($request->filled('search')) {
@@ -61,7 +62,7 @@ class CourseController extends Controller
             'grade_id' => '',
             'department_id' => '',
             'batch_id'=> [""],
-            'number_of_chapters'=> ['required'],
+            // 'number_of_chapters'=> ['required'],
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

@@ -80,6 +80,7 @@ export interface QuizQuestion{
 }
 
 export interface Content{
+    contents_count: ReactNode;
     id: number;
     chapter_id: number;
     name: string;
@@ -128,15 +129,38 @@ export interface IndexProps {
     };
   }
 
-
 export interface Content{
     id: number;
     chapter_id: number;
     name: string;
     order: number;
-    text_content: string;
-    youtube_url: string;
-    file_path: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface YoutubeContent{
+    id: number;
+    content_id: number;
+    title: string;
+    url: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface TextContent{
+    id: number;
+    content_id: number;
+    title: string;
+    description: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface FileContent{
+    id: number;
+    content_id: number;
+    title: string;
+    file_url: string;
     created_at?: string;
     updated_at?: string;
 }

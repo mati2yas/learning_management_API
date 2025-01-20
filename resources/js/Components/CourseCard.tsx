@@ -29,7 +29,8 @@ export function CourseCard(
     thumbnail, category, grade, department, batch, topicsCount, saves, likes, price_one_month, price_three_month, price_six_month, price_one_year  
   }: CourseCardProps) {
   
-  console.log(topicsCount)
+  // console.log(price_one_month);
+
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative h-48 w-full">
@@ -46,14 +47,13 @@ export function CourseCard(
         <div className="flex flex-wrap gap-2 mb-2">
           <Badge variant="secondary">{category.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</Badge>
 
-          {price_one_month && <Badge variant="outline">1 Month:
-          {price_one_month}</Badge>}
+          {price_one_month && <Badge variant="outline">1 Month - {price_one_month}Birr</Badge>}
 
-          {price_three_month && <Badge variant="outline">3 Month:{price_three_month}</Badge>}
+          {price_three_month && <Badge variant="outline">3 Month - {price_three_month}Birr</Badge>}
 
-          {price_six_month && <Badge variant="outline">6 Month:{price_six_month}</Badge>}
+          {price_six_month && <Badge variant="outline">6 Month - {price_six_month}Birr</Badge>}
 
-          {price_one_year && <Badge variant="outline">1 Year:{price_one_year}</Badge>}
+          {price_one_year && <Badge variant="outline">1 Year - {price_one_year}Birr</Badge>}
 
           {batch && <Badge variant="outline">{batch}</Badge>}
 

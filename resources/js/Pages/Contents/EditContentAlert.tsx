@@ -6,32 +6,29 @@ import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
-import { PlusCircle } from "lucide-react";
+import { Edit2 } from "lucide-react";
+import { Content } from "@/types"
 
-interface CreateChapterAlertProps {
-  id: number;
-  course_name: string;
+interface EditContentAlertProps{
+  content: Content;
 }
 
-const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
+const EditContentAlert = ({content}: EditContentAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data, setData, post, processing, errors, reset} = useForm({
-    title: '',
-    order: '',
-    description: '',
-    course_id: id,
+  const { data, setData, put, processing, errors, reset} = useForm({
+    name: content.name,
+    order: content.order,
+    chapter_id: content.chapter_id,
   });
-
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    post(route('chapters.store'), {
+    put(route('contents.update', content.id), {
       onSuccess: () => {
           // toast('A course has been created')
           setIsOpen(false); // Only close on successful submission
-          reset();
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);
@@ -39,18 +36,17 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
     });
   };
 
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
-          <PlusCircle className="w-5 h-5 mr-2" /> Add Chapter
+        <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => setIsOpen(true)}>
+          <Edit2 className="h-4 w-4 mr-1" /> Edit
         </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Create a Chapter for {course_name}</AlertDialogTitle>
+          <AlertDialogTitle>Edit Content {content.name}</AlertDialogTitle>
           <AlertDialogDescription>
             Fill all the required data
           </AlertDialogDescription>
@@ -59,43 +55,29 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
         <div className="flex justify-center items-center">
           <form onSubmit={submit}>
             <div className="mb-4">
-
-
-              <InputLabel htmlFor="title" value="Chapter Title" />
+              <InputLabel htmlFor="name" value="Content Title" />
               <TextInput
-                id="title"
-                name="title"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
+                id="name"
+                name="name"
+                value={data.name}
+                onChange={(e) => setData('name', e.target.value)}
                 required
               />
-              <InputError message={errors.title} className="mt-2" />
+              <InputError message={errors.name} className="mt-2" />
             </div>
 
 
             <div className="mb-4">
-              <InputLabel htmlFor="order" value="Chapter Order" />
+              <InputLabel htmlFor="order" value="Content Order" />
               <input
                 id="order"
                 name="order"
                 type="number"
                 value={data.order}
-                onChange={(e) => setData('order', e.target.value)}
+                onChange={(e) => setData('order', Number(e.target.value))}
                 required
               />
               <InputError message={errors.order} className="mt-2" />
-            </div>
-
-            <div className="mb-4">
-              <InputLabel htmlFor="description" value="Chapter Description" />
-              <TextInput
-                id="description"
-                name="description"
-                value={data.description}
-                onChange={(e) => setData('description', e.target.value)}
-                required
-              />
-              <InputError message={errors.description} className="mt-2" />
             </div>
 
             <div className="mt-6 flex gap-x-2">
@@ -105,12 +87,11 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
             }}>
                 Cancel
               </AlertDialogCancel>
-
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Add Chapter
+                  Edit Content
                 </PrimaryButton>
-          
+
             </div>
           </form>
         </div>
@@ -119,4 +100,4 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
   )
 }
 
-export default CreateChapter
+export default EditContentAlert

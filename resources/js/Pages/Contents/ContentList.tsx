@@ -1,45 +1,82 @@
 import React from 'react'
-import { FileText, Youtube, File, Edit, Trash2 } from 'lucide-react'
+import { FileText, Youtube, File, Edit, Trash2, Eye } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
+import { 
+  Table,   
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,} from '@/Components/ui/table'
+  import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { Link } from '@inertiajs/react';
 
-interface Content {
-  id: number
-  name: string
-  url?: string
-  content?: string
-  type: 'youtube' | 'document' | 'text'
-  order: number
-}
+dayjs.extend(relativeTime);
+import { Content } from '@/types'
+import EditContentAlert from './EditContentAlert';
+import DeleteContentAlert from './DeleteContentAlert';
+
 
 interface ContentListProps {
   contents: Content[]
-  onEdit: (content: Content) => void
-  onDelete: (content: Content) => void
 }
 
-const ContentList: React.FC<ContentListProps> = ({ contents, onEdit, onDelete }) => {
+const ContentList: React.FC<ContentListProps> = ({ contents }) => {
+
+  const sortedContents = [...contents].sort((a,b) => a.order - b.order);
+
   return (
-    <ul className="space-y-2">
-      {contents.map((content) => (
-        <li key={content.id} className="flex items-center justify-between p-2 hover:bg-gray-100 rounded">
-          <div className="flex items-center">
-            {content.type === 'youtube' && <Youtube className="w-5 h-5 mr-2 text-red-500" />}
-            {content.type === 'document' && <File className="w-5 h-5 mr-2 text-blue-500" />}
-            {content.type === 'text' && <FileText className="w-5 h-5 mr-2 text-green-500" />}
-            <span className="mr-2">{content.order}.</span>
-            <span>{content.name}</span>
-          </div>
-          <div>
-            <Button variant="ghost" size="sm" onClick={() => onEdit(content)}>
-              <Edit className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onDelete(content)}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <div className="space-y-2">
+      <Table>
+        <TableCaption className="pb-4">A list of your recent Contents.</TableCaption>
+        <TableHeader>
+          <TableRow className="bg-gray-100">
+            <TableHead className="w-[100px] font-bold">No.</TableHead>
+            <TableHead className="font-bold">Name</TableHead>
+            <TableHead className="font-bold">Contents</TableHead>
+            <TableHead className='font-bold'>Created At</TableHead>
+            <TableHead className='font-bold'>Updated At</TableHead>
+            <TableHead className="text-right font-bold">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+        {sortedContents.map((content) => (
+          <TableRow key={content.id} className="hover:bg-gray-50 transition-colors">
+            <TableCell className='font-medium'>
+              {content.order}
+            </TableCell>
+
+            <TableCell className="font-semibold text-gray-700">{content.name}</TableCell>
+            
+            <TableCell>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 text-nowrap">
+                  {content.contents_count} items
+                </span>
+            </TableCell>
+
+            <TableCell className=' text-nowrap' >{dayjs(content.created_at).fromNow()}</TableCell>
+            <TableCell className=' text-nowrap' >{dayjs(content.updated_at).fromNow()}</TableCell>
+
+            <TableCell className="text-right">
+              <div className="flex justify-end space-x-2">
+              <Link href={route('contents.show', content.id)}>
+                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
+              </Link>
+
+              <EditContentAlert content={content} />
+              <DeleteContentAlert id={content.id} name={content.name} />
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+        </TableBody>
+        </Table>
+    </div>
   )
 }
 

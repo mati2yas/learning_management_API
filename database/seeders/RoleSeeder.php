@@ -15,13 +15,21 @@ class RoleSeeder extends Seeder
     {
         if(DB::table('roles')->count() == 0){
             $names = ['admin', 'student'];
+
             foreach($names as $name){
+
                 Role::factory()->create([
                     'name' => $name,
                     'guard_name' => 'api',
                 ]);
+
                 Role::factory()->create([
                     'name' => $name,
+                    'guard_name' => 'web',
+                ]);
+
+                Role::factory()->create([
+                    'second_admin' => $name,
                     'guard_name' => 'web',
                 ]);
             }

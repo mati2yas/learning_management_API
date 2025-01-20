@@ -30,25 +30,14 @@ class ContentController extends Controller
     public function store(Request $request)
     {
         $attrs = $request->validate([
-            'course_id' => 'required|integer',
-            // 'content' => 'required|string',
+            'chapter_id' => 'required|integer',
             'name' => 'required|string',
             'order' => 'required|integer',
-            'text_content' => '',
-            'youtube_url' => '',
-            'file_path' => '',
         ]);
-
-        dd($attrs);
-
-        if($request->has('file_path')) {
-            $path = $request->file('file_path')->store('contents');
-            $attrs['file_path'] = $path;
-        }
 
         Content::create($attrs);
 
-        return redirect()->route('courses.show', $request->course_id);
+        return redirect()->route('chapters.show', $request->chapter_id);
 
     }
 
@@ -65,7 +54,7 @@ class ContentController extends Controller
      */
     public function edit(Content $content)
     {
-        //
+
     }
 
     /**
@@ -73,7 +62,17 @@ class ContentController extends Controller
      */
     public function update(Request $request, Content $content)
     {
-        //
+
+        // dd($request->all());
+        $attrs = $request->validate([
+            'chapter_id' => 'required|integer',
+            'name' => 'required|string',
+            'order' => 'required|integer',
+        ]);
+
+        $content->update($attrs);
+
+        return redirect()->route('chapters.show', $request->chapter_id);
     }
 
     /**
@@ -81,6 +80,9 @@ class ContentController extends Controller
      */
     public function destroy(Content $content)
     {
-        //
+        $chapter_id = $content->chapter_id;
+        $content->delete();
+
+        return to_route('chapters.show', $chapter_id)->with('success','Content Deleted Sucessfully!');
     }
 }

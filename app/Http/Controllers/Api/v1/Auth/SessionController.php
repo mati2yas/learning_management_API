@@ -82,7 +82,6 @@ class SessionController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Student User Created Successfully. Email Verification link sent',
-            'token' => $user->createToken("API TOKEN")->plainTextToken,
             'data'=>[
                 'user'=> $user,
             ]

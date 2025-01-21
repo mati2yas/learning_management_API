@@ -40,4 +40,19 @@ class Course extends Model
     {
         return $this->belongsTo(Batch::class);
     }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function saves()
+    {
+        return $this->hasMany(Save::class);
+    }
+
+    public function paidCourses()
+    {
+        return $this->hasMany(PaidCourse::class);
+    }
 }

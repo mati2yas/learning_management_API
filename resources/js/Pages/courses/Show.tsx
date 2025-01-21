@@ -1,30 +1,14 @@
 import { Head } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Course } from "@/types/course";
-import { BookOpen, Users, Layers, GraduationCap, Building, Pencil, Trash2, PlusCircle } from 'lucide-react';
-import { Button } from "@/Components/ui/button";
+import { BookOpen, Users, Layers, GraduationCap, Building } from 'lucide-react';
 import { EnhancedTableDemo } from "@/Components/TableDemo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import CreateChapter from './CreateChapter';
 import DeleteCourseAlert from "./DeleteCourseAlert";
-import { Category, Department, Grade, Batch, Chapter } from '@/types/index.d'
 import { UpdateCourseAlert } from "./UpdateCourseAlert";
 import ChapterCard from "@/Components/ChapterCard";
-
-interface ShowProps {
-  course: Course;
-  thumbnail: string;
-  category_name: string;
-  department_name: string;
-  batch_name: string;
-  chapters: Chapter[];
-  categories: Category[];
-  grades: Grade[];
-  departments: Department[];
-  batches: Batch[];
-}
-
+import { ShowCourseProps } from "@/types/show";
 
 const Show = ({
   course, 
@@ -37,8 +21,10 @@ const Show = ({
   grades,
   departments,
   batches,
-}: ShowProps) => {
-  console.log(chapters)
+}: ShowCourseProps) => {
+
+  const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A";
+
   return (
     <AuthenticatedLayout
       header={
@@ -65,7 +51,7 @@ const Show = ({
                     <InfoItem icon={<BookOpen className="w-5 h-5" />} label="Chapters" value={course.number_of_chapters} />
                     <InfoItem icon={<Layers className="w-5 h-5" />} label="Category" value={category_name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())} />
                     {course.grade_id && (
-                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={course.grade_id} />
+                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={gradeName} />
                     )}
                     {course.department_id && (
                       <InfoItem icon={<Building className="w-5 h-5" />} label="Department" value={department_name} />
@@ -141,8 +127,6 @@ const Show = ({
                           chapter={chapter}
                       />)
                     }
-                      
-                    
                   </div>
                 </TabsContent>
               </Tabs>
@@ -175,16 +159,6 @@ const StatItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 )
 
-
-const handleUpdate = (course_id: number) => {
-  // 
- 
-};
-
-const handleDelete = (course_id: number) => {
-  // Implement delete logic here
-  console.log('Delete course');
-};
 
 export default Show
 

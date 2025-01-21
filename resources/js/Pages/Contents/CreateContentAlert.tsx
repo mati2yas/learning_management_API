@@ -8,26 +8,22 @@ import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { PlusCircle } from "lucide-react";
 
-interface CreateChapterAlertProps {
+interface CreateContentAlertProps {
   id: number;
-  course_name: string;
+  title: string;
 }
 
-const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
-
-  const [isOpen, setIsOpen] = useState(false);
-
+const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
+  const [isOpen, setIsOpen] = useState(false)
   const { data, setData, post, processing, errors, reset} = useForm({
-    title: '',
+    name: '',
     order: '',
-    description: '',
-    course_id: id,
+    chapter_id: id,
   });
-
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    post(route('chapters.store'), {
+    post(route('contents.store'), {
       onSuccess: () => {
           // toast('A course has been created')
           setIsOpen(false); // Only close on successful submission
@@ -39,18 +35,17 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
     });
   };
 
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
-          <PlusCircle className="w-5 h-5 mr-2" /> Add Chapter
+          <PlusCircle className="w-5 h-5 mr-2" /> Add Content
         </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Create a Chapter for {course_name}</AlertDialogTitle>
+          <AlertDialogTitle>Create a content for {title}</AlertDialogTitle>
           <AlertDialogDescription>
             Fill all the required data
           </AlertDialogDescription>
@@ -61,20 +56,20 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
             <div className="mb-4">
 
 
-              <InputLabel htmlFor="title" value="Chapter Title" />
+              <InputLabel htmlFor="name" value="Content Title" />
               <TextInput
-                id="title"
-                name="title"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
+                id="name"
+                name="name"
+                value={data.name}
+                onChange={(e) => setData('name', e.target.value)}
                 required
               />
-              <InputError message={errors.title} className="mt-2" />
+              <InputError message={errors.name} className="mt-2" />
             </div>
 
 
             <div className="mb-4">
-              <InputLabel htmlFor="order" value="Chapter Order" />
+              <InputLabel htmlFor="order" value="Content Order" />
               <input
                 id="order"
                 name="order"
@@ -84,18 +79,6 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 required
               />
               <InputError message={errors.order} className="mt-2" />
-            </div>
-
-            <div className="mb-4">
-              <InputLabel htmlFor="description" value="Chapter Description" />
-              <TextInput
-                id="description"
-                name="description"
-                value={data.description}
-                onChange={(e) => setData('description', e.target.value)}
-                required
-              />
-              <InputError message={errors.description} className="mt-2" />
             </div>
 
             <div className="mt-6 flex gap-x-2">
@@ -108,7 +91,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
 
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Add Chapter
+                  Add Content
                 </PrimaryButton>
           
             </div>
@@ -119,4 +102,4 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
   )
 }
 
-export default CreateChapter
+export default CreateContentAlert

@@ -14,4 +14,20 @@ class Content extends Model
     {
         return $this->belongsTo(Chapter::class);
     }
+
+    public function youtubeContents(){
+        return $this->hasMany(YoutubeContent::class);
+    }
+
+    public function textContents(){
+        return $this->hasMany(
+            TextContent::class
+        );
+    }
+
+    public function fileContents(){
+        return $this->hasMany(
+            FileContent::class
+        );
+    }
 }

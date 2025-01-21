@@ -34,11 +34,11 @@ class ChapterController extends Controller
             'course_id' => 'required',
             'order' => 'required',
             'title' => 'required',
+            'description' => 'required',
         ]);
 
         $chapter = Chapter::create($attrs);
-
-
+ 
         return redirect()->route('courses.show', $chapter->course_id);
         
     }
@@ -48,12 +48,11 @@ class ChapterController extends Controller
      */
     public function show(Chapter $chapter)
     {
-        // dd($chapter);
         return Inertia::render('Chapters/Show', 
-        // props: [
-        //     'chapter' => $chapter,
-        //     'contents' => $chapter->contents,
-        // ]
+        props: [
+            'chapter' => $chapter,
+            'contents' => $chapter->contents,
+        ]
         );
     }
 

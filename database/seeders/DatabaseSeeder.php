@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->callOnce(DepartmentSeeder::class);
         $this->callOnce(BatchSeeder::class);
         $this->callOnce(ChapterSeeder::class);
+        $this->callOnce( PermissionSeeder::class);
     }
 }

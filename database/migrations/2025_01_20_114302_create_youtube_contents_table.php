@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contents', function (Blueprint $table) {
+        Schema::create('youtube_contents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chapter_id')->constrained('chapters')->cascadeOnDelete();
-            $table->string('name');
-            $table->unsignedInteger('order');
+            $table->foreignId('content_id')->constrained('contents')->cascadeOnDelete();
+            $table->string('title');
+            $table->string('url');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contents');
+        Schema::dropIfExists('youtube_contents');
     }
 };

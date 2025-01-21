@@ -22,8 +22,9 @@ class CourseController extends Controller
 
         $query = Course::query();
 
+
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            $query->where('category_id', $request->input('category'));
         }
 
         if ($request->filled('search')) {
@@ -31,6 +32,8 @@ class CourseController extends Controller
         }
 
         $courses = $query->latest()->paginate(16);
+
+        // dd($courses);
 
         return Inertia::render('courses/Index',[
             'categories' => Category::all(),
@@ -61,7 +64,11 @@ class CourseController extends Controller
             'grade_id' => '',
             'department_id' => '',
             'batch_id'=> [""],
-            'number_of_chapters'=> ['required'],
+            // 'number_of_chapters'=> ['required'],
+            'price_one_month' => 'required',
+            'price_three_month' => 'required',
+            'price_six_month' => 'required',
+            'price_one_year' => 'required',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -127,22 +134,22 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-        // dd($request->all());
-        // try {
-            $attrs = $request->validate([
-                'course_name' => 'required|max:100',
-                'category_id' => 'required',
-                'grade_id' => 'nullable',
-                'department_id' => 'nullable',
-                'batch_id' => 'nullable',
-                'number_of_chapters' => 'required|integer',
-                // 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-        // } catch (\Illuminate\Validation\ValidationException $e) {
-        //     dd($e->errors());
-        // }
-        
-
+        $messages = [
+            'thumbnail.max' => 'The thumbnail must not be larger than 5MB.',
+        ];
+       
+        $attrs = $request->validate([
+            'course_name' => 'required|max:100',
+            'category_id' => 'required',
+            'grade_id' => 'nullable',
+            'department_id' => 'nullable',
+            'batch_id' => 'nullable',
+            'price_one_month' => 'required',
+            'price_three_month' => 'required',
+            'price_six_month' => 'required',
+            'price_one_year' => 'required',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], $messages);
     
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('thumbnail', 'public'); 

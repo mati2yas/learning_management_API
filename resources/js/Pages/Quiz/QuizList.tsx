@@ -7,12 +7,14 @@ const dummyQuizzes: Quiz[] = [
   {
     id: 1,
     chapter_id: 0,
-    title: ''
+    title: '',
+ 
   },
   {
     id: 2,
     chapter_id: 0,
-    title: ''
+    title: '',
+  
   },
 ];
 

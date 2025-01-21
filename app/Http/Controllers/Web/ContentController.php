@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ContentController extends Controller
 {
@@ -46,7 +47,17 @@ class ContentController extends Controller
      */
     public function show(Content $content)
     {
-        //
+        $youtube_contents = $content->youtubeContents();
+        $text_contents = $content->textContents();
+        $file_contents = $content->fileContents();
+
+        return Inertia::render('Contents/Show',
+    props: [
+        'content' => $content,
+        // 'youtube_contents' => $youtube_contents,
+        // 'text_contents' => $text_contents,
+        // 'file_contents' => $file_contents,
+        ]);
     }
 
     /**
@@ -54,7 +65,7 @@ class ContentController extends Controller
      */
     public function edit(Content $content)
     {
-
+        return response()->json([]);
     }
 
     /**

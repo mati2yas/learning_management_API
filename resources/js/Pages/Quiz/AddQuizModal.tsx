@@ -4,6 +4,7 @@ import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { Textarea } from "@/Components/ui/textarea"
+import { AlertDialog, AlertDialogTrigger } from '@radix-ui/react-alert-dialog'
 
 interface AddQuizModalProps {
   isOpen: boolean
@@ -12,7 +13,10 @@ interface AddQuizModalProps {
 
 const AddQuizModal: React.FC<AddQuizModalProps> = ({ isOpen, onClose }) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogTrigger asChild>
+    
+      </AlertDialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Quiz</DialogTitle>
@@ -29,7 +33,7 @@ const AddQuizModal: React.FC<AddQuizModalProps> = ({ isOpen, onClose }) => {
           <Button type="submit">Create Quiz</Button>
         </form>
       </DialogContent>
-    </Dialog>
+    </AlertDialog>
   )
 }
 

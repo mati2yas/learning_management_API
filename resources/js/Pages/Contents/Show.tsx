@@ -1,159 +1,197 @@
-import React from 'react'
+import { useState } from "react"
 import { Head } from "@inertiajs/react"
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
-import { Chapter, Content, Quiz } from "@/types"
-import { BookOpen, Clock, List, Grid, ArrowLeft } from 'lucide-react'
-import { Button } from "@/Components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
-import { Progress } from "@/Components/ui/progress"
-import ContentViewer from './ContentViewer'
-import QuizSection from '@/Components/QuizSection'
 
-interface ChapterDetailProps {
-  chapter: Chapter
-  contents: Content[]
-  quiz: Quiz | null
+import { Button } from "@/Components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
+import { ArrowLeft, PlusCircle } from "lucide-react"
+import YouTubeContentDialog from "./YoutTubeContentDialog" 
+import TextContentDialog from "./TextContentDialog" 
+import FileContentDialog from "./FIleContentDialog" 
+
+import Authenticated from "@/Layouts/AuthenticatedLayout"
+import { Content, FileContent, TextContent, YoutubeContent } from "@/types"
+
+interface ContentDetailProps {
+  content: Content,
+  youtube_contents?: YoutubeContent[]
+  text_contents: TextContent[]
+  file_contents: FileContent[]
 }
 
-const ChapterDetail = ({ chapter, contents, quiz }: ChapterDetailProps) => {
+const dummyYouTubeContents: YoutubeContent[] = [
+  {
+    id: 1,
+    title: 'Dummy YouTube Video 1',
+    url: 'https://www.youtube.com/watch?v=dummy1',
+    content_id: 1
+  },
+  {
+    id: 2,
+    title: 'Dummy YouTube Video 2',
+    url: 'https://www.youtube.com/watch?v=dummy2',
+    content_id: 2
+  },
+];
+
+const dummyTextContents: TextContent[] = [
+  {
+    id: 1,
+    content_id: 1,
+    title: 'Dummy Text Content 1',
+    description: 'This is the description for dummy text content 1.',
+  },
+  {
+    id: 2,
+    content_id: 1,
+    title: 'Dummy Text Content 2',
+    description: 'This is the description for dummy text content 2.',
+  },
+];
+
+const dummyFileContents: FileContent[] = [
+  {
+    id: 1,
+    content_id: 1,
+    title: 'Dummy File Content 1',
+    file_url: 'https://example.com/dummyfile1.pdf',
+  },
+  {
+    id: 2,
+    content_id: 1,
+    title: 'Dummy File Content 2',
+    file_url: 'https://example.com/dummyfile2.pdf',
+  },
+];
+
+export default function ContentDetail({
+  content,
+  youtube_contents = dummyYouTubeContents,
+  text_contents=dummyTextContents,
+  file_contents=dummyFileContents,
+}: ContentDetailProps) {
+
+  const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false)
+  const [isTextDialogOpen, setIsTextDialogOpen] = useState(false)
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false)
+
   return (
-    <AuthenticatedLayout
+    <Authenticated 
       header={
-        <div className='flex justify-between items-center'>
-          <h1 className="text-2xl font-semibold">Chapter: {chapter.title}</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold">
+            Content: {content.name}
+          </h1>
+
           <Button variant="outline" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Chapters
           </Button>
         </div>
       }
     >
-      <Head title={`Chapter: ${chapter.title}`} />
+      <Head title={`Content: ${content.name}`} />
+
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="mb-8">
+
+        <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-6">{content.name}</h1>
+        <Tabs defaultValue="youtube" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="youtube">YouTube Content</TabsTrigger>
+            <TabsTrigger value="text">Text Content</TabsTrigger>
+            <TabsTrigger value="file">File Content</TabsTrigger>
+          </TabsList>
+          <TabsContent value="youtube">
             <Card>
-              <CardContent className="p-6">
-                <h2 className="text-3xl font-bold mb-4">{chapter.title}</h2>
-                <p className="text-gray-600 mb-4">{chapter.description}</p>
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center">
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    <span>{contents.length} Contents</span>
+              <CardHeader>
+                <CardTitle>YouTube Content</CardTitle>
+                <CardDescription>Manage YouTube content for this chapter.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => setIsYouTubeDialogOpen(true)} className="mb-4">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add YouTube Content
+                </Button>
+                {youtube_contents.map((content) => (
+                  <div key={content.id} className="mb-4 p-4 border rounded">
+                    <h3 className="text-lg font-semibold">{content.title}</h3>
+                    <a
+                      href={content.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {content.url}
+                    </a>
                   </div>
-                  <div className="flex items-center">
-                    <Clock className="w-5 h-5 mr-2" />
-                    <span>Estimated Time: {chapter.estimated_time} mins</span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Progress</span>
-                    <span className="text-sm font-medium">60%</span>
-                  </div>
-                  <Progress value={60} className="w-full" />
-                </div>
+                ))}
               </CardContent>
             </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Chapter Contents</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="list" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="list"><List className="w-4 h-4 mr-2" /> List View</TabsTrigger>
-                      <TabsTrigger value="grid"><Grid className="w-4 h-4 mr-2" /> Grid View</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="list">
-                      <div className="space-y-4">
-                        {contents.map((content, index) => (
-                          <ContentListItem key={content.id} content={content} index={index} />
-                        ))}
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="grid">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {contents.map((content, index) => (
-                          <ContentGridItem key={content.id} content={content} index={index} />
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div>
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>Content Viewer</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ContentViewer url={contents[0]?.url || ''} type={''} />
-                </CardContent>
-              </Card>
-
-              {quiz && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Chapter Quiz</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <QuizSection quiz={quiz} />
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-        </div>
+          </TabsContent>
+          <TabsContent value="text">
+            <Card>
+              <CardHeader>
+                <CardTitle>Text Content</CardTitle>
+                <CardDescription>Manage text content for this chapter.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => setIsTextDialogOpen(true)} className="mb-4">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Text Content
+                </Button>
+                {text_contents.map((content) => (
+                  <div key={content.id} className="mb-4 p-4 border rounded">
+                    <h3 className="text-lg font-semibold">{content.title}</h3>
+                    <p className="mt-2">{content.description}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="file">
+            <Card>
+              <CardHeader>
+                <CardTitle>File Content</CardTitle>
+                <CardDescription>Manage file content for this chapter.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => setIsFileDialogOpen(true)} className="mb-4">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add File Content
+                </Button>
+                {file_contents.map((content) => (
+                  <div key={content.id} className="mb-4 p-4 border rounded">
+                    <h3 className="text-lg font-semibold">{content.title}</h3>
+                    <a
+                      href={content.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      Download File
+                    </a>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </AuthenticatedLayout>
+
+        <YouTubeContentDialog
+          isOpen={isYouTubeDialogOpen}
+          onClose={() => setIsYouTubeDialogOpen(false)}
+          contentId={content.id}
+        />
+        <TextContentDialog isOpen={isTextDialogOpen} onClose={() => setIsTextDialogOpen(false)} contentId={content.id} />
+
+        <FileContentDialog isOpen={isFileDialogOpen} onClose={() => setIsFileDialogOpen(false)} contentId={content.id} />
+
+        </div>
+
+
+      </div>
+
+      
+    </Authenticated>
   )
 }
-
-interface ContentItemProps {
-  content: Content
-  index: number
-}
-
-const ContentListItem = ({ content, index }: ContentItemProps) => (
-  <div className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center mr-4">
-      {index + 1}
-    </div>
-    <div className="flex-grow">
-      <h3 className="font-semibold">{content.name}</h3>
-      <p className="text-sm text-gray-600">{getContentTypeLabel(content.url)}</p>
-    </div>
-    <Button variant="outline" size="sm">View</Button>
-  </div>
-)
-
-const ContentGridItem = ({ content, index }: ContentItemProps) => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex items-center mb-2">
-        <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center mr-2">
-          {index + 1}
-        </div>
-        <h3 className="font-semibold">{content.name}</h3>
-      </div>
-      <p className="text-sm text-gray-600 mb-4">{getContentTypeLabel(content.url)}</p>
-      <Button variant="outline" size="sm" className="w-full">View Content</Button>
-    </CardContent>
-  </Card>
-)
-
-const getContentTypeLabel = (url: string): string => {
-  if (url.match(/\.(mp4|webm|ogg)$/i)) return 'Video'
-  if (url.match(/\.(pdf)$/i)) return 'PDF Document'
-  return 'Document'
-}
-
-export default ChapterDetail
 

@@ -31,18 +31,20 @@ class PermissionSeeder extends Seeder
                 ['name'=> 'update subscription'],
                 ['name'=> 'delete subscription'],
             ];
-        }
+        
 
-        foreach ($permissions as $permission) {
-            Permission::create([
-                'name'=> $permission['name'],
-                'guard_name' => 'api'
-            ]);
-            
-            Permission::create([
-                'name'=> $permission['name'],
-                'guard_name' => 'web'
-            ]);
+            foreach ($permissions as $permission) {
+                Permission::create([
+                    'name'=> $permission['name'],
+                    'guard_name' => 'api'
+                ]);
+                
+                Permission::create([
+                    'name'=> $permission['name'],
+                    'guard_name' => 'web'
+                ]);
+            }
+
         }
     }
 }

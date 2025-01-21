@@ -7,10 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import ContentList from '../Contents/ContentList'
 import ContentGrid from '../Contents/ContentGrid'
-import EditContentModal from '../Contents/EditContentModal'
 import { Chapter, Content, Quiz } from '@/types'
-import ChapterDetail from '../Contents/Show'
 import CreateContentAlert from '../Contents/CreateContentAlert'
+import QuizList from '../Quiz/QuizList'
 
 
 
@@ -23,7 +22,12 @@ interface ChapterDetailProps {
 const Show: React.FC<ChapterDetailProps> = ({ 
   chapter,  
   contents,
+  quizzes,
 }) => {
+
+  function setIsAddQuizModalOpen(arg0: boolean): void {
+    throw new Error('Function not implemented.')
+  }
 
   return (
     <AuthenticatedLayout
@@ -34,7 +38,6 @@ const Show: React.FC<ChapterDetailProps> = ({
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course
           </Button>
-
         </div>
       }
     >
@@ -98,7 +101,7 @@ const Show: React.FC<ChapterDetailProps> = ({
             </Card>
 
 
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Quizzes</CardTitle>
@@ -110,7 +113,7 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardContent>
                 <QuizList quizzes={quizzes} />
               </CardContent>
-            </Card> */}
+            </Card>
           </div>
         </div>
       </div>

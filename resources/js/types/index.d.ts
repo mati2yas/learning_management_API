@@ -58,10 +58,9 @@ export interface Chapter{
 }
 
 export interface Quiz{
-    questions: any;
-    questions: any;
     id: number;
     chapter_id: number;
+    title: string;
     created_at?: string;
     updated_at?: string;
 }

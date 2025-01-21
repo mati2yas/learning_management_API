@@ -57,7 +57,7 @@ export default function ContentDetailPage({ content, chapters, quiz }: ContentDe
               <ContentViewer url={content.url} type={''} />
             </div>
             <div>
-              <QuizSection quiz={quiz} />
+              {/* <QuizSection quiz={quiz} /> */}
             </div>
           </div>
         </main>

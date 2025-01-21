@@ -15,8 +15,7 @@ return new class extends Migration
             $table->decimal('price_one_month', 8, 2)->after('category_id')->nullable();
             $table->decimal('price_three_month', 8, 2)->after('price_one_month')->nullable();
             $table->decimal('price_six_month', 8, 2)->after('price_three_month')->nullable();
-            $table->decimal('price_one_year', 8, 2)->after('price_six_month')->nullable();
-           
+            $table->decimal('price_one_year', 8, 2)->after('price_six_month')->nullable();  
         });
     }
 

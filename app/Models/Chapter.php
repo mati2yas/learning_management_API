@@ -18,4 +18,8 @@ class Chapter extends Model
     public function contents(){
         return $this->hasMany(Content::class);
     }
+
+    public function quizzes(){
+        return $this->hasMany(Quiz::class);
+    }
 }

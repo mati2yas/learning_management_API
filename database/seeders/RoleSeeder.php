@@ -29,7 +29,7 @@ class RoleSeeder extends Seeder
                 ]);
 
                 Role::factory()->create([
-                    'second_admin' => $name,
+                    'name' => $name,
                     'guard_name' => 'web',
                 ]);
             }

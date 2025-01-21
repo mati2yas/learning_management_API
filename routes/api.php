@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
 use App\Http\Controllers\Api\v1\CourseController;
 use App\Http\Controllers\Api\v1\HomepageCourseController;
+use App\Http\Resources\Api\CourseResource;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,7 +14,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request 
     return $request->user();
 });
 
-Route::get('/random', fn() => Course::paginate(10));
+Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch'])->paginate(10)) );
 
 Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 

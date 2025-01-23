@@ -52,6 +52,7 @@ class ChapterController extends Controller
         props: [
             'chapter' => $chapter,
             'contents' => $chapter->contents,
+            'quizzes' => $chapter->quizzes,
         ]
         );
     }

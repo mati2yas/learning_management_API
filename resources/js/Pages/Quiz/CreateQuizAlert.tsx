@@ -6,30 +6,30 @@ import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
-import { Edit2 } from "lucide-react";
-import { Chapter } from "@/types";
+import { PlusCircle } from "lucide-react";
 
-interface UpdateChapterAlertProps {
-  chapter: Chapter;
+interface CreateQuizAlertProps {
+  id: number;
+  chapter_title: string;
 }
 
-const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
+const CreateQuizAlert = ({id, chapter_title}:CreateQuizAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data, setData, put, processing, errors, reset} = useForm({
-    title: chapter.title,
-    order: chapter.order,
-    course_id: chapter.course_id,
+  const { data, setData, post, processing, errors, reset} = useForm({
+    title: '',
+    chapter_id: id,
   });
 
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    put(route('chapters.update', chapter.id), {
+    post(route('quizzes.store'), {
       onSuccess: () => {
           // toast('A course has been created')
           setIsOpen(false); // Only close on successful submission
+          reset();
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);
@@ -41,14 +41,14 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => setIsOpen(true)}>
-          <Edit2 className="h-4 w-4 mr-1" /> Edit
+        <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
+          <PlusCircle className="w-5 h-5 mr-2" /> Add Quizz
         </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Edit Chapter {chapter.title}</AlertDialogTitle>
+          <AlertDialogTitle>Create a Chapter for {chapter_title}</AlertDialogTitle>
           <AlertDialogDescription>
             Fill all the required data
           </AlertDialogDescription>
@@ -57,6 +57,8 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
         <div className="flex justify-center items-center">
           <form onSubmit={submit}>
             <div className="mb-4">
+
+
               <InputLabel htmlFor="title" value="Chapter Title" />
               <TextInput
                 id="title"
@@ -69,18 +71,30 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
             </div>
 
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <InputLabel htmlFor="order" value="Chapter Order" />
               <input
                 id="order"
                 name="order"
                 type="number"
                 value={data.order}
-                onChange={(e) => setData('order', Number(e.target.value))}
+                onChange={(e) => setData('order', e.target.value)}
                 required
               />
               <InputError message={errors.order} className="mt-2" />
-            </div>
+            </div> */}
+
+            {/* <div className="mb-4">
+              <InputLabel htmlFor="title" value="Quizz title" />
+              <TextInput
+                id="title"
+                name="description"
+                value={data.title}
+                onChange={(e) => setData('title', e.target.value)}
+                required
+              />
+              <InputError message={errors.title} className="mt-2" />
+            </div> */}
 
             <div className="mt-6 flex gap-x-2">
               <AlertDialogCancel onClick={() => {
@@ -89,11 +103,12 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
             }}>
                 Cancel
               </AlertDialogCancel>
+
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Edit Chapter
+                  Add Quiz
                 </PrimaryButton>
-
+          
             </div>
           </form>
         </div>
@@ -102,4 +117,4 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
   )
 }
 
-export default EditChapterAlert;
+export default CreateQuizAlert

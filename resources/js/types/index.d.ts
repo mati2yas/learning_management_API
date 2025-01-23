@@ -47,7 +47,7 @@ export interface Batch {
 
 export interface Chapter{
     estimated_time: ReactNode;
-    order: ReactNode;
+    order: number;
     id: number;
     title: string;
     description?: string;

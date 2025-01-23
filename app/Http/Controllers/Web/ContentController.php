@@ -47,16 +47,20 @@ class ContentController extends Controller
      */
     public function show(Content $content)
     {
-        $youtube_contents = $content->youtubeContents();
-        $text_contents = $content->textContents();
-        $file_contents = $content->fileContents();
+       
+        $youtube_contents = $content->youtubeContents()->get();
+        // dd($youtube_contents);
+
+        // dd($youtube_contents);
+        $text_contents = $content->textContents()->get();
+        $file_contents = $content->fileContents()->get();
 
         return Inertia::render('Contents/Show',
     props: [
         'content' => $content,
-        // 'youtube_contents' => $youtube_contents,
-        // 'text_contents' => $text_contents,
-        // 'file_contents' => $file_contents,
+        'youtube_contents' => $youtube_contents,
+        'text_contents' => $text_contents,
+        'file_contents' => $file_contents,
         ]);
     }
 

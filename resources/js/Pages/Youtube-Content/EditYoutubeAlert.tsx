@@ -2,8 +2,6 @@ import {FormEventHandler, useState } from "react"
 import { useForm } from "@inertiajs/react"
 import { AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
-import { Label } from "@/Components/ui/label"
 import InputError from "@/Components/InputError"
 import { YoutubeContent } from "@/types"
 import { AlertDialog } from "@radix-ui/react-alert-dialog"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class QuizController extends Controller
 {
@@ -44,7 +45,11 @@ class QuizController extends Controller
      */
     public function show(Quiz $quiz)
     {
-        //
+        $quiz_questions = $quiz->quizQuestions()->get();
+        return Inertia::render('Quiz/Show',[
+            'quiz' => $quiz,
+            'quiz_questions' => $quiz_questions,
+        ]);
     }
 
     /**

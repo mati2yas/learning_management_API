@@ -10,7 +10,7 @@ import { Edit2 } from "lucide-react";
 import {  Quiz, YoutubeContent } from "@/types";
 
 interface EditQuizAlertProps {
-  quiz: YoutubeContent;
+  quiz: Quiz;
 }
 
 const EditQuizAlert = ({quiz}:EditQuizAlertProps) => {
@@ -19,7 +19,7 @@ const EditQuizAlert = ({quiz}:EditQuizAlertProps) => {
 
   const { data, setData, put, processing, errors, reset} = useForm({
     title: quiz.title,
-    chapter_id: quiz.content_id,
+    chapter_id: quiz.chapter_id,
   });
 
 

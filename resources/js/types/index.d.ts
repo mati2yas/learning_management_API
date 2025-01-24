@@ -68,6 +68,7 @@ export interface Quiz{
 export interface QuizQuestion{
     id: number;
     quiz_id: number;
+    question_number: number;
     text: string;
     question_image_url: string;
     text_explanation: string;

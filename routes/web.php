@@ -6,9 +6,11 @@ use App\Http\Controllers\Web\ContentController;
 use App\Http\Controllers\Web\CourseController;
 use App\Http\Controllers\Web\FileContentController;
 use App\Http\Controllers\Web\QuizController;
+use App\Http\Controllers\Web\QuizQuesitonController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
 use App\Models\Course;
+use App\Models\QuizQuestion;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -43,6 +45,8 @@ Route::middleware(['auth', 'verified'])->resource('quizzes', QuizController::cla
 Route::middleware(['auth', 'verified'])->resource('youtube-contents', YoutubeContentController::class);
 
 Route::middleware(['auth', 'verified'])->resource('file-contents', FileContentController::class);
+
+Route::middleware(['auth', 'verified'])->resource('quiz-questions', QuizQuesitonController::class);
 
 Route::middleware(['auth', 'verified'])->resource('user-management', UserManagementController::class);
 

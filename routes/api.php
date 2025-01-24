@@ -5,7 +5,11 @@ use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
 use App\Http\Controllers\Api\v1\CourseController;
 use App\Http\Controllers\Api\v1\HomepageCourseController;
+use App\Http\Resources\Api\ChapterResource;
+use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseResource;
+use App\Models\Chapter;
+use App\Models\Content;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,10 +19,21 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request 
 });
 
 Route::get('/random-courses-paginate', function(){
-
      return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters'])->paginate()); 
 });
 
+Route::get('/random-chapter/{id}', function(){
+   return ChapterResource::collection(
+    Chapter::with('contents')->latest()->get()
+   );
+});
+
+Route::get('/random-content/{id}', function(){
+
+    return ContentResource::collection(
+        Content::with(['youtubeContents', 'fileContents'])->latest()->get()
+    );
+ });
 
 
 Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));

@@ -5,8 +5,10 @@ use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
 use App\Http\Controllers\Api\v1\CourseController;
 use App\Http\Controllers\Api\v1\HomepageCourseController;
+use App\Http\Resources\Api\ChapterContentResource;
 use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
+use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Models\Chapter;
 use App\Models\Content;
@@ -28,12 +30,28 @@ Route::get('/random-chapters/{id}', function ($id) {
     return new ChapterResource($chapter);
 });
 
-
-
 Route::get('/random-chapters', function(){
    return ChapterResource::collection(
     Chapter::with('contents')->latest()->get()
    );
+});
+
+Route::get('/course-chapters/{course_id}', function ($course_id) {
+    // Fetch all chapters for the course
+    $chapters = Chapter::where('course_id', $course_id)->get();
+
+    // Return the chapters transformed by the resource
+    return CourseChapterResource::collection($chapters);
+});
+
+Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
+    // Fetch all contents for the chapter with their relationships
+    $contents = Content::where('chapter_id', $chapter_id)
+        ->with(['youtubeContents', 'fileContents'])
+        ->get();
+
+    // Return the transformed response
+    return ChapterContentResource::collection($contents);
 });
 
 

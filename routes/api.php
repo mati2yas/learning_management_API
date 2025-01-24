@@ -22,19 +22,33 @@ Route::get('/random-courses-paginate', function(){
      return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters'])->paginate()); 
 });
 
-Route::get('/random-chapter/{id}', function(){
+
+Route::get('/random-chapters/{id}', function ($id) {
+    $chapter = Chapter::with('contents')->findOrFail($id);
+    return new ChapterResource($chapter);
+});
+
+
+
+Route::get('/random-chapters', function(){
    return ChapterResource::collection(
     Chapter::with('contents')->latest()->get()
    );
 });
 
-Route::get('/random-content/{id}', function(){
+
+Route::get('/random-contents', function(){
 
     return ContentResource::collection(
         Content::with(['youtubeContents', 'fileContents'])->latest()->get()
     );
  });
 
+
+ Route::get('/random-contents/{id}', function($id){
+    $content = Content::with(['youtubeContents', 'fileContents'])->findOrFail($id);
+    return new ContentResource($content);
+ });
 
 Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
 

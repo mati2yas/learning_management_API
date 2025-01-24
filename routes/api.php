@@ -10,11 +10,13 @@ use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
+use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Content;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
     return $request->user();
@@ -23,7 +25,6 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request 
 Route::get('/random-courses-paginate', function(){
      return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters'])->paginate()); 
 });
-
 
 Route::get('/random-chapters/{id}', function ($id) {
     $chapter = Chapter::with('contents')->findOrFail($id);
@@ -68,7 +69,27 @@ Route::get('/random-contents', function(){
     return new ContentResource($content);
  });
 
+
+
 Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
+
+Route::get('/random-courses/{filterType}', function ($filterType) {
+
+    $validCategories = ['lower_grades', 'higher_grades', 'university', 'random_courses'];
+
+    if (!in_array($filterType, $validCategories)) {
+        return response()->json(['error' => 'Invalid filter type'], 400);
+    }
+
+    $category = Category::where('name', $filterType)->first();
+
+    if (!$category) {
+        return response()->json(['error' => 'Category not found'], 404);
+    }
+
+    $courses = Course::with(['department','grade', 'batch'])->where('category_id', $category->id)->get();
+    return CourseResource::collection($courses);
+});
 
 Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 

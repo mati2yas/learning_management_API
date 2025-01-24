@@ -21,6 +21,7 @@ class ChapterSeeder extends Seeder
                     Chapter::factory()->create([
                         'course_id' => $course->id,  // Set the course ID for the chapter
                         'order' => $order,            // Set the sequential order value
+                        'description' => fake()->paragraph(3),
                     ]);
                 }
             });

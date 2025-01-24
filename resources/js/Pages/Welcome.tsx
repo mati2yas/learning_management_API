@@ -61,7 +61,7 @@ export default function Welcome({ auth }: PageProps<{}>) {
                         </p>
                         <div className="mt-10">
                             <Link
-                                href={route('register')}
+                                href={route('login')}
                                 className="rounded-full bg-black px-8 py-3 text-base font-medium text-white transition-colors hover:bg-gray-800"
                             >
                                 Login

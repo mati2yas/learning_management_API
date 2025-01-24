@@ -18,7 +18,7 @@ class CourseResource extends JsonResource
         return [
             'id' => $this->id,
             'course_name' => $this->course_name,
-            'thumbnail' => $this->thumbnail,
+            'thumbnail' => 'https://picsum.photos/'.$this->thumbnail,
             'category' => $this->whenLoaded('category', function () {
                 return [
                     'id' => $this->category->id,

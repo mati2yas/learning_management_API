@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
+import InputError from "@/Components/InputError"
 
 interface FileContentDialogProps {
   isOpen: boolean
@@ -13,20 +14,43 @@ interface FileContentDialogProps {
 
 export default function FileContentDialog({ isOpen, onClose, contentId }: FileContentDialogProps) {
 
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null)
+
+  const { data, setData, post, processing, errors, reset, progress } = useForm({
     title: "",
-    file: null as File | null,
+    file_url: null as File | null,
     content_id: contentId,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    post(route("file-content.store"), {
+    post(route("file-contents.store"), {
       onSuccess: () => {
         reset()
         onClose()
       },
+      onError: (errors) => {
+        console.log('Validation errors:', errors);
+      },
     })
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      if (file.size > 50 * 1024 * 1024) {
+        setFileSizeError("File size must not exceed 50MB")
+        setData("file_url", null)
+       
+      } else {
+        setFileSizeError(null)
+        setData("file_url", file)
+        const reader = new FileReader()
+      }
+    } else {
+      setData("file_url", null)
+      setFileSizeError(null)
+    }
   }
 
   return (
@@ -47,17 +71,26 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
                 onChange={(e) => setData("title", e.target.value)}
                 className="col-span-3"
               />
+              <InputError message={errors.title} className="mt-2" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="file" className="text-right">
+              <Label htmlFor="file_url" className="text-right">
                 File
               </Label>
               <Input
-                id="file"
+                id="file_url"
                 type="file"
-                onChange={(e) => setData("file", e.target.files?.[0] || null)}
+                onChange={handleFileChange}
                 className="col-span-3"
               />
+
+            {fileSizeError && <p className="text-red-500 text-sm">{fileSizeError}</p>}
+            {progress && (
+              <progress value={progress.percentage} max="100" className="w-full h-2 bg-gray-200 rounded-lg mt-2">
+                {progress.percentage}%
+              </progress>
+            )}
+              <InputError className="mt-2" message={errors.file_url} />
             </div>
           </div>
           <DialogFooter>

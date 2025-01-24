@@ -10,6 +10,7 @@ import ContentGrid from '../Contents/ContentGrid'
 import { Chapter, Content, Quiz } from '@/types'
 import CreateContentAlert from '../Contents/CreateContentAlert'
 import QuizList from '../Quiz/QuizList'
+import CreateQuizAlert from '../Quiz/CreateQuizAlert'
 
 
 
@@ -105,9 +106,9 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Quizzes</CardTitle>
-                  <Button onClick={() => setIsAddQuizModalOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" /> Add Quiz
-                  </Button>
+                
+                    <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/>
+              
                 </div>
               </CardHeader>
               <CardContent>

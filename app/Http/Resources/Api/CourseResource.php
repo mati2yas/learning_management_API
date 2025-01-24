@@ -38,6 +38,14 @@ class CourseResource extends JsonResource
                     'stream'=> $this->grade->stream,
                 ];
             }),
+            'chapters' => $this->whenLoaded('chapters', function () {
+                return $this->chapters->map(function ($chapter) {
+                    return [
+                        'id' => $chapter->id,
+                        'title' => $chapter->title,
+                    ];
+                });
+            }),
             'batch' => $this->whenLoaded('batch', function () {
                 return [
                     'id' => $this->batch->id,

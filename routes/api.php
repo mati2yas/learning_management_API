@@ -14,9 +14,14 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request 
     return $request->user();
 });
 
-Route::get('/random-courses-paginate', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch'])->paginate(10)) );
+Route::get('/random-courses-paginate', function(){
 
-Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch'])->latest()->get() ));
+     return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters'])->paginate()); 
+});
+
+
+
+Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
 
 Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 

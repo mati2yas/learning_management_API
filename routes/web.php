@@ -4,7 +4,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\ChapterController;
 use App\Http\Controllers\Web\ContentController;
 use App\Http\Controllers\Web\CourseController;
+use App\Http\Controllers\Web\FileContentController;
+use App\Http\Controllers\Web\QuizController;
 use App\Http\Controllers\Web\UserManagementController;
+use App\Http\Controllers\Web\YoutubeContentController;
 use App\Models\Course;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +37,12 @@ Route::middleware(['auth', 'verified'])->resource('courses', CourseController::c
 Route::middleware(['auth', 'verified'])->resource('chapters', ChapterController::class);
 
 Route::middleware(['auth', 'verified'])->resource('contents', ContentController::class);
+
+Route::middleware(['auth', 'verified'])->resource('quizzes', QuizController::class);
+
+Route::middleware(['auth', 'verified'])->resource('youtube-contents', YoutubeContentController::class);
+
+Route::middleware(['auth', 'verified'])->resource('file-contents', FileContentController::class);
 
 Route::middleware(['auth', 'verified'])->resource('user-management', UserManagementController::class);
 

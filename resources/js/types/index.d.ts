@@ -47,7 +47,7 @@ export interface Batch {
 
 export interface Chapter{
     estimated_time: ReactNode;
-    order: ReactNode;
+    order: number;
     id: number;
     title: string;
     description?: string;
@@ -68,6 +68,7 @@ export interface Quiz{
 export interface QuizQuestion{
     id: number;
     quiz_id: number;
+    question_number: number;
     text: string;
     question_image_url: string;
     text_explanation: string;

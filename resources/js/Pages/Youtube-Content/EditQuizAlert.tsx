@@ -1,18 +1,19 @@
-import { useState } from "react"
+
 import { useForm } from "@inertiajs/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import InputError from "@/Components/InputError"
+import EditQuizAlert from '../Quiz/EditQuizAlert';
 
-interface YouTubeContentDialogProps {
+interface EditQuizAlertProps {
   isOpen: boolean
   onClose: () => void
   contentId: number
 }
 
-export default function YouTubeContentDialog({ isOpen, onClose, contentId }: YouTubeContentDialogProps) {
+export default function YouTubeContentDialog({ isOpen, onClose, contentId }: EditQuizAlertProps) {
 
   const { data, setData, post, processing, errors, reset } = useForm({
     title: "",
@@ -22,7 +23,7 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    post(route("youtube-contents.store"), {
+    post(route("youtube-content.store"), {
       onSuccess: () => {
         reset()
         onClose()
@@ -34,7 +35,7 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Video Content</DialogTitle>
+          <DialogTitle>Add YouTube Content</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">

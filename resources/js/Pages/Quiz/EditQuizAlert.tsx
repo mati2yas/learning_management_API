@@ -7,26 +7,25 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Edit2 } from "lucide-react";
-import { Chapter } from "@/types";
+import {  Quiz, YoutubeContent } from "@/types";
 
-interface UpdateChapterAlertProps {
-  chapter: Chapter;
+interface EditQuizAlertProps {
+  quiz: Quiz;
 }
 
-const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
+const EditQuizAlert = ({quiz}:EditQuizAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
   const { data, setData, put, processing, errors, reset} = useForm({
-    title: chapter.title,
-    order: chapter.order,
-    course_id: chapter.course_id,
+    title: quiz.title,
+    chapter_id: quiz.chapter_id,
   });
 
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
-    put(route('chapters.update', chapter.id), {
+    put(route('quizzes.update', quiz.id), {
       onSuccess: () => {
           // toast('A course has been created')
           setIsOpen(false); // Only close on successful submission
@@ -48,7 +47,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Edit Chapter {chapter.title}</AlertDialogTitle>
+          <AlertDialogTitle>Edit Quiz {quiz.title}</AlertDialogTitle>
           <AlertDialogDescription>
             Fill all the required data
           </AlertDialogDescription>
@@ -69,18 +68,18 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
             </div>
 
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <InputLabel htmlFor="order" value="Chapter Order" />
               <input
                 id="order"
                 name="order"
                 type="number"
                 value={data.order}
-                onChange={(e) => setData('order', Number(e.target.value))}
+                onChange={(e) => setData('order', e.target.value)}
                 required
               />
               <InputError message={errors.order} className="mt-2" />
-            </div>
+            </div> */}
 
             <div className="mt-6 flex gap-x-2">
               <AlertDialogCancel onClick={() => {
@@ -102,4 +101,4 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
   )
 }
 
-export default EditChapterAlert;
+export default EditQuizAlert;

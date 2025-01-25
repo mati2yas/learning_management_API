@@ -38,10 +38,8 @@ Route::get('/random-chapters', function(){
 });
 
 Route::get('/course-chapters/{course_id}', function ($course_id) {
-    // Fetch all chapters for the course
-    $chapters = Chapter::where('course_id', $course_id)->get();
 
-    // Return the chapters transformed by the resource
+    $chapters = Chapter::where('course_id', $course_id)->get();
     return CourseChapterResource::collection($chapters);
 });
 

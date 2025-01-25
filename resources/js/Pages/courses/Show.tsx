@@ -1,21 +1,30 @@
 import { Head } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Course } from "@/types/course";
-import { BookOpen, Users, Layers, GraduationCap, Building, Pencil, Trash2, PlusCircle } from 'lucide-react';
-import { Button } from "@/Components/ui/button";
+import { BookOpen, Users, Layers, GraduationCap, Building } from 'lucide-react';
 import { EnhancedTableDemo } from "@/Components/TableDemo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import CreateChapter from './CreateChapter';
+import DeleteCourseAlert from "./DeleteCourseAlert";
+import { UpdateCourseAlert } from "./UpdateCourseAlert";
+import ChapterCard from "@/Components/ChapterCard";
+import { ShowCourseProps } from "@/types/show";
 
-interface ShowProps {
-  course: Course;
-  thumbnail: string;
-  category_name: string;
-  department_name: string;
-  batch_name: string;
-}
+const Show = ({
+  course, 
+  thumbnail, 
+  category_name, 
+  department_name, 
+  batch_name, 
+  chapters,
+  categories,
+  grades,
+  departments,
+  batches,
+}: ShowCourseProps) => {
 
-const Show = ({course, thumbnail, category_name, department_name, batch_name}: ShowProps) => {
+  const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A";
+
   return (
     <AuthenticatedLayout
       header={
@@ -42,7 +51,7 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
                     <InfoItem icon={<BookOpen className="w-5 h-5" />} label="Chapters" value={course.number_of_chapters} />
                     <InfoItem icon={<Layers className="w-5 h-5" />} label="Category" value={category_name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())} />
                     {course.grade_id && (
-                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={course.grade_id} />
+                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={gradeName} />
                     )}
                     {course.department_id && (
                       <InfoItem icon={<Building className="w-5 h-5" />} label="Department" value={department_name} />
@@ -62,21 +71,17 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
                   <CardTitle>Admin Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button 
-                    onClick={() => handleUpdate(course)}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Pencil className="w-5 h-5 mr-2" />
-                    Update Course
-                  </Button>
-                  <Button 
-                    onClick={() => handleDelete(course)}
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    <Trash2 className="w-5 h-5 mr-2" />
-                    Delete Course
-                  </Button>
+
+                  <UpdateCourseAlert 
+                    course={course}
+                    categories={categories}
+                    grades={grades}
+                    departments={departments}
+                    batches={batches}
+                    thumbnail={thumbnail}
+                  />
+                  
+                  <DeleteCourseAlert id={course.id} />
                 </CardContent>
               </Card>
               
@@ -98,10 +103,10 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Chapters</CardTitle>
-                <Button>
-                  <PlusCircle className="w-5 h-5 mr-2" />
-                  Add Chapter
-                </Button>
+                <CreateChapter 
+                  id={course.id}
+                  course_name={course.course_name}
+                />
               </div>
             </CardHeader>
             <CardContent>
@@ -111,13 +116,17 @@ const Show = ({course, thumbnail, category_name, department_name, batch_name}: S
                   <TabsTrigger value="grid">Grid View</TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <EnhancedTableDemo />
+                  <EnhancedTableDemo chapters={chapters} />
                 </TabsContent>
                 <TabsContent value="grid">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                    {[...Array(6)].map((_, index) => (
-                      <ChapterCard key={index} />
-                    ))}
+                    {
+                      chapters.map((chapter, index) => 
+                      <ChapterCard 
+                      key={index}
+                          chapter={chapter}
+                      />)
+                    }
                   </div>
                 </TabsContent>
               </Tabs>
@@ -150,28 +159,6 @@ const StatItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 )
 
-const ChapterCard = () => (
-  <Card>
-    <CardContent className="p-4">
-      <h3 className="font-semibold mb-2">Chapter Title</h3>
-      <p className="text-sm text-gray-600 mb-4">Brief description of the chapter content goes here.</p>
-      <div className="flex justify-between items-center">
-        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">5 lessons</span>
-        <Button variant="outline" size="sm">View</Button>
-      </div>
-    </CardContent>
-  </Card>
-)
-
-const handleUpdate = (course: Course) => {
-  // Implement update logic here
-  console.log('Update course:', course.id);
-};
-
-const handleDelete = (course: Course) => {
-  // Implement delete logic here
-  console.log('Delete course:', course.id);
-};
 
 export default Show
 

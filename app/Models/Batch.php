@@ -9,4 +9,9 @@ class Batch extends Model
 {
     /** @use HasFactory<\Database\Factories\BatchFactory> */
     use HasFactory;
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
 }

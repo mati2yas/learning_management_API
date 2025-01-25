@@ -1,134 +1,65 @@
-import { useState, useEffect } from 'react'
-import { Head } from '@inertiajs/react'
+import React from 'react'
+import { Head, Link, useForm, router } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
-import { PageProps } from '@/types'
 import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
-import { Course } from '@/types/course'
+import { IndexProps } from '@/types/index.d'
 
-
-interface Category {
-  id: number;
-  course_name: string;
-  name: string;
-}
-
-interface Grade {
-  id: number;
-  category_id: number;
-  grade_name: string;
-  stream: string;
-}
-
-interface Department {
-  id: number;
-  department_name: string;
-  category_id: number;
-}
-
-interface Batch {
-  id: number;
-  batch_name: string;
-  department_id: number;
-}
-
-
-interface PaginatedData<T> {
-  data: T[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-}
-
-interface IndexProps extends PageProps {
-  categories: Category[];
-  grades: Grade[];
-  departments: Department[];
-  batches: Batch[];
-  courses: Course[];
-}
-
-
-const Index = ({
+const Index: React.FC<IndexProps> = ({
   auth,
-  categories = [],
-  grades = [],
-  departments = [],
-  batches = [],
-  courses = [],
-}: IndexProps) => {
-
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedCourses, setPaginatedCourses] = useState<PaginatedData<Course>>({
-    data: [],
-    current_page: 1,
-    last_page: 1,
-    per_page: 12,
-    total: 0,
-    from: 1,
-    to: 1,
+  courses,
+  categories,
+  grades,
+  departments,
+  batches,
+  filters,
+}) => {
+  const { data, setData } = useForm({
+    category: filters.category || '',
+    search: filters.search || '',
   });
 
-  const getCategoryName = (id: number) => categories.find(c => c.id === id)?.name || '';
-  const getGradeName = (id: number) => grades.find(g => g.id === id)?.grade_name || '';
-  const getDepartmentName = (id: number) => departments.find(d => d.id === id)?.department_name || '';
-  const getBatchName = (id: number) => batches.find(b => b.id === id)?.batch_name || '';
-
-  useEffect(() => {
-    const filteredCourses = courses.filter(course => 
-      (selectedCategory === 'all' || course.category_id.toString() === selectedCategory) &&
-      course.course_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const total = filteredCourses.length;
-    const lastPage = Math.ceil(total / paginatedCourses.per_page);
-    const from = (currentPage - 1) * paginatedCourses.per_page + 1;
-    const to = Math.min(currentPage * paginatedCourses.per_page, total);
-
-    setPaginatedCourses({
-      data: filteredCourses.slice(from - 1, to),
-      current_page: currentPage,
-      last_page: lastPage,
-      per_page: paginatedCourses.per_page,
-      total: total,
-      from: from,
-      to: to,
-    });
-  }, [selectedCategory, searchQuery, currentPage, courses]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
   const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setCurrentPage(1);
+    const categoryValue = value === 'all' ? '' : value;
+    setData('category', categoryValue);
+    updateFilters({ category: categoryValue });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
+    const query = e.target.value;
+    setData('search', query);
+    updateFilters({ search: query });
   };
+
+  const updateFilters = (newFilters: Partial<typeof data>) => {
+    router.get(route('courses.index'), { ...data, ...newFilters }, {
+      preserveState: true,
+      preserveScroll: true,
+      only: ['courses'],
+    });
+  };
+
+  const getCategoryName = (id: number) => categories.find((c: { id: number }) => c.id === id)?.name || '';
+  const getGradeName = (id: number) => grades.find((g: { id: number }) => g.id === id)?.grade_name || '';
+  const getDepartmentName = (id: number) => departments.find((d: { id: number }) => d.id === id)?.department_name || '';
+  const getBatchName = (id: number) => batches.find((b: { id: number }) => b.id === id)?.batch_name || '';
 
   return (
     <AuthenticatedLayout
       header={
         <div className='flex justify-between items-center'>
-          <h1 className="text-2xl font-semibold">Courses</h1>
-          <CreateCourseAlert
-            categories={categories}
-            grades={grades}
-            departments={departments}
-            batches={batches}
-          />
+          <React.Fragment>
+            <h1 className="text-2xl font-semibold">Courses</h1>
+            <CreateCourseAlert
+              categories={categories}
+              grades={grades}
+              departments={departments}
+              batches={batches}
+            />
+          </React.Fragment>
         </div>
       }
     >
@@ -137,18 +68,17 @@ const Index = ({
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="w-full sm:w-auto">
-              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+              <Select value={data.category || 'all'} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                  {categories.map((category: { id: React.Key | null | undefined; name: string }) => (
+                    <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
+                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
                     </SelectItem>
                   ))}
-
                 </SelectContent>
               </Select>
             </div>
@@ -156,7 +86,7 @@ const Index = ({
               <Input
                 type="text"
                 placeholder="Search courses..."
-                value={searchQuery}
+                value={data.search}
                 onChange={handleSearchChange}
                 className="w-full sm:w-[300px] pl-10"
               />
@@ -165,10 +95,10 @@ const Index = ({
           </div>
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {paginatedCourses.data.map((course) => (
+              {courses.data.map((course) => (
                 <CourseCard
                   key={course.id}
-                  id={course.id}
+                  id={Number(course.id)}
                   name={course.course_name}
                   thumbnail={course.thumbnail}
                   category={getCategoryName(course.category_id)}
@@ -176,16 +106,35 @@ const Index = ({
                   department={course.department_id ? getDepartmentName(course.department_id) : undefined}
                   batch={course.batch_id ? getBatchName(course.batch_id) : undefined}
                   topicsCount={course.number_of_chapters}
-                />
+                  saves={course.saves}
+                  likes={course.likes} 
+                  price_one_month={course.price_one_month} 
+                  price_three_month={course.price_three_month} 
+                  price_six_month={course.price_six_month} 
+                  price_one_year={course.price_one_year}                  
+                  />
               ))}
             </div>
-            {paginatedCourses.data.length === 0 && (
+            {courses.data.length === 0 && (
               <div className="text-center text-gray-500 mt-8">
                 No courses found matching your criteria.
               </div>
             )}
           </div>
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            {courses.links.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
+              <Link
+                key={index}
+                href={link.url || '#'}
+                className={`px-4 py-2 border rounded ${
+                  link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'
+                } ${!link.url ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
+                preserveScroll
+                preserveState
+              >
+                <span dangerouslySetInnerHTML={{ __html: link.label }}></span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -194,5 +143,3 @@ const Index = ({
 }
 
 export default Index
-
-

@@ -40,6 +40,13 @@ export default function Authenticated({
                                 >
                                     Courses
                                 </NavLink>
+
+                                <NavLink
+                                    href={route('user-management.index')}  
+                                    active={route().current('user-management.index')} 
+                                >
+                                    User Management
+                                </NavLink>
                             </div>
                         </div>
 

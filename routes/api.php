@@ -74,20 +74,28 @@ Route::get('/random-contents', function(){
 Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
 
 Route::get('/random-courses/{filterType}', function ($filterType) {
+    $categoryMap = [
+        "lower_grades" => "lower_grades",
+        "high_school" => "higher_grades",
+        "university" => "university",
+        "random_courses" => "random_courses"
+    ];
 
-    $validCategories = ['lower_grades', 'higher_grades', 'university', 'random_courses'];
-
-    if (!in_array($filterType, $validCategories)) {
+    if (!array_key_exists($filterType, $categoryMap)) {
         return response()->json(['error' => 'Invalid filter type'], 400);
     }
 
-    $category = Category::where('name', $filterType)->first();
+    $dbCategoryName = $categoryMap[$filterType];
+
+    $category = Category::where('name', $dbCategoryName)->first();
 
     if (!$category) {
         return response()->json(['error' => 'Category not found'], 404);
     }
 
-    $courses = Course::with(['department','grade', 'batch'])->where('category_id', $category->id)->get();
+    $courses = Course::with(['department', 'grade', 'batch', 'category'])
+        ->where('category_id', $category->id)
+        ->get();
     return CourseResource::collection($courses);
 });
 

@@ -49,8 +49,8 @@ Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
         ->with(['youtubeContents', 'fileContents'])
         ->get();
 
-    // Return the transformed response
-    return ChapterContentResource::collection($contents);
+    // Return the resource collection
+    return new ChapterContentResource($contents);
 });
 
 

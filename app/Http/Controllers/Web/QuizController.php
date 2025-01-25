@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Chapter;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -30,15 +31,22 @@ class QuizController extends Controller
      */
     public function store(Request $request)
     {
-        $attrs = $request->validate([
-            'chapter_id' => 'required',
-            'title' => 'required|string', 
+        $validated = $request->validate([
+            'chapter_id' => 'required|exists:chapters,id',
+            'quizzes' => 'required|array|min:1',
+            'quizzes.*.title' => 'required|string|max:255',
         ]);
-
-        Quiz::create($attrs);
-
-        return redirect()->route('chapters.show', $request->chapter_id)->with('success','Quizz Created Successfully');
+    
+        $chapter = Chapter::findOrFail($validated['chapter_id']);
+    
+        $createdQuizzes = collect($validated['quizzes'])->map(function ($quizData) use ($chapter) {
+            return $chapter->quizzes()->create($quizData);
+        });
+    
+        return redirect()->route('chapters.show', $chapter->id)
+                         ->with('success', 'Quizzes Created Successfully');
     }
+    
 
     /**
      * Display the specified resource.

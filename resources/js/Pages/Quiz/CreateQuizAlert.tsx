@@ -1,120 +1,143 @@
-import { FormEventHandler, useState } from "react";
-import { Button } from "@/Components/ui/button";
-import { useForm } from "@inertiajs/react";
-import PrimaryButton from "@/Components/PrimaryButton";
-import TextInput from "@/Components/TextInput";
-import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
-import { PlusCircle } from "lucide-react";
+import { type FormEventHandler, useState, useEffect, useCallback } from "react"
+import { useForm } from "@inertiajs/react"
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import { Label } from "@/Components/ui/label"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog"
+import { PlusCircle, X } from "lucide-react"
 
-interface CreateQuizAlertProps {
-  id: number;
-  chapter_title: string;
+interface CreateMultipleQuizzesAlertProps {
+  id: number
+  chapter_title: string
 }
 
-const CreateQuizAlert = ({id, chapter_title}:CreateQuizAlertProps) => {
+const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzesAlertProps) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [quizTitles, setQuizTitles] = useState<string[]>([""])
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  const { data, setData, post, processing, errors, reset} = useForm({
-    title: '',
+  const { data, setData, post, processing, errors, reset } = useForm({
     chapter_id: id,
-  });
+    quizzes: [] as { title: string }[],
+  })
 
+  useEffect(() => {
+    setData("chapter_id", id)
+  }, [id, setData])
+
+  const addQuizTitle = useCallback(() => {
+    setQuizTitles((prev) => [...prev, ""])
+  }, [])
+
+  const removeQuizTitle = useCallback((index: number) => {
+    setQuizTitles((prev) => prev.filter((_, i) => i !== index))
+  }, [])
+
+  const updateQuizTitle = useCallback((index: number, value: string) => {
+    setQuizTitles((prev) => {
+      const newTitles = [...prev]
+      newTitles[index] = value
+      return newTitles
+    })
+  }, [])
+
+  const updateFormData = useCallback(() => {
+    const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
+    setData((prevData) => ({
+      ...prevData,
+      quizzes: quizzes,
+    }))
+  }, [quizTitles, setData])
+
+  useEffect(() => {
+    updateFormData()
+  }, [updateFormData])
 
   const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-    post(route('quizzes.store'), {
+    e.preventDefault()
+    updateFormData()
+
+    console.log("Submitting data:", data)
+
+    post(route("quizzes.store"), {
+      preserveState: true,
+      preserveScroll: true,
       onSuccess: () => {
-          // toast('A course has been created')
-          setIsOpen(false); // Only close on successful submission
-          reset();
+        setIsOpen(false)
+        reset()
+        setQuizTitles([""])
       },
       onError: (errors) => {
-        console.log('Validation errors:', errors);
+        console.log("Validation errors:", errors)
       },
-    });
-  };
-
+    })
+  }
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
-          <PlusCircle className="w-5 h-5 mr-2" /> Add Quizz
+          <PlusCircle className="w-5 h-5 mr-2" /> Add Quizzes
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Create a Chapter for {chapter_title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            Fill all the required data
-          </AlertDialogDescription>
+          <AlertDialogTitle>Create Quizzes for {chapter_title}</AlertDialogTitle>
+          <AlertDialogDescription>Add one or more quiz titles</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
-          <form onSubmit={submit}>
-            <div className="mb-4">
-
-
-              <InputLabel htmlFor="title" value="Chapter Title" />
-              <TextInput
-                id="title"
-                name="title"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
+        <form onSubmit={submit} className="space-y-4">
+          {quizTitles.map((title, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <Label htmlFor={`quiz-${index}`} className="sr-only">
+                Quiz Title
+              </Label>
+              <Input
+                id={`quiz-${index}`}
+                value={title}
+                onChange={(e) => updateQuizTitle(index, e.target.value)}
+                placeholder={`Quiz ${index + 1} Title`}
                 required
               />
-              <InputError message={errors.title} className="mt-2" />
+              {index > 0 && (
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeQuizTitle(index)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
+          ))}
 
+          <Button type="button" variant="outline" onClick={addQuizTitle}>
+            Add Another Quiz
+          </Button>
 
-            {/* <div className="mb-4">
-              <InputLabel htmlFor="order" value="Chapter Order" />
-              <input
-                id="order"
-                name="order"
-                type="number"
-                value={data.order}
-                onChange={(e) => setData('order', e.target.value)}
-                required
-              />
-              <InputError message={errors.order} className="mt-2" />
-            </div> */}
-
-            {/* <div className="mb-4">
-              <InputLabel htmlFor="title" value="Quizz title" />
-              <TextInput
-                id="title"
-                name="description"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
-                required
-              />
-              <InputError message={errors.title} className="mt-2" />
-            </div> */}
-
-            <div className="mt-6 flex gap-x-2">
-              <AlertDialogCancel onClick={() => {
-              setIsOpen(false);
-              reset();
-            }}>
-                Cancel
-              </AlertDialogCancel>
-
-             
-                <PrimaryButton type="submit" disabled={processing}>
-                  Add Quiz
-                </PrimaryButton>
-          
-            </div>
-          </form>
-        </div>
+          <div className="flex justify-end space-x-2">
+            <AlertDialogCancel
+              onClick={() => {
+                setIsOpen(false)
+                reset()
+                setQuizTitles([""])
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <Button type="submit" disabled={processing}>
+              Create Quizzes
+            </Button>
+          </div>
+        </form>
       </AlertDialogContent>
     </AlertDialog>
   )
 }
 
-export default CreateQuizAlert
+export default CreateMultipleQuizzesAlert
+

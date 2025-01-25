@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\QuizQuestion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class QuizQuesitonController extends Controller
 {
@@ -29,9 +30,47 @@ class QuizQuesitonController extends Controller
      */
     public function store(Request $request)
     {
-        $attrs= $request->validate([
-            
+
+        $attrs = $request->validate([
+            'quiz_id' => 'required|exists:quizzes,id',
+            'question_number' => 'required|integer',
+            'text' => 'required|string',
+            'question_image_url' => 'nullable|image|max:2048', // 2MB Max
+            'text_explanation' => 'required|string',
+            'video_explanation_url' => 'nullable|url',
+            'options' => 'required',  // Remove json validation as we'll handle it manually
+            'answer' => 'required',   // Remove json validation as we'll handle it manually
         ]);
+    
+        try {
+        // Handle file upload if present
+        if ($request->hasFile('question_image_url')) {
+            $path = $request->file('question_image_url')->store('question_images', 'public');
+            $attrs['question_image_url'] =  $path;
+        }
+    
+            // Ensure options and answer are properly encoded as JSON strings
+            // Check if they're already JSON strings
+            $attrs['options'] = is_string($attrs['options']) ? $attrs['options'] : json_encode($attrs['options']);
+            $attrs['answer'] = is_string($attrs['answer']) ? $attrs['answer'] : json_encode($attrs['answer']);
+    
+            // Create the quiz question
+            $quizQuestion = QuizQuestion::create($attrs);
+    
+            return redirect()->route('quizzes.show', $request->quiz_id)->with('success', 'Quiz Question Created Successfully.');
+    
+        } catch (\Exception $e) {
+            Log::error('Quiz Question Creation Error:', [
+                'error' => $e->getMessage(),
+                'data' => $attrs
+            ]);
+    
+            return redirect()->back()
+                ->withErrors(['error' => 'Failed to create quiz question. Please try again.'])
+                ->withInput();
+        }
+    
+
     }
 
     /**

@@ -17,6 +17,7 @@ import { PlusCircle, X } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
+import InputError from "@/Components/InputError"
 
 interface CreateQuizQuestionAlertProps {
   quizId: number;
@@ -56,12 +57,26 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
     setOptions(newOptions)
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setData('question_image_url', e.target.files[0]);
+
+      const reader = new FileReader();
+    reader.onload = () => {
+      setQuestionImagePreview(reader.result as string); // Set the preview URL
+    };
+    reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
+    }
+  };
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
     const formattedOptions = JSON.stringify(options)
     const formattedAnswer = JSON.stringify(isMultipleChoice ? correctAnswer : [correctAnswer])
     setData("options", formattedOptions)
     setData("answer", formattedAnswer)
+
+    console.log(data)
     post(route("quiz-questions.store"), {
       onSuccess: () => {
         setIsOpen(false)
@@ -110,15 +125,24 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="question_image_url">Image URL (optional)</Label>
+                <Label htmlFor="question_image_url">Image (optional)</Label>
                 <Input
                   id="question_image_url"
-                  type="url"
+                  type="file"
+                  name="quesiton_image_url"
                   // value={data.question_image_url}
-                  onChange={handleFileChange}
+                  onChange={handleImageChange}
                 />
+
+              {questionImagePreview && (
+                <div className="mt-2">
+                  <img src={questionImagePreview || "/placeholder.svg"} alt="question Image Preview" className="w-32 h-32 object-cover" />
+                </div>
+              )}
+              <InputError message={errors.question_image_url} />
               </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="text">Question Text</Label>
               <Textarea id="text" value={data.text} onChange={(e) => setData("text", e.target.value)} />
@@ -131,6 +155,8 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   value={data.text_explanation}
                   onChange={(e) => setData("text_explanation", e.target.value)}
                 />
+
+                <InputError message={errors.text_explanation} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="video_explanation_url">Video Explanation URL (optional)</Label>
@@ -140,6 +166,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   value={data.video_explanation_url}
                   onChange={(e) => setData("video_explanation_url", e.target.value)}
                 />
+                <InputError message={errors.video_explanation_url}  />
               </div>
             </div>
             <div className="space-y-2">

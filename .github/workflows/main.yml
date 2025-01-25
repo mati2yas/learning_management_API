@@ -31,9 +31,3 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-    - name: Run Composer Install on Server
-      run: |
-        sshpass -p "${{ secrets.FTP_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} << EOF
-        cd lms.biruklemma.com/biruklir
-        composer install --no-dev --optimize-autoloader
-        EOF

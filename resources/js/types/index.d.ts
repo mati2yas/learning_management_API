@@ -164,3 +164,28 @@ export interface FileContent{
     created_at?: string;
     updated_at?: string;
 }
+
+export interface ExamCourse{
+    id: number;
+    exam_year_id: number;
+    course_name: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ExamChapter{
+    id: number;
+    exam_grade_id: number;
+    title: string;
+    sequence_order: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ExamYear{
+    id: number;
+    exam_type_id: number;
+    year: string|number;
+    created_at?: string;
+    updated_at?: string;
+}

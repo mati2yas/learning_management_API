@@ -9,7 +9,6 @@ import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
 
 const Index: React.FC<IndexProps> = ({
-  auth,
   courses,
   categories,
   grades,

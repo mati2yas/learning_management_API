@@ -30,6 +30,14 @@ class DatabaseSeeder extends Seeder
         $this->callOnce(YoutubeContentSeeder::class);
         $this->callOnce(FileContentSeeder::class);
         $this->callOnce( PermissionSeeder::class);
-        
+
+
+
+
+        $this->callOnce(ExamTypeSeeder::class);
+        $this->callOnce(ExamYearSeeder::class);
+        $this->callOnce(ExamCourseSeeder::class);
+        $this->callOnce(ExamGradeSeeder::class);
+        $this->callOnce(ExamChapterSeeder::class);
     }
 }

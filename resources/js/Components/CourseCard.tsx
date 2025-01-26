@@ -2,7 +2,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Componen
 import { Button } from "@/Components/ui/button"
 import { Badge } from "@/Components/ui/badge"
 import { Link } from "@inertiajs/react"
-import { SVGAttributes } from 'react';
 
 
 interface CourseCardProps {
@@ -34,11 +33,16 @@ export function CourseCard(
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative h-48 w-full">
-        <img
-          src={'storage/'+thumbnail}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-        />
+      <img
+        src={
+          thumbnail.startsWith('/id')
+            ? `https://picsum.photos${thumbnail}` // Append base URL if it starts with '/id'
+            : 'storage/' + thumbnail // Keep it as is otherwise
+        }
+        alt={name}
+        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+      />
+
       </div>
       <CardHeader>
         <CardTitle className="text-lg font-semibold line-clamp-2">{name}</CardTitle>

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Head } from "@inertiajs/react"
+import { Head, Link } from "@inertiajs/react"
 
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
@@ -21,12 +21,14 @@ interface ContentDetailProps {
   youtube_contents?: YoutubeContent[]
   text_contents?: TextContent[]
   file_contents?: FileContent[]
+  chapter_id: number
 }
 
 export default function ContentDetail({
   content,
   youtube_contents,
   file_contents,
+  chapter_id
 }: ContentDetailProps) {
 
 
@@ -42,9 +44,11 @@ export default function ContentDetail({
             Content: {content.name}
           </h1>
 
+        <Link href={route('chapters.show', chapter_id)}>
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Chapters
           </Button>
+        </Link>
         </div>
       }
     >

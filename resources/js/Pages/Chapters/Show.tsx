@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head } from "@inertiajs/react"
+import { Head, Link } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { BookOpen, Clock, List, Grid, ArrowLeft, Plus } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
@@ -18,12 +18,14 @@ interface ChapterDetailProps {
   chapter: Chapter
   contents: Content[]
   quizzes: Quiz[]
+  course_id: number
 }
 
 const Show: React.FC<ChapterDetailProps> = ({ 
   chapter,  
   contents,
   quizzes,
+  course_id
 }) => {
 
   function setIsAddQuizModalOpen(arg0: boolean): void {
@@ -36,9 +38,11 @@ const Show: React.FC<ChapterDetailProps> = ({
         <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-semibold">Chapter: {chapter.title}</h1>
 
+        <Link href={route('courses.show', course_id)}>
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course
           </Button>
+        </Link>
         </div>
       }
     >

@@ -49,9 +49,6 @@ class ContentController extends Controller
     {
        
         $youtube_contents = $content->youtubeContents()->get();
-        // dd($youtube_contents);
-
-        // dd($youtube_contents);
         $text_contents = $content->textContents()->get();
         $file_contents = $content->fileContents()->get();
 
@@ -61,6 +58,7 @@ class ContentController extends Controller
         'youtube_contents' => $youtube_contents,
         'text_contents' => $text_contents,
         'file_contents' => $file_contents,
+        'chapter_id' => $content->chapter_id,
         ]);
     }
 

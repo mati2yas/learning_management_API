@@ -54,9 +54,12 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $quiz_questions = $quiz->quizQuestions()->get();
+
+        
         return Inertia::render('Quiz/Show',[
             'quiz' => $quiz,
             'quiz_questions' => $quiz_questions,
+            'chapter_id' => $quiz->chapter_id
         ]);
     }
 

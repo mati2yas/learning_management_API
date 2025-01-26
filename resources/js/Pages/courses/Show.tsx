@@ -41,7 +41,11 @@ const Show = ({
             <Card className="w-full lg:w-2/3">
               <CardContent className="p-0">
                 <img 
-                  src={thumbnail} 
+                  src={
+                    thumbnail.startsWith('/storage//id')
+                      ? `https://picsum.photos${thumbnail.replace('storage/', '')}` // Append base URL if it starts with '/id'
+                      : thumbnail // Keep it as is otherwise
+                  }
                   alt={course.course_name} 
                   className="w-full h-64 object-cover rounded-t-lg"
                 />

@@ -53,6 +53,7 @@ class ChapterController extends Controller
             'chapter' => $chapter,
             'contents' => $chapter->contents,
             'quizzes' => $chapter->quizzes,
+            'course_id' => $chapter->course_id,
         ]
         );
     }

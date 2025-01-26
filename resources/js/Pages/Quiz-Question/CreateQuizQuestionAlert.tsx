@@ -9,95 +9,168 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { Button } from "@/Components/ui/button"
-import { Input } from "@/Components/ui/input"
 import { Textarea } from "@/Components/ui/textarea"
 import { Label } from "@/Components/ui/label"
-import { type FormEventHandler, useState } from "react"
+import { type FormEventHandler, useState, useEffect } from "react"
 import { PlusCircle, X } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
+import { Input } from "@/Components/ui/input"
 
 interface CreateQuizQuestionAlertProps {
-  quizId: number;
+  quizId: number
   title: string
 }
 
 const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps) => {
-
   const [isOpen, setIsOpen] = useState(false)
   const [options, setOptions] = useState<string[]>([])
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>("")
   const [isMultipleChoice, setIsMultipleChoice] = useState(false)
-  const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null);
+  const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null)
 
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
+    quiz_id: number
+    question_number: number
+    text: string
+    question_image_url: File | null
+    text_explanation: string
+    video_explanation_url: string
+    options: string[]
+    answer: string[]
+  }>({
     quiz_id: quizId,
     question_number: 0,
     text: "",
-    question_image_url: null as File | null,
+    question_image_url: null,
     text_explanation: "",
     video_explanation_url: "",
-    options: JSON.stringify([]),
-    answer: JSON.stringify({}),
+    options: [],
+    answer: [],
   })
 
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm()
+    }
+  }, [isOpen])
+
+  const resetForm = () => {
+    reset()
+    setOptions([])
+    setCorrectAnswer(isMultipleChoice ? [] : "")
+    setQuestionImagePreview(null)
+    setIsMultipleChoice(false)
+    setData("options", [])
+    setData("answer", [])
+    clearErrors()
+  }
+
   const addOption = () => {
-    setOptions([...options, ""])
+    const newOptions = [...options, ""]
+    setOptions(newOptions)
+    setData("options", newOptions)
   }
 
   const removeOption = (index: number) => {
-    setOptions(options.filter((_, i) => i !== index))
+    const newOptions = options.filter((_, i) => i !== index)
+    setOptions(newOptions)
+    setData("options", newOptions)
   }
 
   const updateOption = (index: number, value: string) => {
     const newOptions = [...options]
     newOptions[index] = value
     setOptions(newOptions)
+    setData("options", newOptions)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setData('question_image_url', e.target.files[0]);
-
-      const reader = new FileReader();
-    reader.onload = () => {
-      setQuestionImagePreview(reader.result as string); // Set the preview URL
-    };
-    reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
+      setData("question_image_url", e.target.files[0])
+      const reader = new FileReader()
+      reader.onload = () => {
+        setQuestionImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(e.target.files[0])
     }
-  };
+  }
+
+  const validateForm = (): boolean => {
+    let isValid = true
+    clearErrors()
+
+    if (data.question_number <= 0) {
+      setError("question_number", "Question number must be greater than 0")
+      isValid = false
+    }
+
+    if (data.text.trim() === "") {
+      setError("text", "Question text is required")
+      isValid = false
+    }
+
+    if (data.text_explanation.trim() === "") {
+      setError("text_explanation", "Explanation is required")
+      isValid = false
+    }
+
+    if (options.length < 2) {
+      setError("options", "At least two options are required")
+      isValid = false
+    }
+
+    if (options.some((option) => option.trim() === "")) {
+      setError("options", "All options must be non-empty")
+      isValid = false
+    }
+
+    if (isMultipleChoice && (correctAnswer as string[]).length === 0) {
+      setError("answer", "At least one correct answer must be selected")
+      isValid = false
+    }
+
+    if (!isMultipleChoice && (correctAnswer as string).trim() === "") {
+      setError("answer", "A correct answer must be selected")
+      isValid = false
+    }
+
+    return isValid
+  }
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
-    const formattedOptions = JSON.stringify(options)
-    const formattedAnswer = JSON.stringify(isMultipleChoice ? correctAnswer : [correctAnswer])
-    setData("options", formattedOptions)
+
+    if (!validateForm()) {
+      return
+    }
+
+    // Filter out empty options
+    const validOptions = options.filter((option) => option.trim() !== "")
+
+    // Format answer based on selection type
+    const formattedAnswer = isMultipleChoice
+      ? (correctAnswer as string[]).filter((answer) => answer.trim() !== "")
+      : [correctAnswer as string].filter((answer) => answer.trim() !== "")
+
+    // Update the data object
+    setData("options", validOptions)
     setData("answer", formattedAnswer)
 
-    console.log(data)
     post(route("quiz-questions.store"), {
+      preserveScroll: true,
+      preserveState: false,
       onSuccess: () => {
         setIsOpen(false)
-        reset()
-        setOptions([])
-        setCorrectAnswer("")
+        resetForm()
+      },
+      onError: (errors) => {
+        console.log("Validation errors:", errors)
       },
     })
   }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setData('question_image_url', e.target.files[0]);
-
-      const reader = new FileReader();
-    reader.onload = () => {
-      setQuestionImagePreview(reader.result as string); // Set the preview URL
-    };
-    reader.readAsDataURL(e.target.files[0]); // Read the file as a Data URL for preview
-    }
-  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -118,35 +191,36 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
               <div className="space-y-2">
                 <Label htmlFor="question_number">Question Number</Label>
                 <Input
+                  required
                   id="question_number"
                   type="number"
                   value={data.question_number}
                   onChange={(e) => setData("question_number", Number.parseInt(e.target.value))}
                 />
+                <InputError message={errors.question_number} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="question_image_url">Image (optional)</Label>
-                <Input
-                  id="question_image_url"
-                  type="file"
-                  name="quesiton_image_url"
-                  // value={data.question_image_url}
-                  onChange={handleImageChange}
-                />
-
-              {questionImagePreview && (
-                <div className="mt-2">
-                  <img src={questionImagePreview || "/placeholder.svg"} alt="question Image Preview" className="w-32 h-32 object-cover" />
-                </div>
-              )}
-              <InputError message={errors.question_image_url} />
+                <Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
+                {questionImagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={questionImagePreview || "/placeholder.svg"}
+                      alt="Question Preview"
+                      className="w-32 h-32 object-cover"
+                    />
+                  </div>
+                )}
+                <InputError message={errors.question_image_url} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="text">Question Text</Label>
-              <Textarea id="text" value={data.text} onChange={(e) => setData("text", e.target.value)} />
+              <Textarea id="text" value={data.text} onChange={(e) => setData("text", e.target.value)} required />
+              <InputError message={errors.text} />
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="text_explanation">Explanation</Label>
@@ -154,8 +228,8 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   id="text_explanation"
                   value={data.text_explanation}
                   onChange={(e) => setData("text_explanation", e.target.value)}
+                  required
                 />
-
                 <InputError message={errors.text_explanation} />
               </div>
               <div className="space-y-2">
@@ -166,9 +240,10 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   value={data.video_explanation_url}
                   onChange={(e) => setData("video_explanation_url", e.target.value)}
                 />
-                <InputError message={errors.video_explanation_url}  />
+                <InputError message={errors.video_explanation_url} />
               </div>
             </div>
+
             <div className="space-y-2">
               <Label>Options</Label>
               <div className="space-y-2">
@@ -178,6 +253,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                       value={option}
                       onChange={(e) => updateOption(index, e.target.value)}
                       placeholder={`Option ${index + 1}`}
+                      required
                     />
                     <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
                       <X className="h-4 w-4" />
@@ -188,10 +264,18 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   Add Option
                 </Button>
               </div>
+              <InputError message={errors.options} />
             </div>
+
             <div className="space-y-2">
               <Label>Answer Type</Label>
-              <RadioGroup defaultValue="single" onValueChange={(value) => setIsMultipleChoice(value === "multiple")}>
+              <RadioGroup
+                defaultValue="single"
+                onValueChange={(value) => {
+                  setIsMultipleChoice(value === "multiple")
+                  setCorrectAnswer(value === "multiple" ? [] : "")
+                }}
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="single" id="single" />
                   <Label htmlFor="single">Single Choice</Label>
@@ -202,6 +286,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                 </div>
               </RadioGroup>
             </div>
+
             <div className="space-y-2">
               <Label>Correct Answer(s)</Label>
               {isMultipleChoice ? (
@@ -211,18 +296,24 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                       id={`answer-${index}`}
                       checked={(correctAnswer as string[]).includes(option)}
                       onCheckedChange={(checked) => {
-                        if (checked) {
-                          setCorrectAnswer([...(correctAnswer as string[]), option])
-                        } else {
-                          setCorrectAnswer((correctAnswer as string[]).filter((a) => a !== option))
-                        }
+                        const newAnswer = checked
+                          ? [...(correctAnswer as string[]), option]
+                          : (correctAnswer as string[]).filter((a) => a !== option)
+                        setCorrectAnswer(newAnswer)
+                        setData("answer", newAnswer)
                       }}
                     />
                     <Label htmlFor={`answer-${index}`}>{option}</Label>
                   </div>
                 ))
               ) : (
-                <RadioGroup value={correctAnswer as string} onValueChange={setCorrectAnswer as (value: string) => void}>
+                <RadioGroup
+                  value={correctAnswer as string}
+                  onValueChange={(value) => {
+                    setCorrectAnswer(value)
+                    setData("answer", [value])
+                  }}
+                >
                   {options.map((option, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       <RadioGroupItem value={option} id={`answer-${index}`} />
@@ -231,6 +322,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   ))}
                 </RadioGroup>
               )}
+              <InputError message={errors.answer} />
             </div>
           </form>
         </ScrollArea>

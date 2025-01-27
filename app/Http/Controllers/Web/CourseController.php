@@ -22,7 +22,6 @@ class CourseController extends Controller
 
         $query = Course::query();
 
-
         if ($request->filled('category')) {
             $query->where('category_id', $request->input('category'));
         }
@@ -32,8 +31,6 @@ class CourseController extends Controller
         }
 
         $courses = $query->latest()->paginate(16);
-
-        // dd($courses);
 
         return Inertia::render('courses/Index',[
             'categories' => Category::all(),

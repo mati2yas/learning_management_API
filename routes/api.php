@@ -14,6 +14,10 @@ use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Content;
 use App\Models\Course;
+use App\Models\ExamChapter;
+use App\Models\ExamCourse;
+use App\Models\ExamGrade;
+use App\Models\ExamYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -131,3 +135,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('courses', CourseController::class);
 });
 
+Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_grade_id', $gradeId)->get());
+
+Route::get('/exam-years/{examTypeId}', function($examTypeId){
+    return ExamYear::where('exam_type_id', $examTypeId)->get();
+});
+
+Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_year_id', $examYearId)->get());
+
+Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());

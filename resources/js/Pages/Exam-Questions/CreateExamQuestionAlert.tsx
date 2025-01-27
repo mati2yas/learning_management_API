@@ -18,51 +18,48 @@ import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
 import { Input } from "@/Components/ui/input"
-import { ExamChapter, ExamCourse, ExamType, ExamYear } from "@/types"
+import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear } from "@/types"
 import InputLabel from "@/Components/InputLabel"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
+import axios from "axios"
 
 interface CreateExamQuestionAlertProps {
-  exam_courses: ExamCourse[];
-  exam_chapters: ExamChapter[];
-  exam_years?: ExamYear[];
   exam_types?: ExamType[]
-
 }
 
-const CreateExamQuestionAlert = ({ 
-  exam_courses = [], 
-  exam_chapters = [], 
-  exam_years = [],
-  exam_types = []
-}: CreateExamQuestionAlertProps) => {
-
+const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [options, setOptions] = useState<string[]>([])
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>("")
   const [isMultipleChoice, setIsMultipleChoice] = useState(false)
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null)
+  const [examYears, setExamYears] = useState<ExamYear[]>([])
+  const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
+  const [examGrades, setExamGrades] = useState<ExamGrade[]>([])
+  const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
     exam_type_id: string
-    exam_course_id: string;
-    exam_chapter_id: string;
-    exam_year_id: string;
-    question_text: string;
-    video_explanation_url: string;
-    question_image_url: File | null;
-    text_explanation: string;
-    options: string[];
-    answer: string[];
+    exam_year_id: string
+    exam_course_id: string
+    exam_grade_id: string
+    exam_chapter_id: string
+    question_text: string
+    video_explanation_url: string
+    question_image_url: File | null
+    text_explanation: string
+    options: string[]
+    answer: string[]
   }>({
-    exam_type_id: '',
-    exam_course_id: '',
-    exam_chapter_id: '',
-    exam_year_id: '',
-    question_text: '',
+    exam_type_id: "",
+    exam_year_id: "",
+    exam_course_id: "",
+    exam_grade_id: "",
+    exam_chapter_id: "",
+    question_text: "",
     video_explanation_url: "",
     question_image_url: null as File | null,
-    text_explanation: '',
+    text_explanation: "",
     options: [],
     answer: [],
   })
@@ -79,18 +76,91 @@ const CreateExamQuestionAlert = ({
     setCorrectAnswer(isMultipleChoice ? [] : "")
     setQuestionImagePreview(null)
     setIsMultipleChoice(false)
-    setData("options", [])
-    setData("answer", [])
+    setExamYears([])
+    setExamCourses([])
+    setExamGrades([])
+    setExamChapters([])
     clearErrors()
   }
 
-  const handleExamTypeChange = (value: string) => {
-    setData('exam_type_id', value);
-    setData('exam_course_id', '');
-    setData('exam_year_id', '');
-    setData('exam_chapter_id', '');
-  };
+  const fetchExamYears = async (examTypeId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-years/${examTypeId}`)
+      setExamYears(response.data)
+      // console.log(response.data)
+    } catch (error) {
+      console.error("Error fetching exam years:", error)
+    }
+  }
 
+  const fetchExamCourses = async (examYearId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-courses/${examYearId}`)
+      setExamCourses(response.data)
+    } catch (error) {
+      console.error("Error fetching exam courses:", error)
+    }
+  }
+
+  const fetchExamGrades = async (examCourseId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-grades/${examCourseId}`)
+      setExamGrades(response.data)
+    } catch (error) {
+      console.error("Error fetching exam grades:", error)
+    }
+  }
+
+  const fetchExamChapters = async (examGradeId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-chapters/${examGradeId}`)
+      setExamChapters(response.data)
+    } catch (error) {
+      console.error("Error fetching exam chapters:", error)
+    }
+  }
+
+  const handleExamTypeChange = (value: string) => {
+    setData("exam_type_id", value)
+    setData("exam_year_id", "")
+    setData("exam_course_id", "")
+    setData("exam_grade_id", "")
+    setData("exam_chapter_id", "")
+    setExamYears([])
+    setExamCourses([])
+    setExamGrades([])
+    setExamChapters([])
+    fetchExamYears(value)
+  }
+
+  const handleExamYearChange = (value: string) => {
+    setData("exam_year_id", value)
+    setData("exam_course_id", "")
+    setData("exam_grade_id", "")
+    setData("exam_chapter_id", "")
+    setExamCourses([])
+    setExamGrades([])
+    setExamChapters([])
+    fetchExamCourses(value)
+  }
+
+  const handleExamCourseChange = (value: string) => {
+    setData("exam_course_id", value)
+    setData("exam_grade_id", "")
+    setData("exam_chapter_id", "")
+    setExamGrades([])
+    setExamChapters([])
+    if (data.exam_type_id !== "ngat") {
+      fetchExamGrades(value)
+    }
+  }
+
+  const handleExamGradeChange = (value: string) => {
+    setData("exam_grade_id", value)
+    setData("exam_chapter_id", "")
+    setExamChapters([])
+    fetchExamChapters(value)
+  }
 
   const addOption = () => {
     const newOptions = [...options, ""]
@@ -154,18 +224,6 @@ const CreateExamQuestionAlert = ({
     return isValid
   }
 
-  const handleCourseChange = (value: string) =>{
-    setData('exam_course_id', value);
-  }
-
-  const handleChapterChange = (value: string) =>{
-    setData('exam_chapter_id', value)
-  }
-
-  const handleExamYearChange = (value: string) => {
-    setData('exam_year_id', value)
-  }
-
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
@@ -214,49 +272,124 @@ const CreateExamQuestionAlert = ({
         <ScrollArea className="max-h-[calc(90vh-130px)] overflow-y-auto px-6">
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <InputLabel htmlFor="exam-type" value="Exam Type" />
+                <Select value={data.exam_type_id} onValueChange={handleExamTypeChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an exam type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {exam_types.map((examType) => (
+                      <SelectItem key={examType.id} value={examType.id.toString()}>
+                        {examType.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <InputError message={errors.exam_type_id} className="mt-2" />
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {data.exam_type_id && (
                 <div>
-                  <InputLabel htmlFor="exam-type" value="Exam Type" />
-                  <Select
-                    value={data.exam_type_id}
-                    onValueChange={handleExamTypeChange}
-                  >
+                  <InputLabel htmlFor="exam-year" value="Exam Year" />
+                  <Select value={data.exam_year_id} onValueChange={handleExamYearChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select an exam year" />
                     </SelectTrigger>
                     <SelectContent>
-                      {exam_types.map((examType) => (
-                        <SelectItem key={examType.id} value={examType.id.toString()}>
-                          {examType.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                      {examYears.map((examYear) => (
+                        <SelectItem key={examYear.id} value={examYear.id.toString()}>
+                          {examYear.year}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <InputError message={errors.exam_type_id} className="mt-2" />
+                  <InputError message={errors.exam_year_id} className="mt-2" />
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="question_image_url">Image (optional)</Label>
-                <Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
-                {questionImagePreview && (
-                  <div className="mt-2">
-                    <img
-                      src={questionImagePreview || "/placeholder.svg"}
-                      alt="Question Preview"
-                      className="w-32 h-32 object-cover"
-                    />
-                  </div>
-                )}
-                <InputError message={errors.question_image_url} />
-              </div>
+              {data.exam_year_id && (
+                <div>
+                  <InputLabel htmlFor="exam-course" value="Exam Course" />
+                  <Select value={data.exam_course_id} onValueChange={handleExamCourseChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an exam course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {examCourses.map((examCourse) => (
+                        <SelectItem key={examCourse.id} value={examCourse.id.toString()}>
+                          {examCourse.course_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.exam_course_id} className="mt-2" />
+                </div>
+              )}
+
+              {data.exam_course_id && data.exam_type_id !== "ngat" && (
+                <div>
+                  <InputLabel htmlFor="exam-grade" value="Exam Grade" />
+                  <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an exam grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {examGrades.map((examGrade) => (
+                        <SelectItem key={examGrade.id} value={examGrade.id.toString()}>
+                          Grade {examGrade.grade}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.exam_grade_id} className="mt-2" />
+                </div>
+              )}
+
+              {data.exam_grade_id && data.exam_type_id !== "ngat" && (
+                <div>
+                  <InputLabel htmlFor="exam-chapter" value="Exam Chapter" />
+                  <Select value={data.exam_chapter_id} onValueChange={(value) => setData("exam_chapter_id", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an exam chapter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {examChapters.map((chapter) => (
+                        <SelectItem key={chapter.id} value={chapter.id.toString()}>
+                          {chapter.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.exam_chapter_id} className="mt-2" />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="text">Question Text</Label>
-              <Textarea id="text" value={data.question_text} onChange={(e) => setData("question_text", e.target.value)} required />
+              <Label htmlFor="question_text">Question Text</Label>
+              <Textarea
+                id="question_text"
+                value={data.question_text}
+                onChange={(e) => setData("question_text", e.target.value)}
+                required
+              />
               <InputError message={errors.question_text} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="question_image_url">Image (optional)</Label>
+              <Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
+              {questionImagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={questionImagePreview || "/placeholder.svg"}
+                    alt="Question Preview"
+                    className="w-32 h-32 object-cover"
+                  />
+                </div>
+              )}
+              <InputError message={errors.question_image_url} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -280,76 +413,6 @@ const CreateExamQuestionAlert = ({
                 />
                 <InputError message={errors.video_explanation_url} />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <InputLabel htmlFor="exam-course" value="Exam Course" />
-                <Select
-                  value={data.exam_course_id}
-                  onValueChange={handleCourseChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {exam_courses.map((exam_course) => (
-                      <SelectItem key={exam_course.id} value={exam_course.id.toString()}>
-                        {exam_course.course_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.exam_course_id} className="mt-2" />
-              </div>
-
-             
-              <div>
-                <InputLabel htmlFor="exam-chapter" value="Exam Chapter" />
-                <Select
-                  value={data.exam_chapter_id}
-                  onValueChange={handleChapterChange}
-                  // disabled={!!data.department_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an exam chapter" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {exam_chapters
-                      .map((exam_chapter) =>(
-
-                        <SelectItem className="flex justify-between" key={exam_chapter.id} value={exam_chapter.id.toString()}>
-                          {exam_chapter.title}      
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.exam_chapter_id} className="mt-2" />
-              </div>
-          
-              <div>
-                <InputLabel htmlFor="exam-year" value="Exam year" />
-                <Select
-                  value={data.exam_year_id}
-                  onValueChange={handleExamYearChange}
-                  // disabled={!!data.department_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an exam year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {exam_years
-                      .map((exam_year) =>(
-
-                        <SelectItem className="flex justify-between" key={exam_year.id} value={exam_year.id.toString()}>
-                          {exam_year.year}      
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <InputError message={errors.exam_year_id} className="mt-2" />
-              </div>
-
             </div>
 
             <div className="space-y-2">

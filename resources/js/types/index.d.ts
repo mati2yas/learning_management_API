@@ -196,8 +196,8 @@ export interface ExamQuestion{
     exam_chapter_id:number
     exam_year_id: number
     question_text: string
-    options: String
-    answers: string
+    options: string
+    answer: string
     created_at?: string;
     updated_at?: string;
 }
@@ -205,6 +205,14 @@ export interface ExamQuestion{
 export interface ExamType{
     id:number
     name: string
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ExamGrade{
+    id: number
+    grade: number
+    exam_year_id: number
     created_at?: string;
     updated_at?: string;
 }

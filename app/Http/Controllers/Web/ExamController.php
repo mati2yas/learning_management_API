@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\ExamChapter;
+use App\Models\ExamCourse;
+use App\Models\ExamGrade;
 use App\Models\ExamQuestion;
+use App\Models\ExamType;
+use App\Models\ExamYear;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,9 +17,37 @@ class ExamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Exams/Index');
+        $query = ExamQuestion::query();
+
+        if ($request->filled('examType')) {
+            $query->where('exam_type_id', $request->input('examType'));
+        }
+
+        if ($request->filled('year')) {
+            $query->where('exam_year_id', $request->input('year'));
+        }
+
+        if ($request->filled(key: 'search')) {
+            $query->where('question_text', 'like', '%' . $request->search . '%');
+        }
+
+
+        $exam_questions = $query->latest()->paginate(60);
+
+        // dd($exam_questions);
+
+
+        return Inertia::render('Exams/Index',[
+            'exam_questions' => $exam_questions,
+            // 'exam_chapters' => ExamChapter::all(),
+            'exam_years' => ExamYear::all(),
+            'exam_types' => ExamType::all(),
+            'exam_grades' => ExamGrade::all(),
+            'exam_courses' => ExamCourse::all(),
+            'filters' => $request->only(['search','year','examType']),
+        ]);
     }
 
     /**
@@ -30,7 +63,7 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**

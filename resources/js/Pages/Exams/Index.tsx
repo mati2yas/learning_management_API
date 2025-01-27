@@ -1,7 +1,7 @@
 import React from 'react'
 import { Head, Link, router, useForm } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
-import { ExamChapter, ExamCourse, ExamQuestion, ExamType, ExamYear } from '@/types'
+import { ExamChapter, ExamCourse, ExamGrade, ExamQuestion, ExamType, ExamYear } from '@/types'
 import CreateExamQuestionAlert from '../Exam-Questions/CreateExamQuestionAlert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
@@ -11,6 +11,7 @@ import QuestionCard from './QuestionCard'
 interface ExamIndexProps{
   exam_courses: ExamCourse[]
   exam_chapters: ExamChapter[]
+  exam_grades: ExamGrade[]
   exam_years?: ExamYear[]
   exam_types?: ExamType[]
   exam_questions: {
@@ -24,6 +25,7 @@ interface ExamIndexProps{
   filters:{
     examType: string
     search: string
+    year: string
   }
 }
 
@@ -36,7 +38,7 @@ const dummyExamQuestions: ExamQuestion[] = [
     exam_chapter_id: 1,
     exam_year_id: 1,
     options: JSON.stringify({ A: 'Paris', B: 'London', C: 'Berlin', D: 'Madrid' }),
-    answers: JSON.stringify(['A']),
+    answer: JSON.stringify(['A']),
   },
   {
     id: 2,
@@ -45,7 +47,7 @@ const dummyExamQuestions: ExamQuestion[] = [
     exam_chapter_id: 1,
     exam_year_id: 1,
     options: JSON.stringify({ A: '3', B: '4', C: '5', D: '6' }),
-    answers: JSON.stringify(['B']),
+    answer: JSON.stringify(['B']),
   },
   {
     id: 3,
@@ -54,7 +56,7 @@ const dummyExamQuestions: ExamQuestion[] = [
     exam_chapter_id: 1,
     exam_year_id: 1,
     options: JSON.stringify({ A: 'Earth', B: 'Mars', C: 'Jupiter', D: 'Saturn' }),
-    answers: JSON.stringify(['C']),
+    answer: JSON.stringify(['C']),
   },
   {
     id: 4,
@@ -63,23 +65,26 @@ const dummyExamQuestions: ExamQuestion[] = [
     exam_chapter_id: 1,
     exam_year_id: 1,
     options: JSON.stringify({ A: 'H2O', B: 'O2', C: 'CO2', D: 'NaCl' }),
-    answers: JSON.stringify(['A']),
+    answer: JSON.stringify(['A']),
   }
 ]
 
 
 const Index: React.FC<ExamIndexProps> = ({
   exam_courses,
-  exam_chapters,
   exam_questions = { data: dummyExamQuestions, links: [] },
+  exam_chapters,
   exam_years,
   exam_types,
   filters
 }) => {
 
+  // console.log(exam_courses)
+
   const{data, setData} = useForm({
     examType: filters?.examType || '',
     search: filters?.search || '',
+    year: filters?.year || '',
   })
 
   const handleTypeChange = (value: string) => {
@@ -87,6 +92,12 @@ const Index: React.FC<ExamIndexProps> = ({
     setData('examType', typeValue);
     updateFilters({ examType: typeValue });
   };
+
+  const handleYearChange = (value: string) =>{
+    const yearValue = value === 'all' ? '' : value;
+    setData('year', yearValue);
+    updateFilters({ year: yearValue });
+  }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -119,9 +130,6 @@ const Index: React.FC<ExamIndexProps> = ({
           <React.Fragment>
             <h1 className="text-2xl font-semibold">Exams</h1>
             <CreateExamQuestionAlert
-              exam_courses={exam_courses}
-              exam_chapters={exam_chapters}
-              exam_years={exam_years}
               exam_types={exam_types}
             />
           </React.Fragment>
@@ -134,20 +142,38 @@ const Index: React.FC<ExamIndexProps> = ({
             
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
 
-            <div className="w-full sm:w-auto">
-              <Select value={data.examType || 'all'} onValueChange={handleTypeChange}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Type</SelectItem>
-                  {exam_types && exam_types.map((category: { id: React.Key | null | undefined; name: string }) => (
-                    <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className='flex'>
+              <div className="w-full sm:w-auto">
+                <Select value={data.examType || 'all'} onValueChange={handleTypeChange}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Type</SelectItem>
+                    {exam_types && exam_types.map((category: { id: React.Key | null | undefined; name: string }) => (
+                      <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
+                        {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='w-full sm:w-auto'>
+                <Select value={data.examType || 'all'} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {/* <SelectItem value="all">All Type</SelectItem> */}
+                    {exam_years && exam_years.map((exam_year) => (
+                      <SelectItem key={exam_year.id ?? ''} value={(exam_year.id ?? '').toString()}>
+                        {exam_year.year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="w-full sm:w-auto relative">
@@ -163,15 +189,24 @@ const Index: React.FC<ExamIndexProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {exam_questions?.data.map((question) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                getExamCourseName={getExamCourseName}
-                getChapterTitle={getChapterTitle}
-                getExamYear={getExamYear}
-              />
-            ))}
+          {exam_questions.data.map((question) => {
+              console.log("Question data in parent:", question)
+              return (
+                <QuestionCard
+                  key={question.id}
+                  question={{
+                    ...question,
+                    options: question.options,
+                    answer: question.answer,
+                  }}
+                  getExamCourseName={getExamCourseName}
+                  getChapterTitle={getChapterTitle}
+                  getExamYear={getExamYear}
+                />
+              )
+            })}
+
+
           </div>
 
 

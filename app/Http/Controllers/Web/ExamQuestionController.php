@@ -29,10 +29,13 @@ class ExamQuestionController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $attrs = $request->validate([
-            'course_id' => '',
-            'chapter_id' => '',
+            'exam_type_id' => 'required',
             'exam_year_id' => '',
+            'exam_course_id' => '',
+            'exam_chapter_id' => '',
+            'video_explanation_url' => '',
             'question_image_url' => 'nullable|image|max:2048',
             'question_text' => 'required|string',
             'text_explanation' => 'required|string',
@@ -48,6 +51,13 @@ class ExamQuestionController extends Controller
         $attrs['options'] = is_string($attrs['options']) ? $attrs['options'] : json_encode($attrs['options']);
 
         $attrs['answer'] = is_string($attrs['answer']) ? $attrs['answer'] : json_encode($attrs['answer']);
+
+        // dd($attrs);
+        ExamQuestion::create($attrs);
+
+        // dd($attrs);
+
+        return redirect()->route('exams.index')->with('Success', "Course is created successfully");
 
     }
 

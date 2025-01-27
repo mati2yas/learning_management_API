@@ -17,13 +17,13 @@ class ExamGradeSeeder extends Seeder
     public function run(): void
     {
         if(DB::table('exam_grades')->count() === 0){
-            $exam_years = ExamYear::all();
+            $exam_courses = ExamCourse::all();
 
-            $exam_years->each(
-                function($exam_year){
+            $exam_courses->each(
+                function($exam_course){
                     foreach(range(9, 12) as $grade){
                         ExamGrade::factory()->create([
-                            'exam_year_id' => $exam_year->id,
+                            'exam_course_id' => $exam_course->id,
                             'grade' => $grade,
                         ]);
                     }

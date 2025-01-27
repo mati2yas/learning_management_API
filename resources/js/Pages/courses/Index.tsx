@@ -41,9 +41,15 @@ const Index: React.FC<IndexProps> = ({
     });
   };
 
+
   const getCategoryName = (id: number) => categories.find((c: { id: number }) => c.id === id)?.name || '';
+
   const getGradeName = (id: number) => grades.find((g: { id: number }) => g.id === id)?.grade_name || '';
+
+
   const getDepartmentName = (id: number) => departments.find((d: { id: number }) => d.id === id)?.department_name || '';
+
+
   const getBatchName = (id: number) => batches.find((b: { id: number }) => b.id === id)?.batch_name || '';
 
   return (
@@ -120,6 +126,7 @@ const Index: React.FC<IndexProps> = ({
               </div>
             )}
           </div>
+          
           <div className="mt-6 flex justify-center items-center space-x-2">
             {courses.links.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
               <Link

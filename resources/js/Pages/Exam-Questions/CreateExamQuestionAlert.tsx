@@ -18,20 +18,23 @@ import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
 import { Input } from "@/Components/ui/input"
-import { ExamChapter, ExamCourse, ExamYear } from "@/types"
+import { ExamChapter, ExamCourse, ExamType, ExamYear } from "@/types"
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 
 interface CreateExamQuestionAlertProps {
   exam_courses: ExamCourse[];
   exam_chapters: ExamChapter[];
-  exam_years: ExamYear[];
+  exam_years?: ExamYear[];
+  exam_types?: ExamType[]
+
 }
 
 const CreateExamQuestionAlert = ({ 
-  exam_courses, 
-  exam_chapters, 
-  exam_years 
+  exam_courses = [], 
+  exam_chapters = [], 
+  exam_years = [],
+  exam_types = []
 }: CreateExamQuestionAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false)
@@ -41,6 +44,7 @@ const CreateExamQuestionAlert = ({
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
+    exam_type_id: string
     exam_course_id: string;
     exam_chapter_id: string;
     exam_year_id: string;
@@ -51,6 +55,7 @@ const CreateExamQuestionAlert = ({
     options: string[];
     answer: string[];
   }>({
+    exam_type_id: '',
     exam_course_id: '',
     exam_chapter_id: '',
     exam_year_id: '',
@@ -78,6 +83,14 @@ const CreateExamQuestionAlert = ({
     setData("answer", [])
     clearErrors()
   }
+
+  const handleExamTypeChange = (value: string) => {
+    setData('exam_type_id', value);
+    setData('exam_course_id', '');
+    setData('exam_year_id', '');
+    setData('exam_chapter_id', '');
+  };
+
 
   const addOption = () => {
     const newOptions = [...options, ""]
@@ -201,6 +214,28 @@ const CreateExamQuestionAlert = ({
         <ScrollArea className="max-h-[calc(90vh-130px)] overflow-y-auto px-6">
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <InputLabel htmlFor="exam-type" value="Exam Type" />
+                  <Select
+                    value={data.exam_type_id}
+                    onValueChange={handleExamTypeChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {exam_types.map((examType) => (
+                        <SelectItem key={examType.id} value={examType.id.toString()}>
+                          {examType.name.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.exam_type_id} className="mt-2" />
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="question_image_url">Image (optional)</Label>

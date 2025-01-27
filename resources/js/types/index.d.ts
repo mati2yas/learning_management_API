@@ -189,3 +189,22 @@ export interface ExamYear{
     created_at?: string;
     updated_at?: string;
 }
+
+export interface ExamQuestion{
+    id:number
+    exam_course_id: number
+    exam_chapter_id:number
+    exam_year_id: number
+    question_text: string
+    options: String
+    answers: string
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface ExamType{
+    id:number
+    name: string
+    created_at?: string;
+    updated_at?: string;
+}

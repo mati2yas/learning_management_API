@@ -42,39 +42,43 @@ const ContentList: React.FC<ContentListProps> = ({ contents }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-        {sortedContents.map((content) => (
-          <TableRow key={content.id} className="hover:bg-gray-50 transition-colors">
-            <TableCell className='font-medium'>
-              {content.order}
-            </TableCell>
-
-            <TableCell className="font-semibold text-gray-700">{content.name}</TableCell>
-            
-            <TableCell>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 text-nowrap">
-                  {content.contents_count} items
-                </span>
-            </TableCell>
-
-            <TableCell className=' text-nowrap' >{dayjs(content.created_at).fromNow()}</TableCell>
-            <TableCell className=' text-nowrap' >{dayjs(content.updated_at).fromNow()}</TableCell>
-
-            <TableCell className="text-right">
-              <div className="flex justify-end space-x-2">
-              <Link href={route('contents.show', content.id)}>
-                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-              </Link>
-
-              <EditContentAlert content={content} />
-              <DeleteContentAlert id={content.id} name={content.name} />
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
+          {sortedContents.length > 0 ? (
+            sortedContents.map((content) => (
+              <TableRow key={content.id} className="hover:bg-gray-50 transition-colors">
+                <TableCell className='font-medium'>
+                  {content.order}
+                </TableCell>
+                <TableCell className="font-semibold text-gray-700">{content.name}</TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 text-nowrap">
+                    {content.contents_count} items
+                  </span>
+                </TableCell>
+                <TableCell className='text-nowrap'>{dayjs(content.created_at).fromNow()}</TableCell>
+                <TableCell className='text-nowrap'>{dayjs(content.updated_at).fromNow()}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-2">
+                    <Link href={route('contents.show', content.id)}>
+                      <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </Link>
+                    <EditContentAlert content={content} />
+                    <DeleteContentAlert id={content.id} name={content.name} />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-gray-500 py-4">
+                No content found
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
+
         </Table>
     </div>
   )

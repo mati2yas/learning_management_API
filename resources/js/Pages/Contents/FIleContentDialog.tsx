@@ -61,7 +61,7 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div >
               <Label htmlFor="title" className="text-right">
                 Title
               </Label>
@@ -73,7 +73,7 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
               />
               <InputError message={errors.title} className="mt-2" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div >
               <Label htmlFor="file_url" className="text-right">
                 File
               </Label>

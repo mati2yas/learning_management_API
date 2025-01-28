@@ -99,7 +99,7 @@ const Index: React.FC<IndexProps> = ({
             </div>
           </div>
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
               {courses.data.map((course) => (
                 <CourseCard
                   key={course.id}

@@ -51,11 +51,10 @@ const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div className=" justify-center items-center">
           <form onSubmit={submit}>
+
             <div className="mb-4">
-
-
               <InputLabel htmlFor="name" value="Content Title" />
               <TextInput
                 id="name"
@@ -70,7 +69,7 @@ const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
 
             <div className="mb-4">
               <InputLabel htmlFor="order" value="Content Order" />
-              <input
+              <TextInput
                 id="order"
                 name="order"
                 type="number"
@@ -89,7 +88,6 @@ const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
                 Cancel
               </AlertDialogCancel>
 
-             
                 <PrimaryButton type="submit" disabled={processing}>
                   Add Content
                 </PrimaryButton>

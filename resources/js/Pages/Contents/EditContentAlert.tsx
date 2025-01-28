@@ -52,7 +52,7 @@ const EditContentAlert = ({content}: EditContentAlertProps) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div >
           <form onSubmit={submit}>
             <div className="mb-4">
               <InputLabel htmlFor="name" value="Content Title" />

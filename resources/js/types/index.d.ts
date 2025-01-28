@@ -1,5 +1,5 @@
 import exp from "constants";
-import { QuizQuestion, Content } from '@/types';
+import {  Content } from '@/types';
 import { Course } from './course';
 import { Youtube } from 'lucide-react';
 
@@ -70,6 +70,7 @@ export interface QuizQuestion{
     quiz_id: number;
     question_number: number;
     text: string;
+    is_multiple_choice: boolean;
     question_image_url: string;
     text_explanation: string;
     video_explanation_url: string;
@@ -191,11 +192,15 @@ export interface ExamYear{
 }
 
 export interface ExamQuestion{
+    exam_grade_id: any;
+    text_explanation: string;
     id:number
     exam_course_id: number
     exam_chapter_id:number
     exam_year_id: number
     question_text: string
+    video_explanation_url: string
+    question_image_url: string
     options: string
     answer: string
     created_at?: string;

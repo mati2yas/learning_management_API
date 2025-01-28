@@ -1,9 +1,5 @@
 import React from 'react'
-import { Button } from "@/Components/ui/button"
-import { View } from 'lucide-react'
-import { Quiz, YoutubeContent } from '@/types'
-import { Link } from '@inertiajs/react';
-import EditQuizAlert from './EditQuizAlert';
+import {  YoutubeContent } from '@/types'
 import DeleteQuizAlert from '../Quiz/DeleteQuizAlert';
 
 

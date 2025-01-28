@@ -9,19 +9,15 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { Button } from "@/Components/ui/button"
-import { Textarea } from "@/Components/ui/textarea"
-import { Label } from "@/Components/ui/label"
 import { type FormEventHandler, useState, useEffect } from "react"
-import { PlusCircle, X } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
-import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
-import { Input } from "@/Components/ui/input"
 import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear } from "@/types"
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
+import QuestionForm from "./QuestionForm"
 
 interface CreateExamQuestionAlertProps {
   exam_types?: ExamType[]
@@ -29,10 +25,6 @@ interface CreateExamQuestionAlertProps {
 
 const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [options, setOptions] = useState<string[]>([])
-  const [correctAnswer, setCorrectAnswer] = useState<string | string[]>("")
-  const [isMultipleChoice, setIsMultipleChoice] = useState(false)
-  const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null)
   const [examYears, setExamYears] = useState<ExamYear[]>([])
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examGrades, setExamGrades] = useState<ExamGrade[]>([])
@@ -44,24 +36,29 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
     exam_course_id: string
     exam_grade_id: string
     exam_chapter_id: string
-    question_text: string
-    video_explanation_url: string
-    question_image_url: File | null
-    text_explanation: string
-    options: string[]
-    answer: string[]
-  }>({
+    questions: {
+      question_text: string
+      question_image_url?: string
+      text_explanation: string
+      video_explanation_url: string
+      options: string[]
+      answer: string[]
+    }[]
+  } & Record<string, any>>({
     exam_type_id: "",
     exam_year_id: "",
     exam_course_id: "",
     exam_grade_id: "",
     exam_chapter_id: "",
-    question_text: "",
-    video_explanation_url: "",
-    question_image_url: null as File | null,
-    text_explanation: "",
-    options: [],
-    answer: [],
+    questions: [
+      {
+        question_text: "",
+        text_explanation: "",
+        video_explanation_url: "",
+        options: [],
+        answer: [],
+      },
+    ],
   })
 
   useEffect(() => {
@@ -72,10 +69,6 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
 
   const resetForm = () => {
     reset()
-    setOptions([])
-    setCorrectAnswer(isMultipleChoice ? [] : "")
-    setQuestionImagePreview(null)
-    setIsMultipleChoice(false)
     setExamYears([])
     setExamCourses([])
     setExamGrades([])
@@ -87,7 +80,6 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
     try {
       const response = await axios.get(`/api/exam-years/${examTypeId}`)
       setExamYears(response.data)
-      // console.log(response.data)
     } catch (error) {
       console.error("Error fetching exam years:", error)
     }
@@ -162,64 +154,83 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
     fetchExamChapters(value)
   }
 
-  const addOption = () => {
-    const newOptions = [...options, ""]
-    setOptions(newOptions)
-    setData("options", newOptions)
+  const addQuestion = () => {
+    setData("questions", [
+      ...data.questions,
+      {
+        question_text: "",
+        text_explanation: "",
+        video_explanation_url: "",
+        options: [],
+        answer: [],
+      },
+    ])
   }
 
-  const removeOption = (index: number) => {
-    const newOptions = options.filter((_, i) => i !== index)
-    setOptions(newOptions)
-    setData("options", newOptions)
+  const removeQuestion = (index: number) => {
+    setData(
+      "questions",
+      data.questions.filter((_, i) => i !== index),
+    )
   }
 
-  const updateOption = (index: number, value: string) => {
-    const newOptions = [...options]
-    newOptions[index] = value
-    setOptions(newOptions)
-    setData("options", newOptions)
-  }
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setData("question_image_url", e.target.files[0])
-      const reader = new FileReader()
-      reader.onload = () => {
-        setQuestionImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(e.target.files[0])
-    }
+  const updateQuestion = (index: number, field: string, value: any) => {
+    const updatedQuestions = [...data.questions]
+    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
+    setData("questions", updatedQuestions)
   }
 
   const validateForm = (): boolean => {
     let isValid = true
     clearErrors()
 
-    if (data.text_explanation.trim() === "") {
-      setError("text_explanation", "Explanation is required")
+    if (!data.exam_type_id) {
+      setError("exam_type_id", "Exam type is required")
       isValid = false
     }
 
-    if (options.length < 2) {
-      setError("options", "At least two options are required")
+    if (!data.exam_year_id) {
+      setError("exam_year_id", "Exam year is required")
       isValid = false
     }
 
-    if (options.some((option) => option.trim() === "")) {
-      setError("options", "All options must be non-empty")
+    if (!data.exam_course_id) {
+      setError("exam_course_id", "Exam course is required")
       isValid = false
     }
 
-    if (isMultipleChoice && (correctAnswer as string[]).length === 0) {
-      setError("answer", "At least one correct answer must be selected")
+    if (data.exam_type_id !== "ngat" && !data.exam_grade_id) {
+      setError("exam_grade_id", "Exam grade is required")
       isValid = false
     }
 
-    if (!isMultipleChoice && (correctAnswer as string).trim() === "") {
-      setError("answer", "A correct answer must be selected")
+    if (data.exam_type_id !== "ngat" && !data.exam_chapter_id) {
+      setError("exam_chapter_id", "Exam chapter is required")
       isValid = false
     }
+
+    data.questions.forEach((question, index) => {
+      if (!question.question_text) {
+        setError(`questions.${index}.question_text`, "Question text is required")
+        isValid = false
+      }
+      if (!question.text_explanation) {
+        setError(`questions.${index}.text_explanation`, "Explanation is required")
+        isValid = false
+      }
+      if (question.options.length < 2) {
+        setError(`questions.${index}.options`, "At least two options are required")
+        isValid = false
+      }
+      if (question.options.some((option) => option.trim() === "")) {
+        setError(`questions.${index}.options`, "All options must be non-empty")
+        isValid = false
+      }
+      if (question.answer.length === 0) {
+        setError(`questions[${index}].answer`, "At least one correct answer must be selected")
+        isValid = false
+      }
+    })
 
     return isValid
   }
@@ -230,18 +241,6 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
     if (!validateForm()) {
       return
     }
-
-    // Filter out empty options
-    const validOptions = options.filter((option) => option.trim() !== "")
-
-    // Format answer based on selection type
-    const formattedAnswer = isMultipleChoice
-      ? (correctAnswer as string[]).filter((answer) => answer.trim() !== "")
-      : [correctAnswer as string].filter((answer) => answer.trim() !== "")
-
-    // Update the data object
-    setData("options", validOptions)
-    setData("answer", formattedAnswer)
 
     post(route("exam-questions.store"), {
       preserveScroll: true,
@@ -261,17 +260,18 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
       <AlertDialogTrigger asChild>
         <Button variant="outline">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Exam Question
+          Add Exam Questions
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[700px] max-h-[90vh] p-0">
+      <AlertDialogContent className="sm:max-w-[900px] h-[90vh] p-0 flex flex-col">
         <AlertDialogHeader className="p-6 pb-0">
-          <AlertDialogTitle>Create New Exam Question</AlertDialogTitle>
-          <AlertDialogDescription>Fill in the details for the new quiz question.</AlertDialogDescription>
+          <AlertDialogTitle>Create New Exam Qu
+            estions</AlertDialogTitle>
+          <AlertDialogDescription>Fill in the details for the new exam questions.</AlertDialogDescription>
         </AlertDialogHeader>
-        <ScrollArea className="max-h-[calc(90vh-130px)] overflow-y-auto px-6">
+        <ScrollArea className="flex-grow px-6 overflow-y-auto">
           <form onSubmit={submit} className="space-y-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <InputLabel htmlFor="exam-type" value="Exam Type" />
                 <Select value={data.exam_type_id} onValueChange={handleExamTypeChange}>
@@ -366,135 +366,23 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="question_text">Question Text</Label>
-              <Textarea
-                id="question_text"
-                value={data.question_text}
-                onChange={(e) => setData("question_text", e.target.value)}
-                required
-              />
-              <InputError message={errors.question_text} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="question_image_url">Image (optional)</Label>
-              <Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
-              {questionImagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={questionImagePreview || "/placeholder.svg"}
-                    alt="Question Preview"
-                    className="w-32 h-32 object-cover"
-                  />
-                </div>
-              )}
-              <InputError message={errors.question_image_url} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="text_explanation">Explanation</Label>
-                <Textarea
-                  id="text_explanation"
-                  value={data.text_explanation}
-                  onChange={(e) => setData("text_explanation", e.target.value)}
-                  required
+            <div className="space-y-4">
+              {data.questions.map((question, index) => (
+                <QuestionForm
+                  key={index}
+                  index={index}
+                  question={question}
+                  updateQuestion={updateQuestion}
+                  removeQuestion={removeQuestion}
+                  errors={Object.fromEntries(Object.entries(errors).filter(([_, v]) => v !== undefined)) as Record<string, string>}
                 />
-                <InputError message={errors.text_explanation} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="video_explanation_url">Video Explanation URL (optional)</Label>
-                <Input
-                  id="video_explanation_url"
-                  type="url"
-                  value={data.video_explanation_url}
-                  onChange={(e) => setData("video_explanation_url", e.target.value)}
-                />
-                <InputError message={errors.video_explanation_url} />
-              </div>
+              ))}
             </div>
 
-            <div className="space-y-2">
-              <Label>Options</Label>
-              <div className="space-y-2">
-                {options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Input
-                      value={option}
-                      onChange={(e) => updateOption(index, e.target.value)}
-                      placeholder={`Option ${index + 1}`}
-                      required
-                    />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" onClick={addOption}>
-                  Add Option
-                </Button>
-              </div>
-              <InputError message={errors.options} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Answer Type</Label>
-              <RadioGroup
-                defaultValue="single"
-                onValueChange={(value) => {
-                  setIsMultipleChoice(value === "multiple")
-                  setCorrectAnswer(value === "multiple" ? [] : "")
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="single" id="single" />
-                  <Label htmlFor="single">Single Choice</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="multiple" id="multiple" />
-                  <Label htmlFor="multiple">Multiple Choice</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Correct Answer(s)</Label>
-              {isMultipleChoice ? (
-                options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`answer-${index}`}
-                      checked={(correctAnswer as string[]).includes(option)}
-                      onCheckedChange={(checked) => {
-                        const newAnswer = checked
-                          ? [...(correctAnswer as string[]), option]
-                          : (correctAnswer as string[]).filter((a) => a !== option)
-                        setCorrectAnswer(newAnswer)
-                        setData("answer", newAnswer)
-                      }}
-                    />
-                    <Label htmlFor={`answer-${index}`}>{option}</Label>
-                  </div>
-                ))
-              ) : (
-                <RadioGroup
-                  value={correctAnswer as string}
-                  onValueChange={(value) => {
-                    setCorrectAnswer(value)
-                    setData("answer", [value])
-                  }}
-                >
-                  {options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} id={`answer-${index}`} />
-                      <Label htmlFor={`answer-${index}`}>{option}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              )}
-              <InputError message={errors.answer} />
-            </div>
+            <Button type="button" variant="outline" onClick={addQuestion}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Another Question
+            </Button>
           </form>
         </ScrollArea>
         <AlertDialogFooter className="px-6 py-4">
@@ -502,7 +390,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
             Cancel
           </Button>
           <Button type="submit" disabled={processing} onClick={submit}>
-            Create
+            Create Questions
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

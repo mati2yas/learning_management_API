@@ -75,7 +75,7 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div>
           <form onSubmit={submit}>
             <div className="mb-4">
               <InputLabel htmlFor="title" value="Video Title" />
@@ -120,7 +120,7 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
               </AlertDialogCancel>
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Edit Chapter
+                  Edit Content
                 </PrimaryButton>
 
             </div>

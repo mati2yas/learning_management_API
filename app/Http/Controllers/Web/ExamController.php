@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamQuestion;

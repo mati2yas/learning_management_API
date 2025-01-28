@@ -7,6 +7,7 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { PlusCircle } from "lucide-react";
+import { Textarea } from "@/Components/ui/textarea";
 
 interface CreateChapterAlertProps {
   id: number;
@@ -56,11 +57,10 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div className=" justify-center ">
           <form onSubmit={submit}>
-            <div className="mb-4">
 
-
+            <div className="mb-4 w-full">
               <InputLabel htmlFor="title" value="Chapter Title" />
               <TextInput
                 id="title"
@@ -75,7 +75,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
 
             <div className="mb-4">
               <InputLabel htmlFor="order" value="Chapter Order" />
-              <input
+              <TextInput
                 id="order"
                 name="order"
                 type="number"
@@ -88,7 +88,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
 
             <div className="mb-4">
               <InputLabel htmlFor="description" value="Chapter Description" />
-              <TextInput
+              <Textarea
                 id="description"
                 name="description"
                 value={data.description}
@@ -106,7 +106,6 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 Cancel
               </AlertDialogCancel>
 
-             
                 <PrimaryButton type="submit" disabled={processing}>
                   Add Chapter
                 </PrimaryButton>

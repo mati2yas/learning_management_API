@@ -1,8 +1,8 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Card, CardContent, CardFooter } from "@/Components/ui/card"
 import { Button } from "@/Components/ui/button"
 import { Badge } from "@/Components/ui/badge"
 import { Link } from "@inertiajs/react"
-
+import { CalendarDays, BookOpen, ThumbsUp, Bookmark, User } from "lucide-react"
 
 interface CourseCardProps {
   id: number
@@ -12,69 +12,99 @@ interface CourseCardProps {
   grade?: string
   department?: string
   batch?: string
-  topicsCount: number;
-  saves: number;
-  likes: number;
-  price_one_month: number;
-  price_three_month: number;
-  price_six_month: number;
-  price_one_year: number;
+  topicsCount: number
+  saves: number
+  likes: number
+  price_one_month: number
+  price_three_month: number
+  price_six_month: number
+  price_one_year: number
 }
 
-export function CourseCard(
-  { 
-    id, 
-    name, 
-    thumbnail, category, grade, department, batch, topicsCount, saves, likes, price_one_month, price_three_month, price_six_month, price_one_year  
-  }: CourseCardProps) {
-  
-  // console.log(price_one_month);
-
+export function CourseCard({
+  id,
+  name,
+  thumbnail,
+  category,
+  grade,
+  department,
+  batch,
+  topicsCount,
+  saves,
+  likes,
+  price_one_month,
+  price_three_month,
+  price_six_month,
+  price_one_year,
+}: CourseCardProps) {
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
-      <div className="relative h-48 w-full">
-      <img
-        src={
-          thumbnail.startsWith('/id')
-            ? `https://picsum.photos${thumbnail}` // Append base URL if it starts with '/id'
-            : 'storage/' + thumbnail // Keep it as is otherwise
-        }
-        alt={name}
-        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-      />
-
-      </div>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold line-clamp-2">{name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-2 mb-2">
-          <Badge variant="secondary">{category.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</Badge>
-
-          {price_one_month && <Badge variant="outline">1 Month - {price_one_month}Birr</Badge>}
-
-          {price_three_month && <Badge variant="outline">3 Month - {price_three_month}Birr</Badge>}
-
-          {price_six_month && <Badge variant="outline">6 Month - {price_six_month}Birr</Badge>}
-
-          {price_one_year && <Badge variant="outline">1 Year - {price_one_year}Birr</Badge>}
-
-          {batch && <Badge variant="outline">{batch}</Badge>}
-
-          {grade && <Badge variant="outline">{grade}</Badge>}
-
-          {department && <Badge variant="outline">{department}</Badge>}
-
-
-
-          {saves && <Badge variant="outline">{batch}</Badge>}
-          {likes && <Badge variant="outline">{batch}</Badge>}
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800 border-0 rounded-xl">
+      <div
+        className="relative h-64 w-full bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${thumbnail.startsWith("/id") ? `https://picsum.photos${thumbnail}` : "storage/" + thumbnail})`,
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+        <div className="absolute top-4 right-4">
+          <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
+            {category.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}
+          </Badge>
         </div>
-        <p className="text-sm text-gray-500">{topicsCount} topics</p>
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h3 className="text-xl font-bold text-white mb-2 capitalize">{name}</h3>
+          <div className="flex items-center text-sm text-white space-x-4">
+            <span className="flex items-center">
+              <User className="w-4 h-4 mr-2" />
+              John Doe
+            </span>
+            <span className="flex items-center">
+              <CalendarDays className="w-4 h-4 mr-2" />
+              June 15, 2023
+            </span>
+          </div>
+        </div>
+      </div>
+      <CardContent className="px-6 py-6">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {[price_one_month, price_three_month, price_six_month, price_one_year].map((price, index) => {
+            if (!price) return null
+            const duration = ["1 Month", "3 Months", "6 Months", "1 Year"][index]
+            return (
+              <Badge key={duration} variant="secondary" className="px-3 py-1 rounded-full text-xs">
+                {duration} - {price}Birr
+              </Badge>
+            )
+          })}
+        </div>
+        <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300 mx-2.5">
+          <span className="flex items-center">
+            <BookOpen className="w-4 h-4 mr-1" />
+            {topicsCount} topics
+          </span>
+          <span className="flex items-center">
+            <ThumbsUp className="w-4 h-4 mr-1" />
+            {likes} likes
+          </span>
+          <span className="flex items-center">
+            <Bookmark className="w-4 h-4 mr-1" />
+            {saves} saves
+          </span>
+        </div>
       </CardContent>
-      <CardFooter>
-      <Link href={route('courses.show', id)}><Button variant="default" className="w-full">View Course</Button></Link>
-        
+      <CardFooter className="px-6 py-4 bg-gray-50 dark:bg-gray-700">
+        <div className="flex items-center justify-between w-full">
+          <div className="space-x-2">
+            {batch && <Badge variant="outline">{batch}</Badge>}
+            {grade && <Badge variant="outline">{grade}</Badge>}
+            {department && <Badge variant="outline">{department}</Badge>}
+          </div>
+          <Link href={route("courses.show", id)}>
+            <Button variant="default" className="rounded-full px-6">
+              View Course
+            </Button>
+          </Link>
+        </div>
       </CardFooter>
     </Card>
   )

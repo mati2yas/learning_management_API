@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Head, Link, router, useForm } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { ExamChapter, ExamCourse, ExamGrade, ExamQuestion, ExamType, ExamYear } from '@/types'
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react'
 import { Input } from '@/Components/ui/input'
 import QuestionCard from './QuestionCard'
+import axios from 'axios'
 
 interface ExamIndexProps{
   exam_courses: ExamCourse[]
@@ -30,56 +31,63 @@ interface ExamIndexProps{
 }
 
 
-const dummyExamQuestions: ExamQuestion[] = [
-  {
-    id: 1,
-    question_text: 'What is the capital of France?',
-    exam_course_id: 1,
-    exam_chapter_id: 1,
-    exam_year_id: 1,
-    options: JSON.stringify({ A: 'Paris', B: 'London', C: 'Berlin', D: 'Madrid' }),
-    answer: JSON.stringify(['A']),
-  },
-  {
-    id: 2,
-    question_text: 'What is 2 + 2?',
-    exam_course_id: 1,
-    exam_chapter_id: 1,
-    exam_year_id: 1,
-    options: JSON.stringify({ A: '3', B: '4', C: '5', D: '6' }),
-    answer: JSON.stringify(['B']),
-  },
-  {
-    id: 3,
-    question_text: 'What is the largest planet in our solar system?',
-    exam_course_id: 1,
-    exam_chapter_id: 1,
-    exam_year_id: 1,
-    options: JSON.stringify({ A: 'Earth', B: 'Mars', C: 'Jupiter', D: 'Saturn' }),
-    answer: JSON.stringify(['C']),
-  },
-  {
-    id: 4,
-    question_text: 'What is the chemical symbol for water?',
-    exam_course_id: 1,
-    exam_chapter_id: 1,
-    exam_year_id: 1,
-    options: JSON.stringify({ A: 'H2O', B: 'O2', C: 'CO2', D: 'NaCl' }),
-    answer: JSON.stringify(['A']),
-  }
-]
+// const dummyExamQuestions: ExamQuestion[] = [
+//   {
+//     id: 1,
+//     question_text: 'What is the capital of France?',
+//     exam_course_id: 1,
+//     exam_chapter_id: 1,
+//     exam_year_id: 1,
+//     options: JSON.stringify({ A: 'Paris', B: 'London', C: 'Berlin', D: 'Madrid' }),
+//     answer: JSON.stringify(['A']),
+//     video_explanation_url: '',
+//     question_image_url: ""
+//   },
+//   {
+//     id: 2,
+//     question_text: 'What is 2 + 2?',
+//     exam_course_id: 1,
+//     exam_chapter_id: 1,
+//     exam_year_id: 1,
+//     options: JSON.stringify({ A: '3', B: '4', C: '5', D: '6' }),
+//     answer: JSON.stringify(['B']),
+//     video_explanation_url: '',
+//     question_image_url: ''
+//   },
+//   {
+//     id: 3,
+//     question_text: 'What is the largest planet in our solar system?',
+//     exam_course_id: 1,
+//     exam_chapter_id: 1,
+//     exam_year_id: 1,
+//     options: JSON.stringify({ A: 'Earth', B: 'Mars', C: 'Jupiter', D: 'Saturn' }),
+//     answer: JSON.stringify(['C']),
+//     video_explanation_url: '',
+//     question_image_url: ''
+//   },
+//   {
+//     id: 4,
+//     question_text: 'What is the chemical symbol for water?',
+//     exam_course_id: 1,
+//     exam_chapter_id: 1,
+//     exam_year_id: 1,
+//     options: JSON.stringify({ A: 'H2O', B: 'O2', C: 'CO2', D: 'NaCl' }),
+//     answer: JSON.stringify(['A']),
+//     video_explanation_url: '',
+//     question_image_url: ''
+//   }
+// ]
 
 
 const Index: React.FC<ExamIndexProps> = ({
   exam_courses,
-  exam_questions = { data: dummyExamQuestions, links: [] },
+  // exam_questions = { data: dummyExamQuestions, links: [] },
+  exam_questions,
   exam_chapters,
   exam_years,
   exam_types,
   filters
 }) => {
-
-  // console.log(exam_courses)
 
   const{data, setData} = useForm({
     examType: filters?.examType || '',
@@ -87,16 +95,29 @@ const Index: React.FC<ExamIndexProps> = ({
     year: filters?.year || '',
   })
 
-  const handleTypeChange = (value: string) => {
-    const typeValue = value === 'all' ? '' : value;
-    setData('examType', typeValue);
-    updateFilters({ examType: typeValue });
-  };
+  const [examYears, setExamYears] = useState<ExamYear[]>([])
 
-  const handleYearChange = (value: string) =>{
-    const yearValue = value === 'all' ? '' : value;
-    setData('year', yearValue);
-    updateFilters({ year: yearValue });
+  const fetchExamYears = async (examTypeId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-years/${examTypeId}`)
+      setExamYears(response.data)
+    } catch (error) {
+      console.error("Error fetching exam years:", error)
+      setExamYears([])
+    }
+  }
+
+
+  const handleTypeChange = (value: string) => {
+    setData("examType", value)
+    setData("year", "") // Reset year when type changes
+    updateFilters({ examType: value, year: "" })
+    fetchExamYears(value)
+  }
+
+  const handleYearChange = (value: string) => {
+    setData("year", value)
+    updateFilters({ year: value })
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +134,12 @@ const Index: React.FC<ExamIndexProps> = ({
       // only: ['courses'],
     });
   };
+
+  useEffect(() => {
+    if (data.examType) {
+      fetchExamYears(data.examType)
+    }
+  }, [data.examType])
 
   const getExamTypeName = (id: number) => (exam_types ?? []).find((c: { id: number }) => c.id === id)?.name || '';
 
@@ -144,35 +171,33 @@ const Index: React.FC<ExamIndexProps> = ({
 
             <div className='flex'>
               <div className="w-full sm:w-auto">
-                <Select value={data.examType || 'all'} onValueChange={handleTypeChange}>
-                  <SelectTrigger className="w-full sm:w-[200px]">
-                    <SelectValue placeholder="Select Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Type</SelectItem>
-                    {exam_types && exam_types.map((category: { id: React.Key | null | undefined; name: string }) => (
-                      <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
-                        {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Select value={data.examType} onValueChange={handleTypeChange}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Select Exam Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {exam_types?.map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name.replace(/_/g, " ").replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               </div>
 
               <div className='w-full sm:w-auto'>
-                <Select value={data.examType || 'all'} onValueChange={handleYearChange}>
-                  <SelectTrigger className="w-full sm:w-[200px]">
-                    <SelectValue placeholder="Select Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* <SelectItem value="all">All Type</SelectItem> */}
-                    {exam_years && exam_years.map((exam_year) => (
-                      <SelectItem key={exam_year.id ?? ''} value={(exam_year.id ?? '').toString()}>
-                        {exam_year.year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Select value={data.year} onValueChange={handleYearChange} disabled={!data.examType || examYears.length === 0}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {examYears.map((exam_year) => (
+                    <SelectItem key={exam_year.id} value={exam_year.id.toString()}>
+                      {exam_year.year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               </div>
             </div>
 

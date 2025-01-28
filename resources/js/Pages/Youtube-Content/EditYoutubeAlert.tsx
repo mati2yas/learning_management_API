@@ -54,7 +54,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div>
           <form onSubmit={submit}>
             <div className="mb-4">
               <InputLabel htmlFor="title" value="Video Title" />
@@ -71,7 +71,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
 
             <div className="mb-4">
               <InputLabel htmlFor="url" value="Video URL" />
-              <input
+              <TextInput
                 id="url"
                 name="url"
                 type="url"
@@ -91,7 +91,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
               </AlertDialogCancel>
              
                 <PrimaryButton type="submit" disabled={processing}>
-                  Edit Chapter
+                  Edit Video
                 </PrimaryButton>
 
             </div>

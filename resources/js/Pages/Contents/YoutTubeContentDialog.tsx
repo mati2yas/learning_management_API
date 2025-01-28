@@ -37,8 +37,9 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
           <DialogTitle>Add Video Content</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid gap-4 ">
+
+            <div>
               <Label htmlFor="title" className="text-right">
                 Title
               </Label>
@@ -50,10 +51,12 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
               />
               <InputError message={errors.title} className="mt-2" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+
+            <div className="">
               <Label htmlFor="url" className="text-right">
                 URL
               </Label>
+
               <Input
                 id="url"
                 value={data.url}
@@ -62,6 +65,7 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
               />
               <InputError message={errors.url} className="mt-2" />
             </div>
+
           </div>
           <DialogFooter>
             <Button type="submit" disabled={processing}>

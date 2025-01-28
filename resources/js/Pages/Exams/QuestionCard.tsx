@@ -35,12 +35,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, getExamCourseName
     <Card className="w-full mb-4">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">{question.question_text}</CardTitle>
+
+        
         <div className="flex flex-wrap gap-2 mt-2">
           <Badge variant="outline">{getExamCourseName(question.exam_course_id)}</Badge>
           <Badge variant="outline">{getChapterTitle(question.exam_chapter_id)}</Badge>
           <Badge variant="outline">{getExamYear(question.exam_year_id)}</Badge>
         </div>
       </CardHeader>
+
       <CardContent>
         <div className="grid grid-cols-2 gap-2">
           {options.map((option, index) => (

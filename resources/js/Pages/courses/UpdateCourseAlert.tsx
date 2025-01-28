@@ -18,6 +18,10 @@ import { Pencil } from "lucide-react"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { Card, CardContent } from "@/Components/ui/card"
+import Checkbox from "@/Components/Checkbox"
+import InputLabel from "@/Components/InputLabel"
+import TextInput from "@/Components/TextInput"
+import InputError from "@/Components/InputError"
 
 interface UpdateCourseAlertProps {
   categories: Category[]
@@ -36,11 +40,18 @@ export function UpdateCourseAlert({
   batches,
   thumbnail,
 }: UpdateCourseAlertProps) {
+
   const [isOpen, setIsOpen] = useState(false)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail)
   const [fileSizeError, setFileSizeError] = useState<string | null>(null)
+  const [onSaleChecked, setOnSaleChecked] = useState({
+    month: false,
+    three_month: false,
+    six_month: false,
+    one_year: false,
+  })
 
-  const { data, setData, post, processing, errors, reset, progress } = useForm({
+  const { data, setData, post, processing, errors, reset, progress, clearErrors, setError } = useForm({
     _method: "PATCH",
     course_name: course.course_name,
     category_id: course.category_id.toString(),
@@ -48,8 +59,11 @@ export function UpdateCourseAlert({
     department_id: course.department_id?.toString() || "",
     batch_id: course.batch_id?.toString() || "",
     price_one_month: course.price_one_month?.toString(),
+    on_sale_month: course.on_sale_month?.toString(),
     price_three_month: course.price_three_month?.toString(),
+    on_sale_three_month: course.on_sale_three_month?.toString(),
     price_six_month: course.price_six_month?.toString(),
+    on_sale_six_month: course.on_sale_six_month?.toString(),
     price_one_year: course.price_one_year?.toString(),
     thumbnail: null as File | null,
   })
@@ -102,6 +116,49 @@ export function UpdateCourseAlert({
       setFileSizeError(null)
     }
   }
+
+  const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
+    setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
+    if (!onSaleChecked[duration]) {
+      setData(`on_sale_${duration}` as keyof typeof data, "")
+    }
+    clearErrors(`on_sale_${duration}` as keyof typeof data)
+  }
+
+
+  useEffect(() => {
+    const validateForm = () => {
+      clearErrors()
+      let isValid = true
+
+      if (data.category_id === "university") {
+        if (!data.department_id) {
+          setError("department_id", "Department is required for university courses")
+          isValid = false
+        }
+        if (!data.batch_id) {
+          setError("batch_id", "Batch is required for university courses")
+          isValid = false
+        }
+      } else if (["lower_grade", "higher_grade"].includes(data.category_id)) {
+        if (!data.grade_id) {
+          setError("grade_id", "Grade is required for this category")
+          isValid = false
+        }
+      }
+
+      Object.entries(onSaleChecked).forEach(([duration, checked]) => {
+        if (checked && !data[`on_sale_${duration}` as keyof typeof data]) {
+          setError(`on_sale_${duration}` as keyof typeof data, "Sale price is required when on sale is checked")
+          isValid = false
+        }
+      })
+
+      return isValid
+    }
+
+    validateForm()
+  }, [data, onSaleChecked, clearErrors])
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -305,6 +362,43 @@ export function UpdateCourseAlert({
                   />
                   {errors.price_one_year && <p className="text-red-500 text-sm">{errors.price_one_year}</p>}
                 </div>
+
+
+                {Object.keys(onSaleChecked).map((duration) => (
+                <div key={duration}>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`on_sale_${duration}`}
+                      checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
+                      onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
+                    />
+                    <label
+                      htmlFor={`on_sale_${duration}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      On Sale {duration.replace("_", " ")}
+                    </label>
+                  </div>
+
+                  {onSaleChecked[duration as keyof typeof onSaleChecked] && (
+                    <div className="mt-2">
+                      <InputLabel
+                        htmlFor={`on_sale_${duration}`}
+                        value={`Sale Price for ${duration.replace("_", " ")}`}
+                      />
+                      <TextInput
+                        id={`on_sale_${duration}`}
+                        name={`on_sale_${duration}`}
+                        type="number"
+                        value={data[`on_sale_${duration}` as keyof typeof data] as string}
+                        onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
+                        className="w-full"
+                      />
+                      <InputError message={errors[`on_sale_${duration}` as keyof typeof data]} className="mt-2" />
+                    </div>
+                  )}
+                </div>
+              ))}
               </div>
             </CardContent>
           </Card>

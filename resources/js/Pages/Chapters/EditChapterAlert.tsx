@@ -8,6 +8,7 @@ import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Edit2 } from "lucide-react";
 import { Chapter } from "@/types";
+import { Textarea } from "@/Components/ui/textarea";
 
 interface UpdateChapterAlertProps {
   chapter: Chapter;
@@ -20,6 +21,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
   const { data, setData, put, processing, errors, reset} = useForm({
     title: chapter.title,
     order: chapter.order,
+    description: chapter.description,
     course_id: chapter.course_id,
   });
 
@@ -54,7 +56,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex justify-center items-center">
+        <div className=" justify-center items-center">
           <form onSubmit={submit}>
             <div className="mb-4">
               <InputLabel htmlFor="title" value="Chapter Title" />
@@ -71,7 +73,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
 
             <div className="mb-4">
               <InputLabel htmlFor="order" value="Chapter Order" />
-              <input
+              <TextInput
                 id="order"
                 name="order"
                 type="number"
@@ -80,6 +82,18 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 required
               />
               <InputError message={errors.order} className="mt-2" />
+            </div>
+
+            <div className="mb-4">
+              <InputLabel htmlFor="description" value="Chapter Description" />
+              <Textarea
+                id="description"
+                name="description"
+                value={data.description}
+                onChange={(e) => setData('description', e.target.value)}
+                required
+              />
+              <InputError message={errors.description} className="mt-2" />
             </div>
 
             <div className="mt-6 flex gap-x-2">

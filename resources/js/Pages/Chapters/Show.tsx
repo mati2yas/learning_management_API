@@ -46,7 +46,7 @@ const Show: React.FC<ChapterDetailProps> = ({
         </div>
       }
     >
-      <Head title={`Chapter ${chapter.title}`} />
+      <Head title={`Chapter - ${chapter.title}`} />
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -90,7 +90,6 @@ const Show: React.FC<ChapterDetailProps> = ({
                     <TabsTrigger value="grid"><Grid className="w-4 h-4 mr-2" /> Grid View</TabsTrigger>
                   </TabsList>
                   <TabsContent value="list">
-
                     <ContentList 
                       contents={contents} 
                     />
@@ -110,7 +109,7 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Quizzes</CardTitle>
-                
+
                     <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/>
               
                 </div>

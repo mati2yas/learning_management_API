@@ -63,9 +63,13 @@ class CourseController extends Controller
             'batch_id'=> [""],
             // 'number_of_chapters'=> ['required'],
             'price_one_month' => 'required',
+            'on_sale_month' => '',
             'price_three_month' => 'required',
+            'on_sale_three_month' => '',
             'price_six_month' => 'required',
+            'on_sale_six_month' => '',
             'price_one_year' => 'required',
+            'on_sale_one_year' => '',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

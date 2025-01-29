@@ -73,6 +73,7 @@ export interface QuizQuestion{
     is_multiple_choice: boolean;
     question_image_url: string;
     text_explanation: string;
+    image_explanation_url: string;
     video_explanation_url: string;
     options: JSON;
     answer: JSON;

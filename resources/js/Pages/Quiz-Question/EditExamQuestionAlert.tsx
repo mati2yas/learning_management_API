@@ -11,34 +11,35 @@ import {
 import { Button } from "@/Components/ui/button"
 import { Textarea } from "@/Components/ui/textarea"
 import { Label } from "@/Components/ui/label"
-import { type FormEventHandler, useState, useEffect, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react"
-import { PlusCircle, X } from "lucide-react"
+import { type FormEventHandler, useState, useEffect } from "react"
+import { PencilIcon, X } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
 import { Input } from "@/Components/ui/input"
-import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear } from "@/types"
+import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear, ExamQuestion } from "@/types"
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
 
 interface EditExamQuestionAlertProps {
-  exam_types?: ExamType[]
+  exam_types: ExamType[]
+  question: ExamQuestion
 }
 
-const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
+const EditExamQuestionAlert = ({ exam_types, question }: EditExamQuestionAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [options, setOptions] = useState<string[]>([])
-  const [correctAnswer, setCorrectAnswer] = useState<string | string[]>("")
-  const [isMultipleChoice, setIsMultipleChoice] = useState(false)
-  const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(null)
+  const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
+  const [correctAnswer, setCorrectAnswer] = useState<string | string[]>(JSON.parse(question.answer))
+  const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))
+  const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(question.question_image_url)
   const [examYears, setExamYears] = useState<ExamYear[]>([])
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examGrades, setExamGrades] = useState<ExamGrade[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
 
-  const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
+  const { data, setData, put, processing, errors, reset, clearErrors, setError } = useForm<{
     exam_type_id: string
     exam_year_id: string
     exam_course_id: string
@@ -46,36 +47,39 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
     exam_chapter_id: string
     question_text: string
     video_explanation_url: string
-    question_image_url: File | null
+    question_image_url: File | null | string
     text_explanation: string
     options: string[]
     answer: string[]
   }>({
-    exam_type_id: "",
-    exam_year_id: "",
-    exam_course_id: "",
-    exam_grade_id: "",
-    exam_chapter_id: "",
-    question_text: "",
-    video_explanation_url: "",
-    question_image_url: null as File | null,
-    text_explanation: "",
-    options: [],
-    answer: [],
+    exam_type_id: question.exam_year_id.toString(),
+    exam_year_id: question.exam_year_id.toString(),
+    exam_course_id: question.exam_course_id.toString(),
+    exam_grade_id: question.exam_grade_id?.toString() || "",
+    exam_chapter_id: question.exam_chapter_id?.toString() || "",
+    question_text: question.question_text,
+    video_explanation_url: question.video_explanation_url || "",
+    question_image_url: question.question_image_url || null,
+    text_explanation: question.text_explanation,
+    options: JSON.parse(question.options),
+    answer: JSON.parse(question.answer),
   })
 
   useEffect(() => {
-    if (!isOpen) {
-      resetForm()
+    if (isOpen) {
+      fetchExamYears(data.exam_type_id)
+      if (data.exam_year_id) fetchExamCourses(data.exam_year_id)
+      if (data.exam_course_id) fetchExamGrades(data.exam_course_id)
+      if (data.exam_grade_id) fetchExamChapters(data.exam_grade_id)
     }
-  }, [isOpen])
+  }, [isOpen, data.exam_course_id]) // Added data.exam_course_id to dependencies
 
   const resetForm = () => {
     reset()
-    setOptions([])
-    setCorrectAnswer(isMultipleChoice ? [] : "")
-    setQuestionImagePreview(null)
-    setIsMultipleChoice(false)
+    setOptions(JSON.parse(question.options))
+    setCorrectAnswer(JSON.parse(question.answer))
+    setIsMultipleChoice(Array.isArray(JSON.parse(question.answer)))
+    setQuestionImagePreview(question.question_image_url)
     setExamYears([])
     setExamCourses([])
     setExamGrades([])
@@ -87,7 +91,6 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
     try {
       const response = await axios.get(`/api/exam-years/${examTypeId}`)
       setExamYears(response.data)
-      // console.log(response.data)
     } catch (error) {
       console.error("Error fetching exam years:", error)
     }
@@ -243,7 +246,7 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
     setData("options", validOptions)
     setData("answer", formattedAnswer)
 
-    post(route("exam-questions.store"), {
+    put(route("exam-questions.update", question.id), {
       preserveScroll: true,
       preserveState: false,
       onSuccess: () => {
@@ -259,15 +262,14 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Exam Question
+        <Button variant="outline" size="icon">
+          <PencilIcon className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[700px] max-h-[90vh] p-0">
         <AlertDialogHeader className="p-6 pb-0">
-          <AlertDialogTitle>Create New Exam Question</AlertDialogTitle>
-          <AlertDialogDescription>Fill in the details for the new quiz question.</AlertDialogDescription>
+          <AlertDialogTitle>Edit Exam Question</AlertDialogTitle>
+          <AlertDialogDescription>Update the details for this exam question.</AlertDialogDescription>
         </AlertDialogHeader>
         <ScrollArea className="max-h-[calc(90vh-130px)] overflow-y-auto px-6">
           <form onSubmit={submit} className="space-y-4 py-4">
@@ -279,7 +281,7 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
                     <SelectValue placeholder="Select an exam type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {exam_type.map((examType: { id: Key | null | undefined; name: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined }) => (
+                    {exam_types.map((examType) => (
                       <SelectItem key={examType.id} value={examType.id.toString()}>
                         {examType.name}
                       </SelectItem>
@@ -441,7 +443,7 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
             <div className="space-y-2">
               <Label>Answer Type</Label>
               <RadioGroup
-                defaultValue="single"
+                value={isMultipleChoice ? "multiple" : "single"}
                 onValueChange={(value) => {
                   setIsMultipleChoice(value === "multiple")
                   setCorrectAnswer(value === "multiple" ? [] : "")
@@ -502,7 +504,7 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
             Cancel
           </Button>
           <Button type="submit" disabled={processing} onClick={submit}>
-            Create
+            Update
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -511,3 +513,4 @@ const EditExamQuestionAlert = ({ exam_type }: EditExamQuestionAlertProps) => {
 }
 
 export default EditExamQuestionAlert
+

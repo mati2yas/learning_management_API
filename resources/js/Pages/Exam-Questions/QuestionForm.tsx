@@ -44,6 +44,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
 
   return (
     <div className="space-y-4 border p-4 rounded-lg">
+
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Question {index + 1}</h3>
         <Button variant="ghost" size="sm" onClick={() => removeQuestion(index)}>
@@ -159,6 +160,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
         )}
         <InputError message={errors[`questions.${index}.answer`]} />
       </div>
+      
     </div>
   )
 }

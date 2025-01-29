@@ -40,7 +40,9 @@ class ExamQuestionController extends Controller
                 'exam_course_id' => 'required|exists:exam_courses,id',
                 'exam_grade_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_grades,id',
                 'exam_chapter_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_chapters,id',
+
                 'questions' => 'required|array|min:1',
+
                 'questions.*.question_text' => 'required|string',
                 'questions.*.text_explanation' => 'required|string',
                 'questions.*.video_explanation_url' => 'nullable|url',
@@ -52,7 +54,7 @@ class ExamQuestionController extends Controller
     
             Log::info('Validated data:', $validatedData);
     
-            $createdQuestions = [];
+            // $createdQuestions = [];
     
             foreach ($validatedData['questions'] as $questionData) {
                 $attrs = [
@@ -71,7 +73,7 @@ class ExamQuestionController extends Controller
                 Log::info('Creating question with attributes:', $attrs);
     
                 $question = ExamQuestion::create($attrs);
-                $createdQuestions[] = $question;
+                // $createdQuestions[] = $question;
             }
     
             return redirect()->route('exams.index')->with('success', 'Exam questions created successfully');

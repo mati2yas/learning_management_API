@@ -24,6 +24,7 @@ interface CreateExamQuestionAlertProps {
 }
 
 const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertProps) => {
+
   const [isOpen, setIsOpen] = useState(false)
   const [examYears, setExamYears] = useState<ExamYear[]>([])
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
@@ -264,14 +265,18 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[900px] h-[90vh] p-0 flex flex-col">
+
         <AlertDialogHeader className="p-6 pb-0">
           <AlertDialogTitle>Create New Exam Qu
             estions</AlertDialogTitle>
           <AlertDialogDescription>Fill in the details for the new exam questions.</AlertDialogDescription>
         </AlertDialogHeader>
+
         <ScrollArea className="flex-grow px-6 overflow-y-auto">
+
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
               <div>
                 <InputLabel htmlFor="exam-type" value="Exam Type" />
                 <Select value={data.exam_type_id} onValueChange={handleExamTypeChange}>
@@ -288,6 +293,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                 </Select>
                 <InputError message={errors.exam_type_id} className="mt-2" />
               </div>
+
 
               {data.exam_type_id && (
                 <div>
@@ -385,6 +391,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
             </Button>
           </form>
         </ScrollArea>
+        
         <AlertDialogFooter className="px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
             Cancel

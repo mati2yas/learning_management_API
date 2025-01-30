@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserManagementIndexResource;
+use App\Http\Resources\Web\UserEditResource;
 use App\Models\f;
 use App\Models\Role;
 use App\Models\User;
@@ -97,9 +98,14 @@ class UserManagementController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit()
-    {
-        //
+    public function edit(string $id){
+        $user = User::findOrFail(intval($id));
+        // dd($user);
+
+        // dd(new UserManagementIndexResource($user));
+        return Inertia::render('User-Management/Edit',[
+            'user'=>new UserEditResource($user) ,
+        ]);
     }
 
     /**
@@ -114,10 +120,10 @@ class UserManagementController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             // Validate password and confirmation only if password is provided
             'password' => 'nullable|string|min:8|confirmed',
-            'phone_no' => ['required', 'regex:/^\+251[79]\d{8}$/', 'unique:users,phone_no,' . $user->id],
-            'gender' => 'required|in:male,female,other',
-            'salary' => 'required|string|min:3',
-            'station_id' => 'required|exists:stations,id',
+            // 'phone_no' => ['required', 'regex:/^\+251[79]\d{8}$/', 'unique:users,phone_no,' . $user->id],
+            // 'gender' => 'required|in:male,female,other',
+            // 'salary' => 'required|string|min:3',
+
             'permissions' => 'array',
         ]);
     

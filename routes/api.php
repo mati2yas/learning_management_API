@@ -48,13 +48,18 @@ Route::get('/course-chapters/{course_id}', function ($course_id) {
     return CourseChapterResource::collection($chapters);
 });
 
+// Route::get('/quiz/{quiz_id}', function ($quiz_id) {
+//     $quiz = Quiz::with('quizQuestions')->findOrFail($quiz_id);
+//     return new QuizResource($quiz);
+// });
+
 
 Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
     // Fetch the chapter with its related contents, videos, documents, and quizzes
     $chapter = Chapter::with([
         'contents.youtubeContents',
         'contents.fileContents',
-        'quizzes'
+        'quizzes.quizQuestions'
     ])->findOrFail($chapter_id);
 
     // Return the resource

@@ -10,6 +10,7 @@ use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
+use App\Http\Resources\Api\QuizResource;
 use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Content;
@@ -18,6 +19,7 @@ use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamYear;
+use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,10 +50,10 @@ Route::get('/course-chapters/{course_id}', function ($course_id) {
     return CourseChapterResource::collection($chapters);
 });
 
-// Route::get('/quiz/{quiz_id}', function ($quiz_id) {
-//     $quiz = Quiz::with('quizQuestions')->findOrFail($quiz_id);
-//     return new QuizResource($quiz);
-// });
+Route::get('/quizzes/{quiz_id}', function ($quiz_id) {
+    $quiz = Quiz::with('quizQuestions')->findOrFail($quiz_id);
+    return new QuizResource($quiz);
+});
 
 
 Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {

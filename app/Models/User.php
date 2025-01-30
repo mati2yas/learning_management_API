@@ -57,6 +57,66 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(PaidCourse::class);
     }
 
+    // Relationship for the user who created this user
+    public function creator(){
+        return $this->belongsTo(User::class,'created_by');
+    }
+
+    // Relationship for the user who last updated this user
+    public function updater(){
+        return $this->belongsTo(User::class,'updated_by');
+    }
+
+    public function createdCourses(){
+        return $this->hasMany(Course::class,'created_by');
+    }
+
+    public function updatedCourses(){
+        return $this->hasMany(Course::class,'updated_by');
+    }
+
+    public function createdChapters(){
+        return $this->hasMany(Chapter::class,'created_by');
+    }
+
+    public function updatedChapters(){
+        return $this->hasMany(Chapter::class,'updated_by');
+    }
+
+    public function createdContents(){
+        return $this->hasMany(Content::class,'created_by');
+    }
+
+    public function updatedContents(){
+        return $this->hasMany(Content::class,'updated_by');
+    }
+
+    public function createdQuizzes(){
+        return $this->hasMany(Quiz::class,'created_by');
+    }
+
+    public function updatedQuizzes(){
+        return $this->hasMany(Quiz::class,'updated_by');
+    }
+
+    public function createdQuizQuestions(){
+        return $this->hasMany(QuizQuestion::class,'created_by');
+    }
+
+    public function updatedQuizQuestions(){
+        return $this->hasMany(QuizQuestion::class,'updated_by');
+    }
+
+    public function createdExamQuestions(){
+        return $this->hasMany(ExamQuestion::class,'created_by');
+    }
+
+    public function updatedExamQuestions(){
+        return $this->hasMany(ExamQuestion::class,'updated_by');
+    }
+
+    
+
     protected function casts(): array
     {
         return [

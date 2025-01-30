@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
         $this->callOnce(QuizSeeder::class);
 
         $this->callOnce( PermissionSeeder::class);
+        $this->callOnce( NewRoleSeeder::class);
 
         $this->callOnce(ExamTypeSeeder::class);
         $this->callOnce(ExamYearSeeder::class);

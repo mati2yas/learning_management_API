@@ -42,6 +42,7 @@ class ChapterContentResource extends JsonResource
             'quizzes' => $this->quizzes->map(fn($quiz) => [
                 'id' => $quiz->id,
                 'title' => $quiz->title,
+                'number_of_questions' => $quiz->quizQuestions->count()
             ])->toArray(),
         ];
     }

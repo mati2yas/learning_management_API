@@ -57,6 +57,8 @@ Route::middleware(['auth', 'verified'])->resource('exams', ExamController::class
 
 Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestionController::class);
 
+Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
+
 Route::get('/random', fn() => Course::paginate(10));
 
 

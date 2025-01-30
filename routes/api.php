@@ -41,11 +41,13 @@ Route::get('/random-chapters', function(){
    );
 });
 
+
 Route::get('/course-chapters/{course_id}', function ($course_id) {
 
     $chapters = Chapter::where('course_id', $course_id)->get();
     return CourseChapterResource::collection($chapters);
 });
+
 
 Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
     // Fetch the chapter with its related contents, videos, documents, and quizzes

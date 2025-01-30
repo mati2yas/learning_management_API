@@ -12,7 +12,7 @@ export interface User {
 
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
-> = T & {
+    > = T & {
     auth: {
         user: User;
     };

@@ -14,27 +14,35 @@ class ChapterContentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $videos = [];
+        $documents = [];
+
+        // Iterate once over contents and extract related videos & documents
+        foreach ($this->contents as $content) {
+            foreach ($content->youtubeContents as $youtubeContent) {
+                $videos[$youtubeContent->id] = [
+                    'id' => $youtubeContent->id,
+                    'title' => $youtubeContent->title,
+                    'url' => $youtubeContent->url,
+                ];
+            }
+
+            foreach ($content->fileContents as $fileContent) {
+                $documents[$fileContent->id] = [
+                    'id' => $fileContent->id,
+                    'title' => $fileContent->title,
+                    'file_url' => $fileContent->file_url,
+                ];
+            }
+        }
+
         return [
-            'videos' => $this->flatMap(function ($content) {
-                return $content->youtubeContents->map(function ($youtubeContent) {
-                    return [
-                        'id' => $youtubeContent->id,
-                        'title' => $youtubeContent->title, // Include other video properties
-                        'url' => $youtubeContent->url,
-                    ];
-                });
-            })->unique('id')->values(), // Avoid duplicate video entries based on `id`
-    
-            'documents' => $this->flatMap(function ($content) {
-                return $content->fileContents->map(function ($fileContent) {
-                    return [
-                        'id' => $fileContent->id,
-                        'title' => $fileContent->title, // Include other file properties
-                        'file_url' => $fileContent->file_url,
-                    ];
-                });
-            })->unique('id')->values(), // Avoid duplicate document entries based on `id`
+            'videos' => array_values($videos),  // Remove duplicate video entries
+            'documents' => array_values($documents),  // Remove duplicate document entries
+            'quizzes' => $this->quizzes->map(fn($quiz) => [
+                'id' => $quiz->id,
+                'title' => $quiz->title,
+            ])->toArray(),
         ];
     }
-    
 }

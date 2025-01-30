@@ -48,14 +48,17 @@ Route::get('/course-chapters/{course_id}', function ($course_id) {
 });
 
 Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
-    // Fetch all contents for the chapter with their relationships
-    $contents = Content::where('chapter_id', $chapter_id)
-        ->with(['youtubeContents', 'fileContents'])
-        ->get();
+    // Fetch the chapter with its related contents, videos, documents, and quizzes
+    $chapter = Chapter::with([
+        'contents.youtubeContents',
+        'contents.fileContents',
+        'quizzes'
+    ])->findOrFail($chapter_id);
 
-    // Return the resource collection
-    return new ChapterContentResource($contents);
+    // Return the resource
+    return new ChapterContentResource($chapter);
 });
+
 
 
 Route::get('/random-contents', function(){

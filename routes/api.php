@@ -20,6 +20,7 @@ use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamYear;
 use App\Models\Quiz;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -113,8 +114,14 @@ Route::get('/random-courses/{filterType}', function ($filterType) {
     return CourseResource::collection($courses);
 });
 
-Route::post('/delete-user', function (Request $request) {
-    $request->user()->delete();
+Route::post('/delete-user/{id}', function ($id) {
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $user->delete();
     return response()->json(['message' => 'User deleted successfully'], 200);
 })->middleware('auth:sanctum');
 

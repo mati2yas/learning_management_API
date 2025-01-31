@@ -13,7 +13,6 @@ import { PlusCircle } from "lucide-react"
 import { type FormEventHandler, useState, useEffect } from "react"
 import QuizQuestionForm from "./QuizQuestionFrom"
 
-
 interface CreateQuizQuestionAlertProps {
   quizId: number
   title: string
@@ -95,7 +94,16 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
 
   const updateQuestion = (index: number, field: string, value: any) => {
     const updatedQuestions = [...data.questions]
-    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
+    if (field === "question_image" || field === "image_explanation") {
+      // For image fields, store the File object directly
+      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
+    } else if (field === "question_image_preview" || field === "image_explanation_preview") {
+      // For preview fields, store the data URL
+      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
+    } else {
+      // For other fields, store the value as is
+      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
+    }
     setData("questions", updatedQuestions)
   }
 
@@ -164,6 +172,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
       })
     })
 
+    console.log("Form data:", data)
     post(route("quiz-questions.store"), {
       data: formData,
       preserveScroll: true,

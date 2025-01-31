@@ -113,6 +113,12 @@ Route::get('/random-courses/{filterType}', function ($filterType) {
     return CourseResource::collection($courses);
 });
 
+Route::post('/delete-user', function (Request $request) {
+    $request->user()->delete();
+    return response()->json(['message' => 'User deleted successfully'], 200);
+})->middleware('auth:sanctum');
+
+
 Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 
 Route::post('/student-register', [SessionController::class, 'studentRegister']);

@@ -40,6 +40,20 @@ export default function Authenticated({
                                 >
                                     Courses
                                 </NavLink>
+
+                                <NavLink
+                                    href={route('exams.index')}  
+                                    active={route().current('exams.index')} 
+                                >
+                                    Exams
+                                </NavLink>
+
+                                <NavLink
+                                    href={route('user-management.index')}  
+                                    active={route().current('user-management.index')} 
+                                >
+                                    User Management
+                                </NavLink>
                             </div>
                         </div>
 
@@ -144,12 +158,21 @@ export default function Authenticated({
                         >
                             Dashboard
                         </ResponsiveNavLink>
+
                         <ResponsiveNavLink
                             href={route('courses.index')}
                             active={route().current('courses.index')}
                         >
-                            Dashboard
+                            Courses
                         </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            href={route('exams.index')}
+                            active={route().current('exams.index')}
+                        >
+                            Exams
+                        </ResponsiveNavLink>
+
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">
@@ -185,7 +208,6 @@ export default function Authenticated({
                     </div>
                 </header>
             )}
-
             <main>{children}</main>
         </div>
     );

@@ -136,8 +136,6 @@ Route::post('/student-register', [SessionController::class, 'studentRegister']);
 
 Route::post('/login', [SessionController::class, 'login']);
 
-
-
 Route::post('/logout', [SessionController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::delete('/user-delete', [SessionController::class, 'destroy'])->middleware('auth:sanctum');

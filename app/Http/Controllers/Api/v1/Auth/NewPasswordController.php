@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendCustomPasswordResetEmail;
+use App\Jobs\SendCustomVerificationEmail;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -41,12 +43,14 @@ class NewPasswordController extends Controller
             ], 404);
         }
 
-        Password::sendResetLink(
-            $request->only('email')
-        );
+        // Password::sendResetLink(
+        //     $request->only('email')
+        // );
+
+        SendCustomPasswordResetEmail::dispatch($user);
 
         return response()->json([
-            'status' => 'success',
+            'status' => 'Success',
             'message' => 'You will receive a password reset link shortly.'
         ]);
     }

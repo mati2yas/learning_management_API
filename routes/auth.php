@@ -11,8 +11,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Jobs\SendCustomVerificationEmail;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +39,48 @@ Route::middleware('guest')->group(function () {
 
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
+
+    Route::get('reset-password-api/{token}', function($token, Request $request){
+        return Inertia::render('Auth-Api/ResetPasswordApi', [
+            'token' => $token,
+            'email'=>$request->email
+        ]);
+    })
+    ->name('password.reset.api');
+
+    Route::post('reset-password-api', function(Request $request){
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required',
+            'password' => ['required', 'confirmed',],
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                $user->tokens()->delete();
+
+                dispatch(function()use($user){
+                    event(new PasswordReset($user));
+                });
+
+            }
+        );
+
+        if ($status == Password::PASSWORD_RESET) {
+            return Inertia::render('Verification/VerifyResetSuccess');
+        }
+
+        return response()->json([
+            'message'=> __($status)
+        ], 500);
+    })
+    ->name('password.store.api');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');

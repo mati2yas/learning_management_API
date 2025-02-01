@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\EmailVerificationSend;
+use App\Jobs\SendCustomVerificationEmail;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as RulesPassword;
@@ -53,40 +55,42 @@ class SessionController extends Controller
         
     }
 
-    public function studentRegister(Request $request){
-        $attrs = Validator::make($request->all(),[
-            'name'=> 'required',
-            'email'=> 'required|email|unique:users,email',
-            'password'=> ['required', RulesPassword::min(4), 'confirmed'],
+    public function studentRegister(Request $request)
+    {
+        $attrs = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', RulesPassword::min(4), 'confirmed'],
         ]);
-
-        if($attrs->fails()){
+    
+        if ($attrs->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Validation Error',
                 'errors' => $attrs->errors()
             ], 401);
         }
-
+    
         $user = User::create([
-            'name'=> $request->name,
+            'name' => $request->name,
             'email' => $request->email,
-            'password'=> $request->password,
+            'password' => Hash::make($request->password),
         ]);
-
-        EmailVerificationSend::dispatch($user);
+    
         $student = Role::where('name', 'student')->where('guard_name', 'api')->first();
-
         $user->assignRole($student);
+    
+        // Dispatch the custom email job
+        SendCustomVerificationEmail::dispatch($user);
+    
 
         return response()->json([
             'status' => true,
-            'message' => 'Student User Created Successfully. Email Verification link sent',
-            'data'=>[
-                'user'=> $user,
-            ]
+            'message' => 'Student User Created Successfully. Email verification link sent.',
+            'data' => ['user' => $user],
         ]);
     }
+    
 
     public function login(Request $request)
     {
@@ -95,7 +99,7 @@ class SessionController extends Controller
                 'email' => 'required|email',
                 'password' => ['required', RulesPassword::min(6)],
             ]);
-
+    
             if ($attrs->fails()) {
                 return response()->json([
                     'status' => false,
@@ -103,9 +107,9 @@ class SessionController extends Controller
                     'errors' => $attrs->errors()
                 ], 401);
             }
-
+    
             $user = User::where('email', $request->email)->first();
-
+    
             if (!$user || !Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 return response()->json([
                     'status' => false,
@@ -115,13 +119,24 @@ class SessionController extends Controller
                     ]
                 ], 401);
             }
-
+    
+            // Check if the user's email is verified
+            if (!$user->hasVerifiedEmail()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your email address is not verified.',
+                    'errors' => [
+                        'message' => 'Please verify your email address before logging in.'
+                    ]
+                ], 403);
+            }
+    
             return response()->json([
                 'status' => true,
-                'message' => 'User login successfully',
+                'message' => 'Student logged in successfully',
                 'token' => $user->createToken("API TOKEN")->plainTextToken,
             ]);
-
+    
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

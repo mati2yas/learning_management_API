@@ -13,7 +13,6 @@ use App\Http\Controllers\Web\QuizQuesitonController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
 use App\Models\Course;
-use App\Models\QuizQuestion;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

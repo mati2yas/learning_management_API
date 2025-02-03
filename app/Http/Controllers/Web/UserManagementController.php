@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserManagementIndexResource;
 use App\Http\Resources\Web\UserEditResource;
-use App\Models\f;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;

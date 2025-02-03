@@ -48,6 +48,15 @@ export default function Authenticated({
                                     Exams
                                 </NavLink>
 
+                                
+                                <NavLink
+                                    href={route('subscriptions.index')}  
+                                    active={route().current('subscriptions.index')} 
+                                >
+                                    Subscriptions
+                                </NavLink>
+
+
                                 <NavLink
                                     href={route('user-management.index')}  
                                     active={route().current('user-management.index')} 
@@ -171,6 +180,21 @@ export default function Authenticated({
                             active={route().current('exams.index')}
                         >
                             Exams
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            href={route('subscriptions.index')}
+                            active={route().current('subscriptions.index')}
+                        >
+                            Subscription
+                        </ResponsiveNavLink>
+
+
+                        <ResponsiveNavLink
+                            href={route('user-managements.index')}
+                            active={route().current('user-managements.index')}
+                        >
+                            User Management
                         </ResponsiveNavLink>
 
                     </div>

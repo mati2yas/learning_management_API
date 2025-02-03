@@ -54,6 +54,8 @@ class ChapterController extends Controller
             'contents' => $chapter->contents,
             'quizzes' => $chapter->quizzes,
             'course_id' => $chapter->course_id,
+            'contentsCount' => $chapter->contents->count(),
+            'quizzesCount' => $chapter->quizzes->count(),
         ]
         );
     }

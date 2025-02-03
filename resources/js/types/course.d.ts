@@ -1,4 +1,5 @@
 export interface Course{
+  topicsCount: number;
   id: number;
   course_name: string;
   thumbnail: string;
@@ -10,13 +11,19 @@ export interface Course{
   saves: number;
   likes: number;
   price_one_month: number;
-  on_sale_month: number;
+  on_sale_one_month: number;
   price_three_month: number;
   on_sale_three_month: number;
   price_six_month: number;
   on_sale_six_month: number;
   price_one_year: number;
   on_sale_one_year: number;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at: string;
+  created_by:{
+    name: string;
+  } 
+  updated_by:{
+    name: string;
+  } 
 }

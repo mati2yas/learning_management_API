@@ -1,7 +1,7 @@
 import React from 'react'
 import { Head, Link } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
-import { BookOpen, Clock, List, Grid, ArrowLeft, Plus } from 'lucide-react'
+import { BookOpen, List, Grid, ArrowLeft, Clapperboard } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
@@ -19,13 +19,17 @@ interface ChapterDetailProps {
   contents: Content[]
   quizzes: Quiz[]
   course_id: number
+  contentsCount: number
+  quizzesCount: number
 }
 
 const Show: React.FC<ChapterDetailProps> = ({ 
   chapter,  
   contents,
   quizzes,
-  course_id
+  course_id,
+  contentsCount,
+  quizzesCount
 }) => {
 
   function setIsAddQuizModalOpen(arg0: boolean): void {
@@ -58,11 +62,11 @@ const Show: React.FC<ChapterDetailProps> = ({
                 <div className="flex flex-wrap gap-4">
                   <div className="flex items-center">
                     <BookOpen className="w-5 h-5 mr-2" />
-                    {/* <span>{contents.length} Contents</span> */}
+                    <span>{contentsCount} Contents</span>
                   </div>
                   <div className="flex items-center">
-                    <Clock className="w-5 h-5 mr-2" />
-                    {/* <span>Estimated Time: {chapter.estimated_time} mins</span> */}
+                    <Clapperboard className="w-5 h-5 mr-2" />
+                    <span>{quizzesCount} quizzes</span>
                   </div>
                 </div>
               </CardContent>
@@ -74,10 +78,6 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Contents</CardTitle>
-
-                  {/* <Button onClick={() => {}}>
-                    <Plus className="mr-2 h-4 w-4" /> Add Content
-                  </Button> */}
 
                   <CreateContentAlert id={chapter.id} title={chapter.title}/>
 
@@ -109,9 +109,7 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Quizzes</CardTitle>
-
                     <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/>
-              
                 </div>
               </CardHeader>
               <CardContent>

@@ -77,8 +77,12 @@ class SessionController extends Controller
             'password' => Hash::make($request->password),
         ]);
     
-        $student = Role::where('name', 'student')->where('guard_name', 'api')->first();
-        $user->assignRole($student);
+        $studentApi = Role::where('name', 'student')->where('guard_name', 'api')->first();
+
+        $studentWeb = Role::where('name', 'student')->where('guard_name', 'web')->first();
+        
+        $user->assignRole($studentApi);
+        $user->assignRole($studentWeb);
     
         // Dispatch the custom email job
         SendCustomVerificationEmail::dispatch($user);

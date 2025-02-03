@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Web\CourseResource;
 use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Department;
 use App\Models\Grade;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -19,28 +22,42 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-
-        $query = Course::query();
-
+        $query = Course::with([
+            'category:id,name',
+            'grade:id,grade_name',
+            'department:id,department_name',
+            'batch:id,batch_name',
+            'createdBy:id,name',
+            'updatedBy:id,name',
+            'saves',
+            'likes',
+            'paidCourses',
+            'chapters:id,course_id'
+        ]);
+    
         if ($request->filled('category')) {
             $query->where('category_id', $request->input('category'));
         }
-
+    
         if ($request->filled('search')) {
             $query->where('course_name', 'like', '%' . $request->search . '%');
         }
-
+    
         $courses = $query->latest()->paginate(16);
 
-        return Inertia::render('courses/Index',[
+        // dd($courses);
+    
+    
+        return Inertia::render('courses/Index', [
             'categories' => Category::all(),
             'grades' => Grade::all(),
             'departments' => Department::all(),
             'batches' => Batch::all(),
-            'courses' => $courses,
+            'courses' => CourseResource::collection($courses) , // Pagination metadata is preserved
             'filters' => $request->only(['category', 'search']),
         ]);
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -63,7 +80,7 @@ class CourseController extends Controller
             'batch_id'=> [""],
             // 'number_of_chapters'=> ['required'],
             'price_one_month' => 'required',
-            'on_sale_month' => '',
+            'on_sale_one_month' => '',
             'price_three_month' => 'required',
             'on_sale_three_month' => '',
             'price_six_month' => 'required',
@@ -78,6 +95,9 @@ class CourseController extends Controller
             $path = $request->file('thumbnail')->store('thumbnail', 'public'); // Store in "storage/app/public/thumbnail"
             $attrs['thumbnail'] = $path; // Add the path to attributes to save in the database
         }
+
+        $attrs['created_by'] = Auth::user()->id;
+        $attrs['updated_by'] = Auth::user()->id;
 
         $course = Course::create($attrs);
 
@@ -117,9 +137,9 @@ class CourseController extends Controller
             'grades' => Grade::all(),
             'departments' => Department::all(),
             'batches' => Batch::all(),
+            'enrolledStudents' => $course->paidCourses->count(),
+            'chaptersCount' => $course->chapters->count(),
         ]);
-
-        
     }
 
     /**
@@ -146,9 +166,13 @@ class CourseController extends Controller
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
             'price_one_month' => 'required',
+            'on_sale_one_month' => '',
             'price_three_month' => 'required',
+            'on_sale_three_month' => '',
             'price_six_month' => 'required',
+            'on_sale_six_month' => '',
             'price_one_year' => 'required',
+            'on_sale_one_year' => '',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], $messages);
     
@@ -156,6 +180,8 @@ class CourseController extends Controller
             $path = $request->file('thumbnail')->store('thumbnail', 'public'); 
             $attrs['thumbnail'] = $path;
         }
+
+        $attrs['updated_by'] = Auth::user()->id;
     
         $course->update($attrs);
     

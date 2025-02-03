@@ -68,7 +68,7 @@ function Index({users, queryParams={}, success}: IndexProps) {
     <Authenticated
         header={
           <div className='flex justify-between'>
-            <h1 className=' font-bold'>Vehicles</h1>
+            <h1 className=' font-bold'>User Management</h1>
             <Link href={route('user-managements.create')}>Add Users</Link>
         </div>
         }

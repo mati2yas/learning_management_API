@@ -2,6 +2,7 @@ import exp from "constants";
 import {  Content } from '@/types';
 import { Course } from './course';
 import { Youtube } from 'lucide-react';
+import { create } from 'domain';
 
 export interface User {
     id: number;
@@ -114,6 +115,7 @@ export interface Course{
 export interface IndexProps {
     auth: any;
     courses: {
+      meta: any;
       data: Course[]
       links: Array<{
         url: string | null;
@@ -221,4 +223,38 @@ export interface ExamGrade{
     exam_year_id: number
     created_at?: string;
     updated_at?: string;
+}
+
+export interface SubscriptionRequest{
+        id: number
+        user: { name: string, email?: string}
+        course: {name: string} | null
+        exam_course: {name: string} | null
+        total_price: number
+        proof_of_payment: string
+        status: 'Pending' | 'Approved' | 'Rejected'
+        created_at?: string;
+        updated_at?: string;
+  
+}
+
+export interface Subscription{
+   
+        id: number
+        subscription_request: {
+            id: number
+            user: { name: string}
+            course: {name: string} | null
+            exam_course: {name: string} | null
+            total_price: number
+            proof_of_payment: string
+            status: 'Pending' | 'Approved' | 'Rejected'
+            created_at?: string;
+            updated_at?: string;
+        }
+        subscription_start_date: string
+        subscription_expiry_date: string
+        created_at?: string;
+        updated_at?: string;
+  
 }

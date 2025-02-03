@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
 
+
+
 const Index: React.FC<IndexProps> = ({
   courses,
   categories,
@@ -16,6 +18,8 @@ const Index: React.FC<IndexProps> = ({
   batches,
   filters,
 }) => {
+ 
+
   const { data, setData } = useForm({
     category: filters.category || '',
     search: filters.search || '',
@@ -59,10 +63,6 @@ const Index: React.FC<IndexProps> = ({
           <React.Fragment>
             <h1 className="text-2xl font-semibold">Courses</h1>
             <CreateCourseAlert
-              categories={categories}
-              grades={grades}
-              departments={departments}
-              batches={batches}
             />
           </React.Fragment>
         </div>
@@ -110,13 +110,16 @@ const Index: React.FC<IndexProps> = ({
                   grade={course.grade_id ? getGradeName(course.grade_id) : undefined}
                   department={course.department_id ? getDepartmentName(course.department_id) : undefined}
                   batch={course.batch_id ? getBatchName(course.batch_id) : undefined}
-                  topicsCount={course.number_of_chapters}
+                  topicsCount={course.topicsCount}
                   saves={course.saves}
                   likes={course.likes} 
                   price_one_month={course.price_one_month} 
                   price_three_month={course.price_three_month} 
                   price_six_month={course.price_six_month} 
-                  price_one_year={course.price_one_year}                  
+                  price_one_year={course.price_one_year} 
+                  created_by={course.created_by}
+                  updated_by={course.updated_by}
+                  created_at={course.created_at}                 
                   />
               ))}
             </div>
@@ -128,7 +131,7 @@ const Index: React.FC<IndexProps> = ({
           </div>
           
           <div className="mt-6 flex justify-center items-center space-x-2">
-            {courses.links.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
+            {courses.meta.links?.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
               <Link
                 key={index}
                 href={link.url || '#'}

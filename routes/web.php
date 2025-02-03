@@ -10,9 +10,14 @@ use App\Http\Controllers\Web\ExamTypeController;
 use App\Http\Controllers\Web\FileContentController;
 use App\Http\Controllers\Web\QuizController;
 use App\Http\Controllers\Web\QuizQuesitonController;
+use App\Http\Controllers\Web\SubscriptionController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
+use App\Models\Chapter;
 use App\Models\Course;
+use App\Models\ExamQuestion;
+use App\Models\SubscriptionRequest;
+use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,7 +32,30 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+
+    $categories = [
+        3 => ['label' => 'chrome', 'color' => 'var(--color-chrome)'],
+        1 => ['label' => 'safari', 'color' => 'var(--color-safari)'],
+        2 => ['label' => 'firefox', 'color' => 'var(--color-firefox)'],
+        4 => ['label' => 'edge', 'color' => 'var(--color-edge)'],
+    ];
+
+    $courseData = collect($categories)->map(function ($details, $categoryId) {
+        return [
+            'browser' => $details['label'],
+            'visitors' => Course::where('category_id', $categoryId)->count(),
+            'fill' => $details['color'],
+        ];
+    })->values()->all();
+
+    return Inertia::render('Dashboard',[
+        'courseData' => $courseData,
+        'chapters' => Chapter::count(),
+        'examQuestions' => ExamQuestion::count(),
+        'users' => User::role('student')->count(),
+        'pendingSubscriptions' => SubscriptionRequest::where('status', 'Pending')->count(),
+    ]);
+
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -58,7 +86,11 @@ Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestion
 
 Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
 
+Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionController::class);
+
 Route::get('/random', fn() => Course::paginate(10));
+
+
 
 
 require __DIR__.'/auth.php';

@@ -1,17 +1,20 @@
 import { Head } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
-import { BookOpen, Users, Layers, GraduationCap, Building, Clock, DollarSign, Star, UserCheck } from "lucide-react"
+import { BookOpen, Users, GraduationCap, Building, Clock, Star, UserCheck, ThumbsUp } from "lucide-react"
 import { EnhancedTableDemo } from "@/Components/TableDemo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { Badge } from "@/Components/ui/badge"
-import { Button } from "@/Components/ui/button"
 import CreateChapter from "./CreateChapter"
 import DeleteCourseAlert from "./DeleteCourseAlert"
 import { UpdateCourseAlert } from "./UpdateCourseAlert"
 import ChapterCard from "@/Components/ChapterCard"
 import type { ShowCourseProps } from "@/types/show"
 import dayjs from "dayjs"
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+
 
 const Show = ({
   course,
@@ -24,7 +27,12 @@ const Show = ({
   grades,
   departments,
   batches,
+  chaptersCount,
 }: ShowCourseProps) => {
+
+  console.log('chaptercount', chaptersCount);
+
+
   const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A"
 
   return (
@@ -46,7 +54,7 @@ const Show = ({
                 <div className="relative h-64">
                   <img
                     src={
-                      thumbnail.startsWith("/storage//id")
+                      thumbnail?.startsWith("/storage//id")
                         ? `https://picsum.photos${thumbnail.replace("storage/", "")}`
                         : thumbnail
                     }
@@ -67,7 +75,7 @@ const Show = ({
                     <InfoItem
                       icon={<BookOpen className="w-5 h-5" />}
                       label="Chapters"
-                      value={course.number_of_chapters}
+                      value={chaptersCount}
                     />
                     {course.grade_id && (
                       <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={gradeName} />
@@ -76,7 +84,7 @@ const Show = ({
                       <InfoItem icon={<Building className="w-5 h-5" />} label="Department" value={department_name} />
                     )}
                     {course.batch_id && (
-                      <InfoItem icon={<Users className="w-5 h-5" />} label="Batch" value={batch_name} />
+                      <InfoItem  icon={<Users className="w-5 h-5 text-nowrap" />} label="Batch" value={batch_name} />
                     )}
                   </div>
                 </CardContent>
@@ -92,7 +100,7 @@ const Show = ({
                     <PriceItem
                       duration="1 Month"
                       regularPrice={course.price_one_month}
-                      salePrice={course.on_sale_month}
+                      salePrice={course.on_sale_one_month}
                     />
                     <PriceItem
                       duration="3 Months"
@@ -141,8 +149,6 @@ const Show = ({
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <StatItem icon={<UserCheck className="w-5 h-5" />} label="Enrolled Students" value="120" />
-                  <StatItem icon={<Star className="w-5 h-5" />} label="Average Rating" value="4.5/5" />
-                  <StatItem icon={<Users className="w-5 h-5" />} label="Completion Rate" value="78%" />
                 </CardContent>
               </Card>
 
@@ -156,13 +162,13 @@ const Show = ({
                     icon={<Clock className="w-5 h-5" />}
                     label="Created"
                     date={dayjs(course.created_at).format("MMM D, YYYY")}
-                    user="John Doe"
+                    user={course.created_by.name}
                   />
                   <UserActionInfo
                     icon={<Clock className="w-5 h-5" />}
                     label="Updated"
                     date={dayjs(course.updated_at).format("MMM D, YYYY")}
-                    user="Jane Smith"
+                    user={course.updated_by.name}
                   />
                 </CardContent>
               </Card>
@@ -187,11 +193,21 @@ const Show = ({
                   <EnhancedTableDemo chapters={chapters} />
                 </TabsContent>
                 <TabsContent value="grid">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                    {chapters.map((chapter, index) => (
-                      <ChapterCard key={index} chapter={chapter} />
-                    ))}
-                  </div>
+ 
+                    {chapters.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                      {chapters.map((chapter, index) => (
+                        <ChapterCard key={index} chapter={chapter} />
+                      ))}
+                      </div>
+                    ):(
+                      <div className="flex flex-col items-center justify-center py-16">
+                      <img src={'/images/Course app-rafiki.svg'} alt="No data available" className="w-48 h-48" />
+                      <p className="text-gray-500 mt-4 text-lg">No chapters available. Start creating one!</p>
+                    </div>
+                    )}
+
+                
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -211,7 +227,7 @@ interface InfoItemProps {
 const InfoItem = ({ icon, label, value }: InfoItemProps) => (
   <div className="flex items-center space-x-2">
     {icon}
-    <span className="text-sm font-medium text-gray-500">{label}</span>
+    <span className="text-sm font-medium text-nowrap text-gray-500">{label}</span>
     <span className="font-semibold">{value}</span>
   </div>
 )

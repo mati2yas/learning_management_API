@@ -9,4 +9,5 @@ export interface ShowCourseProps {
   grades: Grade[];
   departments: Department[];
   batches: Batch[];
+  chaptersCount: number;
 }

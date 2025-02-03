@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import type { Category, Grade, Department, Batch } from "@/types"
 import type { Course } from "@/types/course"
@@ -22,6 +23,7 @@ import Checkbox from "@/Components/Checkbox"
 import InputLabel from "@/Components/InputLabel"
 import TextInput from "@/Components/TextInput"
 import InputError from "@/Components/InputError"
+import { fetchGrades, fetchDepartments, fetchBatches } from "@/api/courseManagement"
 
 interface UpdateCourseAlertProps {
   categories: Category[]
@@ -35,21 +37,23 @@ interface UpdateCourseAlertProps {
 export function UpdateCourseAlert({
   course,
   categories,
-  grades,
-  departments,
-  batches,
+  grades: initialGrades,
+  departments: initialDepartments,
+  batches: initialBatches,
   thumbnail,
 }: UpdateCourseAlertProps) {
-
   const [isOpen, setIsOpen] = useState(false)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail)
   const [fileSizeError, setFileSizeError] = useState<string | null>(null)
   const [onSaleChecked, setOnSaleChecked] = useState({
-    month: false,
-    three_month: false,
-    six_month: false,
-    one_year: false,
+    one_month: !!course.on_sale_one_month,
+    three_month: !!course.on_sale_three_month,
+    six_month: !!course.on_sale_six_month,
+    one_year: !!course.on_sale_one_year,
   })
+  const [grades, setGrades] = useState(initialGrades)
+  const [departments, setDepartments] = useState(initialDepartments)
+  const [batches, setBatches] = useState(initialBatches)
 
   const { data, setData, post, processing, errors, reset, progress, clearErrors, setError } = useForm({
     _method: "PATCH",
@@ -59,13 +63,15 @@ export function UpdateCourseAlert({
     department_id: course.department_id?.toString() || "",
     batch_id: course.batch_id?.toString() || "",
     price_one_month: course.price_one_month?.toString(),
-    on_sale_month: course.on_sale_month?.toString(),
+    on_sale_one_month: course.on_sale_one_month?.toString() || "",
     price_three_month: course.price_three_month?.toString(),
-    on_sale_three_month: course.on_sale_three_month?.toString(),
+    on_sale_three_month: course.on_sale_three_month?.toString() || "",
     price_six_month: course.price_six_month?.toString(),
-    on_sale_six_month: course.on_sale_six_month?.toString(),
+    on_sale_six_month: course.on_sale_six_month?.toString() || "",
     price_one_year: course.price_one_year?.toString(),
+    on_sale_one_year: course.on_sale_one_year?.toString() || "",
     thumbnail: null as File | null,
+    existing_thumbnail: thumbnail, // Add this line to keep track of the existing thumbnail
   })
 
   useEffect(() => {
@@ -76,11 +82,26 @@ export function UpdateCourseAlert({
     }
   }, [thumbnailPreview, thumbnail])
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = async (value: string) => {
     setData("category_id", value)
     setData("grade_id", "")
     setData("department_id", "")
     setData("batch_id", "")
+
+    try {
+      const selectedCategory = categories.find((cat) => cat.id.toString() === value)
+      if (selectedCategory) {
+        if (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") {
+          const fetchedGrades = await fetchGrades(value)
+          setGrades(fetchedGrades)
+        } else if (selectedCategory.name === "university") {
+          const fetchedDepartments = await fetchDepartments(value)
+          setDepartments(fetchedDepartments)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error)
+    }
   }
 
   const handleGradeChange = (value: string) => {
@@ -89,9 +110,17 @@ export function UpdateCourseAlert({
     setData("batch_id", "")
   }
 
-  const handleDepartmentChange = (value: string) => {
+  const handleDepartmentChange = async (value: string) => {
     setData("department_id", value)
     setData("grade_id", "")
+    setData("batch_id", "")
+
+    try {
+      const fetchedBatches = await fetchBatches(value)
+      setBatches(fetchedBatches)
+    } catch (error) {
+      console.error("Failed to fetch batches:", error)
+    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +141,7 @@ export function UpdateCourseAlert({
       }
     } else {
       setData("thumbnail", null)
-      setThumbnailPreview(null)
+      setThumbnailPreview(thumbnail) // Reset to the original thumbnail if no new file is selected
       setFileSizeError(null)
     }
   }
@@ -120,18 +149,22 @@ export function UpdateCourseAlert({
   const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
     setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
     if (!onSaleChecked[duration]) {
+      // When checking the box, set the on-sale price to the regular price
+      setData(`on_sale_${duration}` as keyof typeof data, data[`price_${duration}` as keyof typeof data] || "")
+    } else {
+      // When unchecking the box, clear the on-sale price
       setData(`on_sale_${duration}` as keyof typeof data, "")
     }
     clearErrors(`on_sale_${duration}` as keyof typeof data)
   }
-
 
   useEffect(() => {
     const validateForm = () => {
       clearErrors()
       let isValid = true
 
-      if (data.category_id === "university") {
+      if (data.category_id === "3") {
+        // Assuming 3 is the ID for university
         if (!data.department_id) {
           setError("department_id", "Department is required for university courses")
           isValid = false
@@ -140,7 +173,8 @@ export function UpdateCourseAlert({
           setError("batch_id", "Batch is required for university courses")
           isValid = false
         }
-      } else if (["lower_grade", "higher_grade"].includes(data.category_id)) {
+      } else if (["1", "2"].includes(data.category_id)) {
+        // Assuming 1 and 2 are IDs for lower and higher grades
         if (!data.grade_id) {
           setError("grade_id", "Grade is required for this category")
           isValid = false
@@ -158,7 +192,7 @@ export function UpdateCourseAlert({
     }
 
     validateForm()
-  }, [data, onSaleChecked, clearErrors])
+  }, [data, onSaleChecked, clearErrors, setError])
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -174,11 +208,26 @@ export function UpdateCourseAlert({
       if (value !== null && value !== undefined && value !== "") {
         if (key === "thumbnail" && value instanceof File) {
           formData.append(key, value)
-        } else if (key !== "_method") {
+        } else if (key !== "_method" && key !== "existing_thumbnail") {
           formData.append(key, value.toString())
         }
       }
     })
+
+    // Explicitly add on-sale values to the formData
+    Object.keys(onSaleChecked).forEach((duration) => {
+      const key = `on_sale_${duration}` as keyof typeof data
+      if (onSaleChecked[duration as keyof typeof onSaleChecked]) {
+        formData.append(key, data[key] as string)
+      } else {
+        formData.append(key, "") // Send an empty string when not on sale
+      }
+    })
+
+    // If no new thumbnail is selected, send the existing thumbnail
+    if (!data.thumbnail) {
+      formData.append("existing_thumbnail", data.existing_thumbnail)
+    }
 
     post(route("courses.update", course.id), {
       data: formData,
@@ -192,6 +241,8 @@ export function UpdateCourseAlert({
       },
     })
   }
+
+  const selectedCategory = categories.find((category) => category.id.toString() === data.category_id)
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -239,17 +290,16 @@ export function UpdateCourseAlert({
               {errors.category_id && <p className="text-red-500 text-sm">{errors.category_id}</p>}
             </div>
 
-            {data.category_id && (
-              <div className="space-y-2">
-                <Label htmlFor="grade">Grade</Label>
-                <Select value={data.grade_id} onValueChange={handleGradeChange} disabled={!!data.department_id}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {grades
-                      .filter((grade) => grade.category_id.toString() === data.category_id)
-                      .map((grade) => (
+            {selectedCategory &&
+              (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") && (
+                <div className="space-y-2">
+                  <Label htmlFor="grade">Grade</Label>
+                  <Select value={data.grade_id} onValueChange={handleGradeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {grades.map((grade) => (
                         <SelectItem className="flex justify-between" key={grade.id} value={grade.id.toString()}>
                           {grade.grade_name}
                           {(grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12") && (
@@ -257,53 +307,52 @@ export function UpdateCourseAlert({
                           )}
                         </SelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
-                {errors.grade_id && <p className="text-red-500 text-sm">{errors.grade_id}</p>}
-              </div>
-            )}
+                    </SelectContent>
+                  </Select>
+                  {errors.grade_id && <p className="text-red-500 text-sm">{errors.grade_id}</p>}
+                </div>
+              )}
 
-            {data.category_id && (
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Select value={data.department_id} onValueChange={handleDepartmentChange} disabled={!!data.grade_id}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments
-                      .filter((dept) => dept.category_id.toString() === data.category_id)
-                      .sort((a, b) => a.department_name.localeCompare(b.department_name))
-                      .map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.department_name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.department_id && <p className="text-red-500 text-sm">{errors.department_id}</p>}
-              </div>
-            )}
+            {selectedCategory && selectedCategory.name === "university" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Select value={data.department_id} onValueChange={handleDepartmentChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments
+                        .sort((a, b) => a.department_name.localeCompare(b.department_name))
+                        .map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id.toString()}>
+                            {dept.department_name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.department_id && <p className="text-red-500 text-sm">{errors.department_id}</p>}
+                </div>
 
-            {data.department_id && (
-              <div className="space-y-2">
-                <Label htmlFor="batch">Batch</Label>
-                <Select value={data.batch_id} onValueChange={(value) => setData("batch_id", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a batch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {batches
-                      .filter((batch) => batch.department_id.toString() === data.department_id)
-                      .map((batch) => (
-                        <SelectItem key={batch.id} value={batch.id.toString()}>
-                          {batch.batch_name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.batch_id && <p className="text-red-500 text-sm">{errors.batch_id}</p>}
-              </div>
+                {data.department_id && (
+                  <div className="space-y-2">
+                    <Label htmlFor="batch">Batch</Label>
+                    <Select value={data.batch_id} onValueChange={(value) => setData("batch_id", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a batch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {batches.map((batch) => (
+                          <SelectItem key={batch.id} value={batch.id.toString()}>
+                            {batch.batch_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.batch_id && <p className="text-red-500 text-sm">{errors.batch_id}</p>}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -311,94 +360,53 @@ export function UpdateCourseAlert({
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold mb-4">Pricing</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price_one_month">Price for 1 Month</Label>
-                  <Input
-                    id="price_one_month"
-                    name="price_one_month"
-                    type="number"
-                    value={data.price_one_month}
-                    onChange={(e) => setData("price_one_month", e.target.value)}
-                    required
-                  />
-                  {errors.price_one_month && <p className="text-red-500 text-sm">{errors.price_one_month}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price_three_month">Price for Three Months</Label>
-                  <Input
-                    id="price_three_month"
-                    name="price_three_month"
-                    type="number"
-                    value={data.price_three_month}
-                    onChange={(e) => setData("price_three_month", e.target.value)}
-                    required
-                  />
-                  {errors.price_three_month && <p className="text-red-500 text-sm">{errors.price_three_month}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price_six_month">Price for Six Months</Label>
-                  <Input
-                    id="price_six_month"
-                    name="price_six_month"
-                    type="number"
-                    value={data.price_six_month}
-                    onChange={(e) => setData("price_six_month", e.target.value)}
-                    required
-                  />
-                  {errors.price_six_month && <p className="text-red-500 text-sm">{errors.price_six_month}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price_one_year">Price for One Year</Label>
-                  <Input
-                    id="price_one_year"
-                    name="price_one_year"
-                    type="number"
-                    value={data.price_one_year}
-                    onChange={(e) => setData("price_one_year", e.target.value)}
-                    required
-                  />
-                  {errors.price_one_year && <p className="text-red-500 text-sm">{errors.price_one_year}</p>}
-                </div>
-
-
-                {Object.keys(onSaleChecked).map((duration) => (
-                <div key={duration}>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`on_sale_${duration}`}
-                      checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
-                      onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
+                {["one_month", "three_month", "six_month", "one_year"].map((duration) => (
+                  <div key={duration} className="space-y-2">
+                    <Label htmlFor={`price_${duration}`}>{`Price for ${duration.replace("_", " ")}`}</Label>
+                    <Input
+                      id={`price_${duration}`}
+                      name={`price_${duration}`}
+                      type="number"
+                      value={data[`price_${duration}` as keyof typeof data] as string}
+                      onChange={(e) => setData(`price_${duration}` as keyof typeof data, e.target.value)}
                     />
-                    <label
-                      htmlFor={`on_sale_${duration}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      On Sale {duration.replace("_", " ")}
-                    </label>
-                  </div>
+                    {errors[`price_${duration}` as keyof typeof errors] && (
+                      <p className="text-red-500 text-sm">{errors[`price_${duration}` as keyof typeof errors]}</p>
+                    )}
 
-                  {onSaleChecked[duration as keyof typeof onSaleChecked] && (
-                    <div className="mt-2">
-                      <InputLabel
-                        htmlFor={`on_sale_${duration}`}
-                        value={`Sale Price for ${duration.replace("_", " ")}`}
-                      />
-                      <TextInput
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
                         id={`on_sale_${duration}`}
-                        name={`on_sale_${duration}`}
-                        type="number"
-                        value={data[`on_sale_${duration}` as keyof typeof data] as string}
-                        onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
-                        className="w-full"
+                        checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
+                        onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
                       />
-                      <InputError message={errors[`on_sale_${duration}` as keyof typeof data]} className="mt-2" />
+                      <label
+                        htmlFor={`on_sale_${duration}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        On Sale
+                      </label>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {onSaleChecked[duration as keyof typeof onSaleChecked] && (
+                      <div className="mt-2">
+                        <InputLabel
+                          htmlFor={`on_sale_${duration}`}
+                          value={`Sale Price for ${duration.replace("_", " ")}`}
+                        />
+                        <TextInput
+                          id={`on_sale_${duration}`}
+                          name={`on_sale_${duration}`}
+                          type="number"
+                          value={data[`on_sale_${duration}` as keyof typeof data] as string}
+                          onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
+                          className="w-full"
+                        />
+                        <InputError message={errors[`on_sale_${duration}` as keyof typeof errors]} className="mt-2" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -451,4 +459,6 @@ export function UpdateCourseAlert({
     </AlertDialog>
   )
 }
+
+export default UpdateCourseAlert
 

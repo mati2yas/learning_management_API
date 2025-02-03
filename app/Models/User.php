@@ -115,6 +115,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ExamQuestion::class,'updated_by');
     }
 
+    public function subscriptionRequests(){
+        return $this->hasMany(SubscriptionRequest::class);
+    }
+
     
 
     protected function casts(): array
@@ -125,3 +129,5 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 }
+
+

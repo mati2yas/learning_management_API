@@ -3,6 +3,11 @@ import { Button } from "@/Components/ui/button"
 import { Badge } from "@/Components/ui/badge"
 import { Link } from "@inertiajs/react"
 import { CalendarDays, BookOpen, ThumbsUp, Bookmark, User } from "lucide-react"
+import dayjs from "dayjs"
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { useEffect, useState } from "react"
+
+dayjs.extend(relativeTime);
 
 interface CourseCardProps {
   id: number
@@ -19,6 +24,21 @@ interface CourseCardProps {
   price_three_month: number
   price_six_month: number
   price_one_year: number
+  created_by: {
+    name: string
+  }
+  updated_by: {
+    name: string
+  }
+  created_at: string
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+  created_at: string
+  updated_at: string
 }
 
 export function CourseCard({
@@ -36,13 +56,16 @@ export function CourseCard({
   price_three_month,
   price_six_month,
   price_one_year,
+  created_at,
+  created_by
 }: CourseCardProps) {
+  
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800 border-0 rounded-xl">
       <div
         className="relative h-64 w-full bg-cover bg-center"
         style={{
-          backgroundImage: `url(${thumbnail.startsWith("/id") ? `https://picsum.photos${thumbnail}` : "storage/" + thumbnail})`,
+          backgroundImage: `url(${thumbnail?.startsWith("/id") ? `https://picsum.photos${thumbnail}` : "storage/" + thumbnail})`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
@@ -56,11 +79,11 @@ export function CourseCard({
           <div className="flex items-center text-sm text-white space-x-4">
             <span className="flex items-center">
               <User className="w-4 h-4 mr-2" />
-              John Doe
+              {created_by.name || ''} 
             </span>
             <span className="flex items-center">
               <CalendarDays className="w-4 h-4 mr-2" />
-              June 15, 2023
+              {dayjs(created_at).format('MMMM D, YYYY') || ''}
             </span>
           </div>
         </div>

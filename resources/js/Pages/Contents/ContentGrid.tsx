@@ -1,7 +1,5 @@
 import React from 'react'
-import { FileText, Youtube, File, Edit, Trash2 } from 'lucide-react'
 import { Card, CardContent } from "@/Components/ui/card"
-import { Button } from "@/Components/ui/button"
 import { Content } from '@/types'
 import EditContentAlert from './EditContentAlert'
 import DeleteContentAlert from './DeleteContentAlert'
@@ -14,9 +12,11 @@ interface ContentGridProps {
 const ContentGrid: React.FC<ContentGridProps> = ({ contents }) => {
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <>
+         
       {contents.length > 0 ? (
-          contents.map((content) => (
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {contents.map((content) => (
           <Card key={content.id}>
             <CardContent className="p-4 flex flex-col items-center">
 
@@ -34,13 +34,17 @@ const ContentGrid: React.FC<ContentGridProps> = ({ contents }) => {
               </div>
             </CardContent>
           </Card>
-        ))
+        ))}
+        </div>
       ): (
-      <div className="w-full flex justify-center items-center">
-        <h2 className="text-lg font-semibold w-full  pl-2 h-10 pt-3">No contents found.</h2>
+        <div className="flex flex-col items-center justify-center py-16">
+        <img src={'/images/Content-rafiki.svg'} alt="No data available" className="w-48 h-48" />
+        <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
       </div>
     )}
-    </div>
+   
+    </>
+
   )
 }
 

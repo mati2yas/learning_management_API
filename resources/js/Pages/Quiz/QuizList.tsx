@@ -37,9 +37,10 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes }) => {
           </div>
         ))
       ) : (
-        <div className="w-full flex justify-center items-center">
-          <h2 className="text-lg font-semibold w-full  pl-2 h-10 pt-3">No quizzes found.</h2>
-        </div>
+        <div className="flex flex-col items-center justify-center py-16">
+        <img src={'/images/Online test-bro.svg'} alt="No data available" className="w-48 h-48" />
+        <p className="text-gray-500 mt-4 text-lg">No Quiz available. Start creating one!</p>
+      </div>
       )}
 
     </div>

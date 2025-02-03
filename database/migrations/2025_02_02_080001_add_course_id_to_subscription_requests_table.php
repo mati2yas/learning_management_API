@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-
-        Schema::create('paid_courses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('course_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
+        Schema::table('subscription_requests', function (Blueprint $table) {
+            $table->foreignId('course_id')->after('user_id')->constrained('courses')->cascadeOnDelete();
         });
-        
     }
 
     /**
@@ -26,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('paid_courses');
+        Schema::table('subscription_requests', function (Blueprint $table) {
+            $table->dropForeign(['course_id']);
+            $table->dropColumn('course_id');
+        });
     }
 };

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\v1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
@@ -12,14 +13,17 @@ use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\QuizResource;
+use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Content;
 use App\Models\Course;
+use App\Models\Department;
 use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamYear;
+use App\Models\Grade;
 use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -161,6 +165,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::resource('courses', CourseController::class);
 });
 
+Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
+
+//for the web
+
 Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_grade_id', $gradeId)->get());
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){
@@ -170,3 +178,30 @@ Route::get('/exam-years/{examTypeId}', function($examTypeId){
 Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_year_id', $examYearId)->get());
 
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
+
+
+Route::get('/users-web/{userId}', function($userId){
+    $user = App\Models\User::find($userId);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+     return response()->json(['name' => $user->name]);
+});
+
+Route::get('/categories', function(){
+    return Category::all();
+});
+
+Route::get('/grades', function(Request $request){
+    return Grade::where('category_id', $request->category_id)->get();
+});
+
+Route::get('/departments', function(Request $request){
+    return Department::where('category_id', $request->category_id)->get();
+});
+
+Route::get('/batches', function(Request $request){
+    return Batch::where('department_id', $request->department_id)->get();
+});
+

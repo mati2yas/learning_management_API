@@ -21,6 +21,7 @@ class SendSubscriptionNotificationJob implements ShouldQueue
     protected $workers;
     protected $user;
 
+
     /**
      * Create a new job instance.
      */
@@ -30,6 +31,7 @@ class SendSubscriptionNotificationJob implements ShouldQueue
         $this->superAdmins = $superAdmins;
         $this->workers = $workers;
         $this->user = $user;
+      
     }
 
     /**

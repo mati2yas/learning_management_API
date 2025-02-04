@@ -28,7 +28,8 @@ class SubscriptionRequestNotification extends Notification implements ShouldQueu
     {
         $mailMessage = (new MailMessage)
             ->subject('New Subscription Request')
-            ->line('A new subscription request has been submitted.');
+            ->line('A new subscription request has been submitted.')
+            ->line('Total Price: Birr - ' . number_format($this->subscriptionRequest->total_price, 2));
 
         if (!$this->forRequestedUser) {
             $mailMessage->action('View Request', url('/subscriptions/' . $this->subscriptionRequest->id));

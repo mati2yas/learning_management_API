@@ -15,13 +15,13 @@ class SubscriptionRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function examCourse()
+    public function examCourses()
     {
-        return $this->belongsTo(ExamCourse::class);
+        return $this->hasMany(ExamCourse::class);
     }
 
-    public function course()
+    public function courses()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsToMany(Course::class, 'course_subscription_request');
     }
 }

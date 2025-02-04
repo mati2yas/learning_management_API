@@ -65,4 +65,9 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function subscriptionRequests()
+    {
+        return $this->belongsToMany(SubscriptionRequest::class, 'course_subscription_request');
+    }
 }

@@ -110,7 +110,6 @@ class SubscriptionController extends Controller
      
          return response()->json([
              'message' => 'Subscription request created successfully',
-             'file_path' => asset($validatedData['proof_of_payment']),
              'total_price' => $totalPrice,
          ]);
      }

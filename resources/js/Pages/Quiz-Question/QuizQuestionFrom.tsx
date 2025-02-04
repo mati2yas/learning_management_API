@@ -12,15 +12,13 @@ import { PlusCircle, X } from "lucide-react"
 interface QuizQuestionFormProps {
   index: number
   question: {
+    image_explanation_url: any
     id: string
     question_number: number
     text: string
-    question_image: File | null
-    question_image_preview: string | null
+    question_image_url: string | null
     text_explanation: string
     video_explanation_url: string
-    image_explanation: File | null
-    image_explanation_preview: string | null
     options: string[]
     answer: string[]
   }
@@ -70,13 +68,13 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
   }
 
   const handleImageUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, field: "question_image" | "image_explanation") => {
+    (event: React.ChangeEvent<HTMLInputElement>, field: "question_image_url" | "image_explanation_url") => {
       const file = event.target.files?.[0]
       if (file) {
         const reader = new FileReader()
         reader.onloadend = () => {
-          updateQuestion(index, field, file)
-          updateQuestion(index, `${field}_preview`, reader.result as string)
+          const base64String = reader.result as string
+          updateQuestion(index, field, base64String)
         }
         reader.readAsDataURL(file)
       }
@@ -122,15 +120,15 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`question_image_${index}`}>Question Image</Label>
+        <Label htmlFor={`question_image_url_${index}`}>Question Image</Label>
         <Input
-          id={`question_image_${index}`}
+          id={`question_image_url_${index}`}
           type="file"
           accept="image/*"
-          onChange={(e) => handleImageUpload(e, "question_image")}
+          onChange={(e) => handleImageUpload(e, "question_image_url")}
         />
-        {question.question_image_preview && (
-          <img src={question.question_image_preview || "/placeholder.svg"} alt="Question" className="mt-2 max-w-xs" />
+        {question.question_image_url && (
+          <img src={question.question_image_url || "/placeholder.svg"} alt="Question" className="mt-2 max-w-xs" />
         )}
         <InputError>{errors[`questions.${index}.question_image`]}</InputError>
       </div>
@@ -157,31 +155,23 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`image_explanation_${index}`}>Image Explanation</Label>
+        <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
         <Input
-          id={`image_explanation_${index}`}
+          id={`image_explanation_url_${index}`}
           type="file"
           accept="image/*"
-          onChange={(e) => handleImageUpload(e, "image_explanation")}
+          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
         />
-        {question.image_explanation_preview && (
-          <img
-            src={question.image_explanation_preview || "/placeholder.svg"}
-            alt="Explanation"
-            className="mt-2 max-w-xs"
-          />
+        {question.image_explanation_url && (
+          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
         )}
-        <InputError>{errors[`questions.${index}.image_explanation`]}</InputError>
+        <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
       </div>
 
       <div className="space-y-2">
         <Label>Answer Type</Label>
         <RadioGroup value={answerType} onValueChange={handleAnswerTypeChange}>
           <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no_options" id={`no_options_${index}`} />
-              <Label htmlFor={`no_options_${index}`}>No Options (Free Text)</Label>
-            </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="single" id={`single_${index}`} />
               <Label htmlFor={`single_${index}`}>Single Choice</Label>

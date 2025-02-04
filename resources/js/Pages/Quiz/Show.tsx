@@ -16,7 +16,7 @@ interface ShowProps {
 }
 
 const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
-  const page = usePage()
+ 
   return (
     <Authenticated
       header={
@@ -38,9 +38,10 @@ const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
             <CreateQuizQuestionAlert quizId={quiz.id} title={quiz.title} />
           </div>
           {quiz_questions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-xl text-gray-600">No questions added to this quiz yet.</p>
-            </div>
+            <div className="flex flex-col items-center justify-center py-16">
+            <img src={'/images/Seminar-amico.svg'} alt="No data available" className="w-48 h-48" />
+            <p className="text-gray-500 mt-4 text-lg">No Quizes available. Start creating one!</p>
+          </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {quiz_questions.map((question) => (
@@ -73,7 +74,7 @@ const QuizQuestionCard = ({ question }: QuizQuestionCardProps) => {
       <CardContent className="flex-grow">
         {question.question_image_url && (
           <img
-            src={`/storage/${question.question_image_url.replace("/quizzes/", "/")}`}
+            src={`${question.question_image_url.replace("/quizzes/", "/")}`}
             alt="Question"
             className="w-full h-40 object-cover rounded-md mb-4"
           />

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { useForm } from "@inertiajs/react"
 import {
   AlertDialog,
@@ -10,7 +11,6 @@ import {
 import { Button } from "@/Components/ui/button"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { PlusCircle } from "lucide-react"
-import { type FormEventHandler, useState, useEffect } from "react"
 import QuizQuestionForm from "./QuizQuestionFrom"
 
 interface CreateQuizQuestionAlertProps {
@@ -22,14 +22,12 @@ interface QuestionData {
   id: string
   question_number: number
   text: string
-  question_image: File | null
-  question_image_preview: string | null
   text_explanation: string
   video_explanation_url: string
-  image_explanation: File | null
-  image_explanation_preview: string | null
   options: string[]
   answer: string[]
+  image_explanation_url: string | null
+  question_image_url: string | null
 }
 
 const generateUniqueId = () => {
@@ -48,12 +46,10 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
         id: generateUniqueId(),
         question_number: 1,
         text: "",
-        question_image: null,
-        question_image_preview: null,
         text_explanation: "",
         video_explanation_url: "",
-        image_explanation: null,
-        image_explanation_preview: null,
+        image_explanation_url: null,
+        question_image_url: null,
         options: [],
         answer: [],
       },
@@ -73,14 +69,13 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
         id: generateUniqueId(),
         question_number: data.questions.length + 1,
         text: "",
-        question_image: null,
-        question_image_preview: null,
+        question_image_url: null,
         text_explanation: "",
         video_explanation_url: "",
-        image_explanation: null,
-        image_explanation_preview: null,
+        image_explanation_url: null,
         options: [],
         answer: [],
+        
       },
     ])
   }
@@ -94,16 +89,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
 
   const updateQuestion = (index: number, field: string, value: any) => {
     const updatedQuestions = [...data.questions]
-    if (field === "question_image" || field === "image_explanation") {
-      // For image fields, store the File object directly
-      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
-    } else if (field === "question_image_preview" || field === "image_explanation_preview") {
-      // For preview fields, store the data URL
-      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
-    } else {
-      // For other fields, store the value as is
-      updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
-    }
+    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value }
     setData("questions", updatedQuestions)
   }
 
@@ -130,7 +116,6 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
         isValid = false
       }
 
-      // Only validate options and answers if they exist
       if (question.options.length > 0) {
         if (question.options.some((option) => option.trim() === "")) {
           setError(`questions.${index}.options` as any, "All options must be non-empty")
@@ -146,35 +131,16 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
     return isValid
   }
 
-  const submit: FormEventHandler = (e) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
       return
     }
 
-    const formData = new FormData()
-    formData.append("quiz_id", quizId.toString())
+    // console.log("Submitting data:", data)
 
-    data.questions.forEach((question, index) => {
-      Object.entries(question).forEach(([key, value]) => {
-        if (key === "question_image" || key === "image_explanation") {
-          if (value instanceof File) {
-            formData.append(`questions[${index}][${key}]`, value)
-          }
-        } else if (Array.isArray(value)) {
-          value.forEach((item, itemIndex) => {
-            formData.append(`questions[${index}][${key}][${itemIndex}]`, item)
-          })
-        } else if (value !== null) {
-          formData.append(`questions[${index}][${key}]`, value.toString())
-        }
-      })
-    })
-
-    console.log("Form data:", data)
     post(route("quiz-questions.store"), {
-      data: formData,
       preserveScroll: true,
       preserveState: false,
       onSuccess: () => {

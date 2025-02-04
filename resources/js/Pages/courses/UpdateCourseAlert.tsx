@@ -146,6 +146,7 @@ export function UpdateCourseAlert({
     }
   }
 
+
   const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
     setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
     if (!onSaleChecked[duration]) {
@@ -155,7 +156,6 @@ export function UpdateCourseAlert({
       // When unchecking the box, clear the on-sale price
       setData(`on_sale_${duration}` as keyof typeof data, "")
     }
-    clearErrors(`on_sale_${duration}` as keyof typeof data)
   }
 
   useEffect(() => {
@@ -194,6 +194,8 @@ export function UpdateCourseAlert({
     validateForm()
   }, [data, onSaleChecked, clearErrors, setError])
 
+
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
@@ -201,36 +203,17 @@ export function UpdateCourseAlert({
       return
     }
 
-    const formData = new FormData()
-    formData.append("_method", "PATCH")
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== "") {
-        if (key === "thumbnail" && value instanceof File) {
-          formData.append(key, value)
-        } else if (key !== "_method" && key !== "existing_thumbnail") {
-          formData.append(key, value.toString())
-        }
-      }
-    })
-
-    // Explicitly add on-sale values to the formData
+    // Handle on-sale values
     Object.keys(onSaleChecked).forEach((duration) => {
       const key = `on_sale_${duration}` as keyof typeof data
-      if (onSaleChecked[duration as keyof typeof onSaleChecked]) {
-        formData.append(key, data[key] as string)
-      } else {
-        formData.append(key, "") // Send an empty string when not on sale
+      if (!onSaleChecked[duration as keyof typeof onSaleChecked]) {
+        setData(key, "") // Send an empty string when not on sale
       }
     })
 
-    // If no new thumbnail is selected, send the existing thumbnail
-    if (!data.thumbnail) {
-      formData.append("existing_thumbnail", data.existing_thumbnail)
-    }
+    // We don't need to modify the thumbnail here anymore
 
     post(route("courses.update", course.id), {
-      data: formData,
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {

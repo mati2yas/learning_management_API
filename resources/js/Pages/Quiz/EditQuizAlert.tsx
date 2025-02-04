@@ -7,7 +7,7 @@ import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { Edit2 } from "lucide-react";
-import {  Quiz, YoutubeContent } from "@/types";
+import { Quiz } from "@/types";
 
 interface EditQuizAlertProps {
   quiz: Quiz;
@@ -27,8 +27,7 @@ const EditQuizAlert = ({quiz}:EditQuizAlertProps) => {
     e.preventDefault();
     put(route('quizzes.update', quiz.id), {
       onSuccess: () => {
-          // toast('A course has been created')
-          setIsOpen(false); // Only close on successful submission
+          setIsOpen(false); 
       },
       onError: (errors) => {
         console.log('Validation errors:', errors);

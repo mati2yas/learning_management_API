@@ -23,6 +23,7 @@ interface EditQuizQuestionAlertProps {
 }
 
 const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) => {
+  // console.log(quiz_question)
   const [isOpen, setIsOpen] = useState(false)
   const parsedOptions = JSON.parse(quiz_question.options as unknown as string)
   const parsedAnswer = JSON.parse(quiz_question.answer as unknown as string)
@@ -39,10 +40,10 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
     quiz_id: number
     question_number: number
     text: string
-    question_image: File | null | string
+    question_image_url: File | null | string
     text_explanation: string
     video_explanation_url: string
-    image_explanation: File | null | string
+    image_explanation_url: File | null | string
     options: string[]
     answer: string[]
   }>({
@@ -50,10 +51,10 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
     quiz_id: quiz_question.quiz_id,
     question_number: quiz_question.question_number,
     text: quiz_question.text,
-    question_image: quiz_question.question_image_url,
+    question_image_url: quiz_question.question_image_url,
     text_explanation: quiz_question.text_explanation,
     video_explanation_url: quiz_question.video_explanation_url,
-    image_explanation: quiz_question.image_explanation_url,
+    image_explanation_url: quiz_question.image_explanation_url,
     options: parsedOptions,
     answer: parsedAnswer,
   })
@@ -88,13 +89,16 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
     setData("options", newOptions)
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: "question_image" | "image_explanation") => {
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "question_image_url" | "image_explanation_url",
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setData(field, file)
       const reader = new FileReader()
       reader.onload = () => {
-        if (field === "question_image") {
+        if (field === "question_image_url") {
           setQuestionImagePreview(reader.result as string)
         } else {
           setImageExplanationPreview(reader.result as string)
@@ -126,14 +130,12 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
 
     const formData = new FormData()
     Object.entries(data).forEach(([key, value]) => {
-      if (key === "question_image" || key === "image_explanation") {
+      if (key === "question_image_url" || key === "image_explanation_url") {
         if (value instanceof File) {
           formData.append(key, value)
         }
       } else if (Array.isArray(value)) {
-        value.forEach((item, index) => {
-          formData.append(`${key}[${index}]`, item)
-        })
+        formData.append(key, JSON.stringify(value))
       } else if (value !== null) {
         formData.append(key, value.toString())
       }
@@ -189,17 +191,18 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="question_image">Question Image (optional)</Label>
+            <Label htmlFor="question_image_url">Question Image (optional)</Label>
             <Input
-              id="question_image"
+              id="question_image_url"
+              name="question_image_url"
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, "question_image")}
+              onChange={(e) => handleImageChange(e, "question_image_url")}
             />
             {questionImagePreview && (
-              <img src={questionImagePreview || "/placeholder.svg"} alt="Question Preview" className="mt-2 max-w-xs" />
+              <img src={ questionImagePreview || "/placeholder.svg"} alt="Question Preview" className="mt-2 max-w-xs" />
             )}
-            <InputError message={errors.question_image} />
+            <InputError message={errors.question_image_url} />
           </div>
 
           <div className="space-y-2">
@@ -225,12 +228,13 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_explanation">Image Explanation (optional)</Label>
+            <Label htmlFor="image_explanation_url">Image Explanation (optional)</Label>
             <Input
-              id="image_explanation"
+              id="image_explanation_url"
+              name="image_explanation_url"
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, "image_explanation")}
+              onChange={(e) => handleImageChange(e, "image_explanation_url")}
             />
             {imageExplanationPreview && (
               <img
@@ -239,7 +243,7 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
                 className="mt-2 max-w-xs"
               />
             )}
-            <InputError message={errors.image_explanation} />
+            <InputError message={errors.image_explanation_url} />
           </div>
 
           <div className="space-y-2">

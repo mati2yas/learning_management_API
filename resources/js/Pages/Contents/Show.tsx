@@ -77,7 +77,14 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                       <PlusCircle className="mr-2 h-4 w-4" /> Add Video Content
                     </Button>
 
-                    {youtube_contents &&
+
+                    { (youtube_contents ?? []).length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-16">
+                          <img src={'/images/Video tutorial-bro.svg'} alt="No data available" className="w-[27rem] h-48" />
+                          <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
+                        </div>
+                    ) : (
+                    youtube_contents &&
                       Array.isArray(youtube_contents) &&
                       youtube_contents.map((content) => (
                         <div key={content.id} className="mb-4 p-4 border rounded flex justify-between">
@@ -97,7 +104,7 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                             <DeleteYoutubeAlert title={content.title} id={content.id} />
                           </div>
                         </div>
-                      ))}
+                      )))}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -112,28 +119,38 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                     <Button onClick={() => setIsFileDialogOpen(true)} className="mb-4">
                       <PlusCircle className="mr-2 h-4 w-4" /> Add File Content
                     </Button>
-                    {file_contents &&
-                      Array.isArray(file_contents) &&
-                      file_contents.map((content) => (
-                        <div key={content.id} className="mb-4 p-4 border rounded flex justify-between">
-                          <div>
-                            <h3 className="text-lg font-semibold">{content.title}</h3>
-                            <Button
-                              variant="link"
-                              className="text-blue-500 hover:underline p-0"
-                              onClick={() => {
-                                console.log(content.file_url)
-                                return handleFileDownload('/'+'storage/'+content.file_url, content.title)}}
-                            >
-                              Download File
-                            </Button>
+
+                    { (file_contents ?? []).length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16">
+                      <img src={'/images/Files sent-rafiki.svg'} alt="No data available" className="w-[50rem] h-48" />
+                      <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
+                    </div>
+                    ):(
+                      file_contents &&
+                        Array.isArray(file_contents) &&
+                        file_contents.map((content) => (
+                          <div key={content.id} className="mb-4 p-4 border rounded flex justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold">{content.title}</h3>
+                              <Button
+                                variant="link"
+                                className="text-blue-500 hover:underline p-0"
+                                onClick={() => {
+                                  console.log(content.file_url)
+                                  return handleFileDownload('/'+'storage/'+content.file_url, content.title)}}
+                              >
+                                Download File
+                              </Button>
+                            </div>
+                            <div>
+                              <EditFileContentAlert file_content={content} />
+                              <DeleteFileContentAlert id={content.id} title={content.title} />
+                            </div>
                           </div>
-                          <div>
-                            <EditFileContentAlert file_content={content} />
-                            <DeleteFileContentAlert id={content.id} title={content.title} />
-                          </div>
-                        </div>
-                      ))}
+                      ))
+                    )}
+                    
+ 
                   </CardContent>
                 </Card>
               </TabsContent>

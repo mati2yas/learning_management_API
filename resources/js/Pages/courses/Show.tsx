@@ -162,13 +162,13 @@ const Show = ({
                     icon={<Clock className="w-5 h-5" />}
                     label="Created"
                     date={dayjs(course.created_at).format("MMM D, YYYY")}
-                    user={course.created_by.name}
+                    user={course.created_by?.name}
                   />
                   <UserActionInfo
                     icon={<Clock className="w-5 h-5" />}
                     label="Updated"
                     date={dayjs(course.updated_at).format("MMM D, YYYY")}
-                    user={course.updated_by.name}
+                    user={course.updated_by?.name}
                   />
                 </CardContent>
               </Card>

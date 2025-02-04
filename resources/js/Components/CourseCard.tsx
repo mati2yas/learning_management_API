@@ -79,7 +79,7 @@ export function CourseCard({
           <div className="flex items-center text-sm text-white space-x-4">
             <span className="flex items-center">
               <User className="w-4 h-4 mr-2" />
-              {created_by.name || ''} 
+              {created_by?.name || ''} 
             </span>
             <span className="flex items-center">
               <CalendarDays className="w-4 h-4 mr-2" />

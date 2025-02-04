@@ -32,7 +32,7 @@ class FileContentController extends Controller
         $attrs = $request->validate([
             'content_id' => 'required',
             'title' => 'required',
-            'file_url' => 'required|mimes:pdf,docx,doc|max:40000',
+            'file_url' => 'required|mimes:pdf|max:40000',
         ]);
 
 
@@ -73,17 +73,22 @@ class FileContentController extends Controller
             'title' => 'required',
             'file_url' => 'nullable|mimes:pdf,docx,doc|max:40000',
         ]);
-
+    
+        // Only update the file if a new one is uploaded
         if ($request->hasFile('file_url')) {
-            $path = $request->file('contents')->store('contents', 'public'); // Store in "storage/app/public/contents"
-            $attrs['file_url'] = $path; // Add the path to attributes to save in the database
+            $path = $request->file('file_url')->store('contents', 'public');
+            $attrs['file_url'] = $path;
+        } else {
+            // Ensure the current file path remains unchanged
+            $attrs['file_url'] = $fileContent->file_url;
         }
-
+    
         $fileContent->update($attrs);
-
-        return redirect()->route('contents.show', $request->content_id)->with('success', 'File Content Updated Successfully.');
-
+    
+        return redirect()->route('contents.show', $request->content_id)
+            ->with('success', 'File Content Updated Successfully.');
     }
+    
 
     /**
      * Remove the specified resource from storage.

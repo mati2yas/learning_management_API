@@ -158,7 +158,7 @@ class CourseController extends Controller
         $messages = [
             'thumbnail.max' => 'The thumbnail must not be larger than 5MB.',
         ];
-       
+
         $attrs = $request->validate([
             'course_name' => 'required|max:100',
             'category_id' => 'required',
@@ -166,25 +166,46 @@ class CourseController extends Controller
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
             'price_one_month' => 'required',
-            'on_sale_one_month' => '',
+            'on_sale_one_month' => 'nullable',
             'price_three_month' => 'required',
-            'on_sale_three_month' => '',
+            'on_sale_three_month' => 'nullable',
             'price_six_month' => 'required',
-            'on_sale_six_month' => '',
+            'on_sale_six_month' => 'nullable',
             'price_one_year' => 'required',
-            'on_sale_one_year' => '',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'on_sale_one_year' => 'nullable',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ], $messages);
-    
+
+        // Thumbnail is only updated if a new file is uploaded
+        // Otherwise, the existing thumbnail is kept
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('thumbnail', 'public'); 
+            $path = $request->file('thumbnail')->store('thumbnail', 'public');
             $attrs['thumbnail'] = $path;
+
+            // Delete the old thumbnail if it exists
+            if ($course->thumbnail && Storage::disk('public')->exists($course->thumbnail)) {
+                Storage::disk('public')->delete($course->thumbnail);
+            }
+        } else {
+            // If no new thumbnail is uploaded, keep the existing one
+            unset($attrs['thumbnail']);
         }
 
+        // Remove existing_thumbnail from $attrs
+        unset($attrs['existing_thumbnail']);
+
         $attrs['updated_by'] = Auth::user()->id;
-    
+
+        // Handle on-sale fields
+        foreach (['one_month', 'three_month', 'six_month', 'one_year'] as $duration) {
+            $onSaleKey = "on_sale_$duration";
+            if (!isset($attrs[$onSaleKey]) || $attrs[$onSaleKey] === '') {
+                $attrs[$onSaleKey] = null;
+            }
+        }
+
         $course->update($attrs);
-    
+
         return redirect()->route('courses.show', $course->id)->with('success', 'Course updated successfully');
     }
     

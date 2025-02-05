@@ -43,7 +43,7 @@ class SubscriptionController extends Controller
          $attrs = Validator::make($request->all(), [
              'courses' => 'required|array|min:1',
              'exam_courses' => 'nullable|array',
-             'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+             'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
              'subscription_type' => 'required|in:oneMonth,threeMonths,sixMonths,yearly',
              'transaction_id' => 'required',
          ]);
@@ -58,7 +58,7 @@ class SubscriptionController extends Controller
      
          $validatedData = $attrs->validated();
      
-         // Handle file upload for proof of payment
+       
          if ($request->hasFile('screenshot')) {
              $file = $request->file('screenshot');
              $fileName = time() . '_' . $file->getClientOriginalName();
@@ -66,7 +66,7 @@ class SubscriptionController extends Controller
              $validatedData['proof_of_payment'] = 'storage/' . $path;
          }
      
-         // Fetch courses and calculate the total price based on subscription type
+      
          $totalPrice = 0;
      
          foreach ($validatedData['courses'] as $courseId) {
@@ -75,7 +75,7 @@ class SubscriptionController extends Controller
              if ($course) {
                  $priceColumn = $this->getPriceColumnBySubscriptionType($validatedData['subscription_type']);
                  if ($priceColumn) {
-                     // Determine if we should use on-sale price
+                    
                      $onSaleColumn = str_replace('price_', 'on_sale_', $priceColumn);
                      $price = $course->$onSaleColumn ?? $course->$priceColumn;
                      $totalPrice += $price;
@@ -83,7 +83,7 @@ class SubscriptionController extends Controller
              }
          }
      
-         // Save the subscription request with calculated total price
+         
          $subscriptionRequest = $request->user()->subscriptionRequests()->create([
              'total_price' => $totalPrice,
              'status' => 'Pending',
@@ -92,10 +92,10 @@ class SubscriptionController extends Controller
              
          ]);
      
-         // Attach courses to the subscription request
+      
          $subscriptionRequest->courses()->attach($validatedData['courses']);
      
-         // Create a PaidCourse entry for each course
+     
          foreach ($validatedData['courses'] as $courseId) {
              PaidCourse::create([
                  'user_id' => $request->user()->id,
@@ -103,7 +103,7 @@ class SubscriptionController extends Controller
              ]);
          }
      
-         // Notify admins & workers
+        
          $superAdmins = User::role('admin')->get();
          $workers = User::role('worker')->get();
          dispatch(new SendSubscriptionNotificationJob($subscriptionRequest, $superAdmins, $workers, $request->user()));

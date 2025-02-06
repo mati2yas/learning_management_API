@@ -13,9 +13,7 @@ interface User {
   name: string;
   // phone_no: string;
   email: string;
-  // gender: string;
-  // salary: string;
-  // station_id: string;
+
   password: string;
   password_confirmation: string;
   permissions: string[];
@@ -37,11 +35,9 @@ function Edit({ user }: EditUser) {
   // Initialize the form state with user object values
   const { data, setData, put, processing, errors, reset } = useForm({
     name: userData.name,
-    // phone_no: userData.phone_no,
+    
     email: userData.email,
-    // gender: userData.gender,
-    // salary: userData.salary,
-    // station_id: userData.station_id,
+
     password: '', // Keeping password empty for security reasons
     password_confirmation: '',
     permissions: userData.permissions || [],

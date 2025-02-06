@@ -31,7 +31,7 @@ const RejectAlert = ({id}:{id:number}) => {
       <AlertDialogFooter>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-        <AlertDialogAction>
+        <AlertDialogAction className=" bg-transparent border-none ">
           <Link href={route('subscriptions.reject', id)} method="post">
             <Button variant="destructive" disabled={processing}>
               Reject

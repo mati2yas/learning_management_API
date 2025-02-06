@@ -131,6 +131,7 @@ Route::post('email-api/verification-notification/{id}', function(Request $reques
         ->middleware('throttle:6,1')
         ->name('verification.send.api');
 
+        
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)

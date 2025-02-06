@@ -18,7 +18,7 @@ const ApproveAlert = ({id}:{id:number}) => {
   return (
     <AlertDialog>
     <AlertDialogTrigger asChild>
-      <Button variant="destructive">Approve</Button>
+      <Button className="bg-green-500 text-white">Approve</Button>
     </AlertDialogTrigger>
 
     <AlertDialogContent>
@@ -33,7 +33,7 @@ const ApproveAlert = ({id}:{id:number}) => {
 
         <AlertDialogAction>
           <Link href={route('subscriptions.approve', id)} method="post">
-            <Button variant="destructive" disabled={processing}>
+            <Button className="bg-green-500 text-white" disabled={processing}>
               Approve
             </Button>
           </Link>

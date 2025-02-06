@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserManagementIndexResource;
 use App\Http\Resources\Web\UserEditResource;
+use App\Jobs\EmailVerificationSendWorkerJob;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -30,12 +31,16 @@ class UserManagementController extends Controller
             $query->where('name','like','%'. request('name') .'%');
         }
 
-        $users = $query->orderBy($sortField, $sortDirection)->with('creator','updater')->paginate(10);
+        $users = $query->orderBy($sortField, $sortDirection)->with('creator','updater', 'permissions')->paginate(10);
+
+        // dd($users);
 
         return Inertia::render("User-Management/Index", [
             'users' => UserManagementIndexResource::collection( $users ),
             'queryParams' => request()->query() ?: null,
         ]);
+
+        
     }
 
     /**
@@ -77,6 +82,9 @@ class UserManagementController extends Controller
         $user->assignRole($workerRoleApi); 
         $user->assignRole($workerRoleWeb); 
         
+        dispatch(new EmailVerificationSendWorkerJob($user, $validated['password']));
+
+        // Auth::login($user);
 
         if(!empty($validated['permissions'])){
             $user->syncPermissions($validated['permissions']);

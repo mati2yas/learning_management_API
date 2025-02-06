@@ -8,13 +8,14 @@ import { Search } from 'lucide-react'
 import { Input } from '@/Components/ui/input'
 import QuestionCard from './QuestionCard'
 import axios from 'axios'
+import CreateExamCourseAlert from './CreateExamCourseAlert'
 
 interface ExamIndexProps{
   exam_courses: ExamCourse[]
   exam_chapters: ExamChapter[]
   exam_grades: ExamGrade[]
-  exam_years?: ExamYear[]
-  exam_types?: ExamType[]
+  exam_years: ExamYear[]
+  exam_types: ExamType[]
   exam_questions: {
     data: ExamQuestion[]
     links: Array<{
@@ -31,53 +32,6 @@ interface ExamIndexProps{
 }
 
 
-// const dummyExamQuestions: ExamQuestion[] = [
-//   {
-//     id: 1,
-//     question_text: 'What is the capital of France?',
-//     exam_course_id: 1,
-//     exam_chapter_id: 1,
-//     exam_year_id: 1,
-//     options: JSON.stringify({ A: 'Paris', B: 'London', C: 'Berlin', D: 'Madrid' }),
-//     answer: JSON.stringify(['A']),
-//     video_explanation_url: '',
-//     question_image_url: ""
-//   },
-//   {
-//     id: 2,
-//     question_text: 'What is 2 + 2?',
-//     exam_course_id: 1,
-//     exam_chapter_id: 1,
-//     exam_year_id: 1,
-//     options: JSON.stringify({ A: '3', B: '4', C: '5', D: '6' }),
-//     answer: JSON.stringify(['B']),
-//     video_explanation_url: '',
-//     question_image_url: ''
-//   },
-//   {
-//     id: 3,
-//     question_text: 'What is the largest planet in our solar system?',
-//     exam_course_id: 1,
-//     exam_chapter_id: 1,
-//     exam_year_id: 1,
-//     options: JSON.stringify({ A: 'Earth', B: 'Mars', C: 'Jupiter', D: 'Saturn' }),
-//     answer: JSON.stringify(['C']),
-//     video_explanation_url: '',
-//     question_image_url: ''
-//   },
-//   {
-//     id: 4,
-//     question_text: 'What is the chemical symbol for water?',
-//     exam_course_id: 1,
-//     exam_chapter_id: 1,
-//     exam_year_id: 1,
-//     options: JSON.stringify({ A: 'H2O', B: 'O2', C: 'CO2', D: 'NaCl' }),
-//     answer: JSON.stringify(['A']),
-//     video_explanation_url: '',
-//     question_image_url: ''
-//   }
-// ]
-
 
 const Index: React.FC<ExamIndexProps> = ({
   exam_courses,
@@ -86,8 +40,11 @@ const Index: React.FC<ExamIndexProps> = ({
   exam_chapters,
   exam_years,
   exam_types,
+  exam_grades,
   filters
 }) => {
+
+  console.log(exam_grades)
 
   const{data, setData} = useForm({
     examType: filters?.examType || '',
@@ -156,9 +113,19 @@ const Index: React.FC<ExamIndexProps> = ({
         <div className='flex justify-between items-center'>
           <React.Fragment>
             <h1 className="text-2xl font-semibold">Exams</h1>
-            <CreateExamQuestionAlert
-              exam_types={exam_types}
-            />
+
+            <div className='flex gap-2'>
+              <CreateExamCourseAlert
+                examTypes={exam_types ?? []}
+                examCourses={exam_courses}
+                examGrades={exam_grades}
+              />
+              <CreateExamQuestionAlert
+                exam_years={exam_years}
+                exam_types={exam_types}
+                exam_grades={exam_grades}
+              />
+            </div>
           </React.Fragment>
         </div>
         }
@@ -215,7 +182,7 @@ const Index: React.FC<ExamIndexProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {exam_questions.data.map((question) => {
-              console.log("Question data in parent:", question)
+              // console.log("Question data in parent:", question)
               return (
                 <QuestionCard
                   key={question.id}

@@ -49,7 +49,7 @@ class CourseFactory extends Factory
             'department_id' => $department_id,
             'batch_id' => $batch_id,
             'price_one_month' => $price_one_month,
-            'on_sale_month' => $price_one_month * 1.3,
+            'on_sale_one_month' => $price_one_month * 1.3,
             'price_three_month' => $price_three_month,
             'on_sale_three_month' => $price_three_month * 1.3,
             'price_six_month' => $price_six_month,

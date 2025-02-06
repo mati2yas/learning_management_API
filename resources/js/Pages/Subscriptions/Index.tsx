@@ -1,6 +1,6 @@
 
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head, Link, router } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { useState } from 'react'
 import { SubscriptionRequestsTable } from './SubscriptionRequestsTable'
@@ -19,6 +19,7 @@ interface SubscriptionIndexProps {
 
 const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => {
   
+  console.log(subscriptionRequests)
   const [activeTab, setActiveTab] = useState("requests")
 
   return (

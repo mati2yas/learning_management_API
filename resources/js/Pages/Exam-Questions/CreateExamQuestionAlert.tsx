@@ -18,34 +18,40 @@ import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
 import QuestionForm from "./QuestionForm"
+import { usePage } from "@inertiajs/react"
 
 interface CreateExamQuestionAlertProps {
   exam_types?: ExamType[]
+  exam_years: ExamYear[]
+  exam_grades?: ExamGrade[]
 }
 
-const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertProps) => {
+const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: CreateExamQuestionAlertProps) => {
+
+  console.log(exam_grades)
 
   const [isOpen, setIsOpen] = useState(false)
-  const [examYears, setExamYears] = useState<ExamYear[]>([])
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
-  const [examGrades, setExamGrades] = useState<ExamGrade[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
+  const [selectedExamTypeName, setSelectedExamTypeName] = useState("")
 
-  const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
-    exam_type_id: string
-    exam_year_id: string
-    exam_course_id: string
-    exam_grade_id: string
-    exam_chapter_id: string
-    questions: {
-      question_text: string
-      question_image_url?: string
-      text_explanation: string
-      video_explanation_url: string
-      options: string[]
-      answer: string[]
-    }[]
-  } & Record<string, any>>({
+  const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<
+    {
+      exam_type_id: string
+      exam_year_id: string
+      exam_course_id: string
+      exam_grade_id: string
+      exam_chapter_id: string
+      questions: {
+        question_text: string
+        question_image_url?: string
+        text_explanation: string
+        video_explanation_url: string
+        options: string[]
+        answer: string[]
+      }[]
+    } & Record<string, any>
+  >({
     exam_type_id: "",
     exam_year_id: "",
     exam_course_id: "",
@@ -70,43 +76,24 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
 
   const resetForm = () => {
     reset()
-    setExamYears([])
     setExamCourses([])
-    setExamGrades([])
     setExamChapters([])
     clearErrors()
   }
 
-  const fetchExamYears = async (examTypeId: string) => {
+  const fetchExamCourses = async () => {
     try {
-      const response = await axios.get(`/api/exam-years/${examTypeId}`)
-      setExamYears(response.data)
-    } catch (error) {
-      console.error("Error fetching exam years:", error)
-    }
-  }
-
-  const fetchExamCourses = async (examYearId: string) => {
-    try {
-      const response = await axios.get(`/api/exam-courses/${examYearId}`)
+      const response = await axios.get(`/api/exam-courses/${data.exam_type_id}/${data.exam_grade_id}`)
+      console.log(response.data)
       setExamCourses(response.data)
     } catch (error) {
       console.error("Error fetching exam courses:", error)
     }
   }
 
-  const fetchExamGrades = async (examCourseId: string) => {
+  const fetchExamChapters = async (courseId: string) => {
     try {
-      const response = await axios.get(`/api/exam-grades/${examCourseId}`)
-      setExamGrades(response.data)
-    } catch (error) {
-      console.error("Error fetching exam grades:", error)
-    }
-  }
-
-  const fetchExamChapters = async (examGradeId: string) => {
-    try {
-      const response = await axios.get(`/api/exam-chapters/${examGradeId}`)
+      const response = await axios.get(`/api/exam-chapters/${courseId}`)
       setExamChapters(response.data)
     } catch (error) {
       console.error("Error fetching exam chapters:", error)
@@ -114,43 +101,40 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
   }
 
   const handleExamTypeChange = (value: string) => {
-    setData("exam_type_id", value)
-    setData("exam_year_id", "")
-    setData("exam_course_id", "")
-    setData("exam_grade_id", "")
-    setData("exam_chapter_id", "")
-    setExamYears([])
+    setData({
+      ...data,
+      exam_type_id: value,
+      exam_year_id: "",
+      exam_course_id: "",
+      exam_grade_id: "",
+      exam_chapter_id: "",
+    })
     setExamCourses([])
-    setExamGrades([])
     setExamChapters([])
-    fetchExamYears(value)
+    const selectedType = exam_types.find((type) => type.id.toString() === value)
+    setSelectedExamTypeName(selectedType ? selectedType.name : "")
   }
 
   const handleExamYearChange = (value: string) => {
-    setData("exam_year_id", value)
-    setData("exam_course_id", "")
-    setData("exam_grade_id", "")
-    setData("exam_chapter_id", "")
+    setData({ ...data, exam_year_id: value, exam_course_id: "", exam_grade_id: "", exam_chapter_id: "" })
     setExamCourses([])
-    setExamGrades([])
     setExamChapters([])
-    fetchExamCourses(value)
-  }
-
-  const handleExamCourseChange = (value: string) => {
-    setData("exam_course_id", value)
-    setData("exam_grade_id", "")
-    setData("exam_chapter_id", "")
-    setExamGrades([])
-    setExamChapters([])
-    if (data.exam_type_id !== "ngat") {
-      fetchExamGrades(value)
+    if (["ngat", "exit"].includes(selectedExamTypeName.toLowerCase())) {
+      fetchExamCourses()
     }
   }
 
   const handleExamGradeChange = (value: string) => {
-    setData("exam_grade_id", value)
-    setData("exam_chapter_id", "")
+    setData({ ...data, exam_grade_id: value, exam_course_id: "", exam_chapter_id: "" })
+    setExamCourses([])
+    setExamChapters([])
+    if (["ministry", "matric"].includes(selectedExamTypeName.toLowerCase())) {
+      fetchExamCourses()
+    }
+  }
+
+  const handleExamCourseChange = (value: string) => {
+    setData({ ...data, exam_course_id: value, exam_chapter_id: "" })
     setExamChapters([])
     fetchExamChapters(value)
   }
@@ -200,12 +184,12 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
       isValid = false
     }
 
-    if (data.exam_type_id !== "ngat" && !data.exam_grade_id) {
+    if (["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && !data.exam_grade_id) {
       setError("exam_grade_id", "Exam grade is required")
       isValid = false
     }
 
-    if (data.exam_type_id !== "ngat" && !data.exam_chapter_id) {
+    if (!data.exam_chapter_id) {
       setError("exam_chapter_id", "Exam chapter is required")
       isValid = false
     }
@@ -265,18 +249,14 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[900px] h-[90vh] p-0 flex flex-col">
-
         <AlertDialogHeader className="p-6 pb-0">
-          <AlertDialogTitle>Create New Exam Qu
-            estions</AlertDialogTitle>
+          <AlertDialogTitle>Create New Exam Questions</AlertDialogTitle>
           <AlertDialogDescription>Fill in the details for the new exam questions.</AlertDialogDescription>
         </AlertDialogHeader>
 
         <ScrollArea className="flex-grow px-6 overflow-y-auto">
-
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
               <div>
                 <InputLabel htmlFor="exam-type" value="Exam Type" />
                 <Select value={data.exam_type_id} onValueChange={handleExamTypeChange}>
@@ -284,7 +264,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                     <SelectValue placeholder="Select an exam type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {exam_types.map((examType) => (
+                    {exam_types?.map((examType) => (
                       <SelectItem key={examType.id} value={examType.id.toString()}>
                         {examType.name}
                       </SelectItem>
@@ -294,7 +274,6 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                 <InputError message={errors.exam_type_id} className="mt-2" />
               </div>
 
-
               {data.exam_type_id && (
                 <div>
                   <InputLabel htmlFor="exam-year" value="Exam Year" />
@@ -303,7 +282,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                       <SelectValue placeholder="Select an exam year" />
                     </SelectTrigger>
                     <SelectContent>
-                      {examYears.map((examYear) => (
+                      {exam_years?.map((examYear) => (
                         <SelectItem key={examYear.id} value={examYear.id.toString()}>
                           {examYear.year}
                         </SelectItem>
@@ -314,7 +293,27 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                 </div>
               )}
 
-              {data.exam_year_id && (
+              {data.exam_year_id && ["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && (
+                <div>
+                  <InputLabel htmlFor="exam-grade" value="Exam Grade" />
+                  <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an exam grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {exam_grades?.map((examGrade) => (
+                        <SelectItem key={examGrade.id} value={examGrade.id.toString()}>
+                          Grade - {examGrade.grade}{examGrade.stream ? examGrade.stream : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.exam_grade_id} className="mt-2" />
+                </div>
+              )}
+
+              {((["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && data.exam_grade_id) ||
+                (["ngat", "exit"].includes(selectedExamTypeName.toLowerCase()) && data.exam_year_id)) && (
                 <div>
                   <InputLabel htmlFor="exam-course" value="Exam Course" />
                   <Select value={data.exam_course_id} onValueChange={handleExamCourseChange}>
@@ -322,7 +321,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                       <SelectValue placeholder="Select an exam course" />
                     </SelectTrigger>
                     <SelectContent>
-                      {examCourses.map((examCourse) => (
+                      {examCourses?.map((examCourse) => (
                         <SelectItem key={examCourse.id} value={examCourse.id.toString()}>
                           {examCourse.course_name}
                         </SelectItem>
@@ -333,26 +332,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                 </div>
               )}
 
-              {data.exam_course_id && data.exam_type_id !== "ngat" && (
-                <div>
-                  <InputLabel htmlFor="exam-grade" value="Exam Grade" />
-                  <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an exam grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {examGrades.map((examGrade) => (
-                        <SelectItem key={examGrade.id} value={examGrade.id.toString()}>
-                          Grade {examGrade.grade}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <InputError message={errors.exam_grade_id} className="mt-2" />
-                </div>
-              )}
-
-              {data.exam_grade_id && data.exam_type_id !== "ngat" && (
+              {data.exam_course_id && (
                 <div>
                   <InputLabel htmlFor="exam-chapter" value="Exam Chapter" />
                   <Select value={data.exam_chapter_id} onValueChange={(value) => setData("exam_chapter_id", value)}>
@@ -360,7 +340,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                       <SelectValue placeholder="Select an exam chapter" />
                     </SelectTrigger>
                     <SelectContent>
-                      {examChapters.map((chapter) => (
+                      {examChapters?.map((chapter) => (
                         <SelectItem key={chapter.id} value={chapter.id.toString()}>
                           {chapter.title}
                         </SelectItem>
@@ -380,7 +360,12 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
                   question={question}
                   updateQuestion={updateQuestion}
                   removeQuestion={removeQuestion}
-                  errors={Object.fromEntries(Object.entries(errors).filter(([_, v]) => v !== undefined)) as Record<string, string>}
+                  errors={
+                    Object.fromEntries(Object.entries(errors).filter(([_, v]) => v !== undefined)) as Record<
+                      string,
+                      string
+                    >
+                  }
                 />
               ))}
             </div>
@@ -391,7 +376,7 @@ const CreateExamQuestionAlert = ({ exam_types = [] }: CreateExamQuestionAlertPro
             </Button>
           </form>
         </ScrollArea>
-        
+
         <AlertDialogFooter className="px-6 py-4">
           <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
             Cancel

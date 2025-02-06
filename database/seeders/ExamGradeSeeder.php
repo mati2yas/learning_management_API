@@ -17,18 +17,32 @@ class ExamGradeSeeder extends Seeder
     public function run(): void
     {
         if(DB::table('exam_grades')->count() === 0){
-            $exam_courses = ExamCourse::all();
+            
 
-            $exam_courses->each(
-                function($exam_course){
-                    foreach(range(9, 12) as $grade){
-                        ExamGrade::factory()->create([
-                            'exam_course_id' => $exam_course->id,
+            for ($grade = 1; $grade <= 8; $grade++) {
+                ExamGrade::firstOrCreate([
+                    'grade' => $grade,
+                ]);
+            }
+
+
+            for ($grade = 9; $grade <= 12; $grade++) {
+
+                    if($grade == 11 || $grade == 12){
+                        foreach (['natural', 'social'] as $stream) {
+                            ExamGrade::firstOrCreate([
+                                'grade' => $grade,
+                                'stream' => $stream, // Assuming there's a 'stream' column in your Grade model
+                            ]);
+
+                        }
+                    } else {
+                        ExamGrade::firstOrCreate([
                             'grade' => $grade,
                         ]);
                     }
-                }
-            );
+            
+            }
         }
     }
 }

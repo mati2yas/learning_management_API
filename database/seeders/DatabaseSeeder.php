@@ -36,8 +36,8 @@ class DatabaseSeeder extends Seeder
 
         $this->callOnce(ExamTypeSeeder::class);
         $this->callOnce(ExamYearSeeder::class);
-        $this->callOnce(ExamCourseSeeder::class);
+        // $this->callOnce(ExamCourseSeeder::class);
         $this->callOnce(ExamGradeSeeder::class);
-        $this->callOnce(ExamChapterSeeder::class);
+        // $this->callOnce(ExamChapterSeeder::class);
     }
 }

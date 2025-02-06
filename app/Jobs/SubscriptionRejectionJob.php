@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Notifications\SubscriptionRejectionNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,19 +10,15 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Notification;
 
-use App\Notifications\SubscriptionRequestNotification;
-
-class SendSubscriptionNotificationJob implements ShouldQueue
+class SubscriptionRejectionJob implements ShouldQueue
 {
+    
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-
     protected $subscriptionRequest;
     protected $superAdmins;
     protected $workers;
     protected $user;
- 
-
+   
 
     /**
      * Create a new job instance.
@@ -32,7 +29,6 @@ class SendSubscriptionNotificationJob implements ShouldQueue
         $this->superAdmins = $superAdmins;
         $this->workers = $workers;
         $this->user = $user;
-      
     }
 
     /**
@@ -40,10 +36,8 @@ class SendSubscriptionNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Notification::send($this->superAdmins, new SubscriptionRequestNotification($this->subscriptionRequest));
-        Notification::send($this->workers, new SubscriptionRequestNotification($this->subscriptionRequest));
-
-        // Notify the requested user without a link
-        $this->user->notify(new SubscriptionRequestNotification($this->subscriptionRequest, true));
+        Notification::send($this->superAdmins, new SubscriptionRejectionNotification($this->subscriptionRequest));
+        Notification::send($this->workers, new SubscriptionRejectionNotification($this->subscriptionRequest));
+        $this->user->notify(new SubscriptionRejectionNotification($this->subscriptionRequest,  true));
     }
 }

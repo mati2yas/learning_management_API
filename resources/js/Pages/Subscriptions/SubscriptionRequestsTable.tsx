@@ -46,8 +46,14 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
         {subscriptionRequests && subscriptionRequests.data.map((request) => (
           <TableRow key={request.id}>
             <TableCell>{request.user.name}</TableCell>
-            <TableCell>{request.course?.name ?? request.exam_course?.name ?? "N/A"}</TableCell>
-            <TableCell>${request.total_price}</TableCell>
+            <TableCell className="flex flex-wrap gap-2 items-center">{
+                request.courses.map((course)=>(
+                  <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
+                    {  course.name}
+                  </Badge>
+                ))
+              }</TableCell>
+            <TableCell>{request.total_price} ETB</TableCell>
             <TableCell>
               <img
                 src={request.proof_of_payment || "/placeholder.svg"}

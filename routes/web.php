@@ -1,12 +1,12 @@
 <?php
 
+use App\Http\Controllers\ExamCourseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\ChapterController;
 use App\Http\Controllers\Web\ContentController;
 use App\Http\Controllers\Web\CourseController;
 use App\Http\Controllers\Web\ExamController;
 use App\Http\Controllers\Web\ExamQuestionController;
-use App\Http\Controllers\Web\ExamTypeController;
 use App\Http\Controllers\Web\FileContentController;
 use App\Http\Controllers\Web\QuizController;
 use App\Http\Controllers\Web\QuizQuesitonController;
@@ -87,6 +87,12 @@ Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestion
 Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
 
 Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionController::class);
+
+Route::middleware(['auth', 'verified'])->resource('exam-courses', ExamCourseController::class);
+
+Route::middleware(['auth', 'verified'])->post('/subscription-rejection/{subscriptionId}', [SubscriptionController::class, 'rejection'])->name('subscriptions.reject');
+
+Route::middleware(['auth', 'verified'])->post('/subscription-approve/{subscriptionId}', [SubscriptionController::class, 'approve'])->name('subscriptions.approve');
 
 Route::get('/random', fn() => Course::paginate(10));
 

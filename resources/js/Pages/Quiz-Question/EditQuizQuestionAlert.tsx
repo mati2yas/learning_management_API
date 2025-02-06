@@ -250,10 +250,10 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
             <Label>Answer Type</Label>
             <RadioGroup value={answerType} onValueChange={handleAnswerTypeChange}>
               <div className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
+                {/* <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no_options" id="no_options" />
                   <Label htmlFor="no_options">No Options (Free Text)</Label>
-                </div>
+                </div> */}
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="single" id="single" />
                   <Label htmlFor="single">Single Choice</Label>

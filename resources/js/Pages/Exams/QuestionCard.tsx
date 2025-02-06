@@ -26,10 +26,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, getExamCourseName
   const options = parseJsonString(question.options)
   const answers = parseJsonString(question.answer)
 
-  console.log("Raw options:", question.options)
-  console.log("Parsed options:", options)
-  console.log("Raw answers:", question.answer)
-  console.log("Parsed answers:", answers)
+  // console.log("Raw options:", question.options)
+  // console.log("Parsed options:", options)
+  // console.log("Raw answers:", question.answer)
+  // console.log("Parsed answers:", answers)
 
   return (
     <Card className="w-full mb-4">

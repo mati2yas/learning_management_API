@@ -31,6 +31,7 @@ const DeleteCourseAlert = ({id}: DeleteCourseAlertProps) => {
       </Button>
 
     </AlertDialogTrigger>
+    
     <AlertDialogContent>
       <AlertDialogHeader>
         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

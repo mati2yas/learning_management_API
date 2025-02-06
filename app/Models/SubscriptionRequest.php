@@ -24,4 +24,8 @@ class SubscriptionRequest extends Model
     {
         return $this->belongsToMany(Course::class, 'course_subscription_request');
     }
+
+    public function subscriptions(){
+        return $this->hasMany(Subscription::class);
+    }
 }

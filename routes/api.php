@@ -169,13 +169,13 @@ Route::post('subscription-request', [SubscriptionController::class, 'store'])->m
 
 //for the web
 
-Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_grade_id', $gradeId)->get());
+Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_course_id', $gradeId)->get());
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){
     return ExamYear::where('exam_type_id', $examTypeId)->get();
 });
 
-Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_year_id', $examYearId)->get());
+Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_type_id', $examYearId)->get());
 
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
 

@@ -40,21 +40,21 @@ class SubscriptionController extends Controller
     
      public function store(Request $request)
      {
-         $attrs = Validator::make($request->all(), [
-             'courses' => 'required|array|min:1',
-             'exam_courses' => 'nullable|array',
-             'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-             'subscription_type' => 'required|in:oneMonth,threeMonths,sixMonths,yearly',
-             'transaction_id' => 'required',
-         ]);
+        $attrs = Validator::make($request->all(), [
+            'courses' => 'required|array|min:1',
+            'exam_courses' => 'nullable|array',
+            'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'subscription_type' => 'required|in:oneMonth,threeMonths,sixMonths,yearly',
+            'transaction_id' => 'required',
+        ]);
      
-         if ($attrs->fails()) {
-             return response()->json([
-                 'status' => false,
-                 'message' => 'Validation Error',
-                 'errors' => $attrs->errors()
-             ], 401);
-         }
+        if ($attrs->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'errors' => $attrs->errors()
+            ], 401);
+        }
      
          $validatedData = $attrs->validated();
      
@@ -89,7 +89,7 @@ class SubscriptionController extends Controller
              'status' => 'Pending',
              'proof_of_payment' => $validatedData['proof_of_payment'],
              'transaction_id' => $validatedData['transaction_id'],
-             
+             'subscription_type' => $validatedData['subscription_type'],
          ]);
      
       

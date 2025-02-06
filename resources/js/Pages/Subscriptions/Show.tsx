@@ -1,5 +1,6 @@
+
 import { useState } from "react"
-import { Head, useForm, usePage } from "@inertiajs/react"
+import { Head, Link, useForm, usePage } from "@inertiajs/react"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/Components/ui/card"
@@ -7,30 +8,17 @@ import { Badge } from "@/Components/ui/badge"
 import { Dialog, DialogContent, DialogTrigger } from "@/Components/ui/dialog"
 import { toast } from "@/hooks/use-toast"
 import { SubscriptionRequest } from "@/types"
+import RejectAlert from "./RejectAlert"
+import ApproveAlert from "./ApproveAlert"
 
 
 const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } }) => {
 
-  console.log(subscription)
+  // console.log(subscription)
 
   const [isImageFullscreen, setIsImageFullscreen] = useState(false)
-  const { post, processing } = useForm()
+  const { processing } = useForm()
 
-  const handleStatusUpdate = (newStatus: "Approved" | "Rejected") => {
-    post(
-      route("subscriptions.update", subscription.data.id),
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-          toast({
-            title: "Status Updated",
-            description: `The request has been ${newStatus.toLowerCase()}.`,
-          })
-        },
-      },
-    )
-  }
 
   const getStatusColor = (status: SubscriptionRequest["status"]) => {
     switch (status) {
@@ -63,8 +51,26 @@ const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } })
             <CardContent className="grid gap-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold">Requested Item</h3>
-                  <p className="capitalize">{subscription.data.course?.name || subscription.data.exam_course?.name}</p>
+                  <h3 className="font-semibold mb-2">Requested Courses</h3>
+                  <p className="capitalize">
+                    {subscription.data.courses.map((course)=>(
+                      <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
+                        {course.name}
+                      </Badge>
+                    ))}
+                   
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold">Requested Exam Course</h3>
+                  <p className="capitalize">
+                    {subscription.data.exam_course?.map((course)=>(
+                      <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
+                        {course.name}
+                      </Badge>
+                    ))}
+                   
+                  </p>
                 </div>
                 <div>
                   <h3 className="font-semibold">Total Price</h3>
@@ -72,7 +78,8 @@ const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } })
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Proof of Payment</h3>
+                <div className="flex justify-between"><h3 className="font-semibold mb-2"> Proof of Payment</h3> <span><span className=" font-bold">Transaction ID -</span>  {subscription.data.transaction_id}</span></div>
+                
                 <Dialog open={isImageFullscreen} onOpenChange={setIsImageFullscreen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full h-48 p-0 overflow-hidden">
@@ -96,12 +103,20 @@ const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } })
             <CardFooter className="flex justify-end space-x-2">
               {subscription.data.status === "Pending" && (
                 <>
-                  <Button variant="destructive" onClick={() => handleStatusUpdate("Rejected")} disabled={processing}>
-                    Reject
-                  </Button>
-                  <Button onClick={() => handleStatusUpdate("Approved")} disabled={processing}>
-                    Approve
-                  </Button>
+                  {/* <Link href={route('subscriptions.reject', subscription.data.id)} method="post">
+                    <Button variant="destructive" disabled={processing}>
+                      Reject
+                    </Button>
+                  </Link> */}
+                  <RejectAlert id={subscription.data.id} />
+
+                  {/* <Link href={route('subscriptions.approve', subscription.data.id)} method="post">
+                    <Button variant={"secondary"} className=" bg-green-500" disabled={processing}>
+                      Approve
+                    </Button>
+                  </Link> */}
+
+                  <ApproveAlert id={subscription.data.id} />
                 </>
               )}
             </CardFooter>

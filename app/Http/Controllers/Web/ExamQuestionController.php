@@ -31,7 +31,7 @@ class ExamQuestionController extends Controller
     
     public function store(Request $request)
     {
-        Log::info('Received exam question data:', $request->all());
+        // Log::info('Received exam question data:', $request->all());
     
         try {
             $validatedData = $request->validate([
@@ -52,7 +52,7 @@ class ExamQuestionController extends Controller
                 'questions.*.answer.*' => 'required|string',
             ]);
     
-            Log::info('Validated data:', $validatedData);
+            // Log::info('Validated data:', $validatedData);
     
             // $createdQuestions = [];
     
@@ -73,6 +73,10 @@ class ExamQuestionController extends Controller
                 Log::info('Creating question with attributes:', $attrs);
     
                 $question = ExamQuestion::create($attrs);
+                $question->created_by = $request->user()->id;
+                $question->updated_by = $request->user()->id;
+
+                $question->save();
                 // $createdQuestions[] = $question;
             }
     

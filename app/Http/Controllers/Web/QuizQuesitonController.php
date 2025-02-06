@@ -188,16 +188,7 @@ class QuizQuesitonController extends Controller
     
             return redirect()->route('quizzes.show', $request->quiz_id)->with('success', 'Quiz Question Updated Successfully.');
     
-        // } catch (\Exception $e) {
-        //     Log::error('Quiz Question Update Error:', [
-        //         'error' => $e->getMessage(),
-        //         'data' => $attrs
-        //     ]);
-    
-        //     return redirect()->back()
-        //         ->withErrors(['error' => 'Failed to update quiz question. Please try again.'])
-        //         ->withInput();
-        // }
+
     }
 
     /**

@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Web\SubscriptionRequestResource;
 use App\Http\Resources\Web\SubscriptionResource;
+use App\Jobs\SendSubscriptionApproveJob;
+use App\Jobs\SubscriptionRejectionJob;
 use App\Models\Subscription;
 use App\Models\SubscriptionRequest;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,10 +25,10 @@ class SubscriptionController extends Controller
         return Inertia::render('Subscriptions/Index', [
             'subscriptions' => SubscriptionResource::collection(Subscription::with([
                 'subscriptionRequest.user',
-                'subscriptionRequest.course',
-                'subscriptionRequest.examCourse',
+                'subscriptionRequest.courses',
+                // 'subscriptionRequest.examCourse',
             ])->get()),
-            'subscriptionRequests' => SubscriptionRequestResource::collection(SubscriptionRequest::with(['user', 'examCourse', 'course'])->get()),
+            'subscriptionRequests' => SubscriptionRequestResource::collection(SubscriptionRequest::with(['user', 'courses'])->get()),
         ]);
     }
 
@@ -51,7 +55,7 @@ class SubscriptionController extends Controller
     {
 
         return Inertia::render('Subscriptions/Show', [
-            'subscription' => new SubscriptionRequestResource($subscription->load(['user', 'examCourse', 'course'])),
+            'subscription' => new SubscriptionRequestResource($subscription->load(['user', 'courses'])),
         ]);
     }
 
@@ -77,5 +81,59 @@ class SubscriptionController extends Controller
     public function destroy(Subscription $subscription)
     {
         //
+    }
+
+    public function rejection(string $id, Request $request){
+
+        $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+
+        $subscriptionRequest->update(['status' => "Rejected"]);
+
+        $superAdmins = User::role('admin')->get();
+        $workers = User::role('worker')->get();
+
+        dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $request->user()));
+
+        return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
+       
+    }
+
+    public function approve(string $id, Request $request)
+    {
+        $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+
+    
+        $subscription_start_date = Carbon::now();
+    
+        // Determine duration based on subscription_type
+        $durations = [
+            'oneMonth' => 1,
+            'threeMonths' => 3,
+            'sixMonths' => 6,
+            'yearly' => 12,
+        ];
+    
+        // Get the duration (default to 1 month if not found)
+        $duration = $durations[$subscriptionRequest->subscription_type];
+        
+        // Calculate subscription end date
+        $subscription_end_date = $subscription_start_date->copy()->addMonths($duration);
+    
+        // Store the subscription in the subscriptions table
+         $subscription= $subscriptionRequest->subscriptions()->create([
+            'subscription_start_date' => $subscription_start_date,
+            'subscription_end_date' => $subscription_end_date,
+        ]);
+    
+        // Save the updated subscription request
+        // $subscriptionRequest->save();
+        $subscriptionRequest->update(['status' => "Approved"]);
+
+        $superAdmins = User::role('admin')->get();
+        $workers = User::role('worker')->get();
+
+        dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $request->user() ));
+    
+        return redirect()->route('subscriptions.index')->with('success', 'Subscription is approved.');
     }
 }

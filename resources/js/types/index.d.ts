@@ -220,23 +220,25 @@ export interface ExamType{
 export interface ExamGrade{
     id: number
     grade: number
+    stream: string
     exam_year_id: number
     created_at?: string;
     updated_at?: string;
 }
 
-export interface SubscriptionRequest{
-        id: number
-        user: { name: string, email?: string}
-        course: {name: string} | null
-        exam_course: {name: string} | null
-        total_price: number
-        proof_of_payment: string
-        status: 'Pending' | 'Approved' | 'Rejected'
-        created_at?: string;
-        updated_at?: string;
-  
-}
+    export interface SubscriptionRequest{
+            id: number
+            user: { name: string, email?: string}
+            courses: {id: number, name: string}[],
+            exam_course: {id: number, name: string}[] | null
+            total_price: number
+            proof_of_payment: string
+            transaction_id: string
+            status: 'Pending' | 'Approved' | 'Rejected'
+            created_at?: string;
+            updated_at?: string;
+    
+    }
 
 export interface Subscription{
    

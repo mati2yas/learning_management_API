@@ -33,7 +33,7 @@ class ExamController extends Controller
         }
 
 
-        $exam_questions = $query->latest()->paginate(60);
+        $exam_questions = $query->latest()->paginate(perPage: 60);
 
         // dd($exam_questions);
 

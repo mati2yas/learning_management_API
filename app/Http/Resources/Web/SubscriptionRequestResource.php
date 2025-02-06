@@ -29,12 +29,13 @@ class SubscriptionRequestResource extends JsonResource
                     'name' => $this->exam_course->course_name,
                 ];
             }),
-            'course' => $this->whenLoaded('course', function () {
-                return [
-                    'id' => $this->course->id,
-                    'name' => $this->course->course_name,
-                ];
+            'courses' => $this->whenLoaded('courses', function () {
+                return $this->courses->map(fn($course) => [
+                    'id' => $course->id,
+                    'name' => $course->course_name,
+                ]);
             }),
+            'transaction_id' => $this->transaction_id,
             'proof_of_payment' => $this->proof_of_payment,
             'total_price' => $this->total_price,
             'status' => $this->status,

@@ -23,17 +23,15 @@ class ExamYearSeeder extends Seeder
             $maxYear = min($ethiopianYear - 1, 2016); // Either Ethiopian year - 1 or 2016
             $years = range(2001, $maxYear); // Generate years from 2001 to maxYear
 
-            $exam_types = ExamType::all();
-
             // Use the $years variable properly in the callback
-            $exam_types->each(function ($exam_type) use ($years) {
+        
                 foreach ($years as $year) {
                     ExamYear::factory()->create([
-                        'exam_type_id' => $exam_type->id,
+                        'exam_type_id' => 1,
                         'year' => $year,
                     ]);
                 }
-            });
+           
         }
     }
 }

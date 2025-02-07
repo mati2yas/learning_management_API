@@ -196,17 +196,17 @@ Route::get('exams/exam-years/{examType}', function($examType){
 });
 
 Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
-    // Assuming the request contains 'exam_year_id' to filter by
-    // $examYearId = $request->input('exam_year_id');
+
 
     // Retrieve grades associated with the exam year via the exam_questions table
     $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
-                    ->with('examGrade')  // Eager load the exam grade relationship
+                    ->with('examGrade.examCourses.examChapters')  // Eager load the exam grade relationship
                     ->get()
-                    ->pluck('examGrade') // Extract the exam grades from the questions
-                    ->unique();          // Ensure unique grades
 
-    // Return the result using the ExamGradeResource
+
+    // return response()->json($examGrades);
+                    ->pluck('examGrade') // Extract the exam grades from the questions
+                    ->unique();          //
     return ExamGradeResource::collection($examGrades);
 });
 

@@ -1,4 +1,4 @@
-import { type FormEventHandler, useState, useEffect, useCallback } from "react"
+import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
 import { Button } from "@/Components/ui/button"
@@ -16,7 +16,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { PlusCircle, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
-import { usePage } from "@inertiajs/react"
 
 const CreateExamCourseAlert = ({
   examTypes,
@@ -29,7 +28,6 @@ const CreateExamCourseAlert = ({
   const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>([])
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
-  
 
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
@@ -68,13 +66,13 @@ const CreateExamCourseAlert = ({
     }
   }, [])
 
-  const showExamGrade = () => {
+  const showExamGrade = useMemo(() => {
     const selectedExamType = examTypes.find((type) => type.id.toString() === data.exam_type_id)
     return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
-  }
+  }, [data.exam_type_id, examTypes])
 
   useEffect(() => {
-    if (data.exam_type_id && showExamGrade()) {
+    if (data.exam_type_id && showExamGrade) {
       fetchExamCourses(data.exam_type_id)
     } else {
       setExamCourses([])
@@ -99,8 +97,6 @@ const CreateExamCourseAlert = ({
     })
   }
 
-
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
@@ -122,8 +118,7 @@ const CreateExamCourseAlert = ({
               value={data.exam_type_id}
               onValueChange={(value) => {
                 setData("exam_type_id", value)
-                const selectedExamType = examTypes.find((type) => type.id.toString() === value)
-                if (selectedExamType && ["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())) {
+                if (!showExamGrade) {
                   setData("exam_grade_id", "")
                 }
                 setData("exam_course_id", "")
@@ -144,7 +139,7 @@ const CreateExamCourseAlert = ({
             {errors.exam_type_id && <p className="text-red-500 text-sm">{errors.exam_type_id}</p>}
           </div>
 
-          {showExamGrade() && (
+          {showExamGrade && (
             <div className="space-y-2">
               <Label htmlFor="exam_grade_id">Exam Grade</Label>
               <Select

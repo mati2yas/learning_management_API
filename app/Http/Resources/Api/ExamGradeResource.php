@@ -15,8 +15,20 @@ class ExamGradeResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'grade' => $this->grade,  // Assuming your grade has a 'name' field
-            // Add any additional fields you need from the ExamGrade model
+            'grade' => $this->grade,  // 
+            'chapters' => $this->getChapters(),
         ];
+    }
+
+    private function getChapters()
+    {
+        return $this->examCourses->flatMap(function ($course) {
+            return $course->examChapters->map(function ($chapter) {
+                return [
+                    'id' => $chapter->id,
+                    'title' => $chapter->title,
+                ];
+            });
+        })->unique('id')->values()->toArray();  // Ensure unique chapters
     }
 }

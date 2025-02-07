@@ -12,6 +12,9 @@ interface SubscriptionIndexProps {
   subscriptions: {
     data: Subscription[]
   }
+  
+
+
   subscriptionRequests: {
     data: SubscriptionRequest[]
   }
@@ -43,7 +46,8 @@ const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => 
                   <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
                 </TabsList>
                 <TabsContent value="requests">
-                  <SubscriptionRequestsTable subscriptionRequests={subscriptionRequests}  />
+                  <SubscriptionRequestsTable
+                  subscriptionRequests={subscriptionRequests}  />
                 </TabsContent>
                 <TabsContent value="subscriptions">
                   <SubscriptionsTable subscriptions={subscriptions}  />

@@ -19,6 +19,7 @@ use App\Models\ExamQuestion;
 use App\Models\SubscriptionRequest;
 use App\Models\User;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -54,6 +55,7 @@ Route::get('/dashboard', function () {
         'examQuestions' => ExamQuestion::count(),
         'users' => User::role('student')->count(),
         'pendingSubscriptions' => SubscriptionRequest::where('status', 'Pending')->count(),
+        'canAdd' => Auth::user()->hasDirectPermission('add courses'),
     ]);
 
 })->middleware(['auth', 'verified'])->name('dashboard');

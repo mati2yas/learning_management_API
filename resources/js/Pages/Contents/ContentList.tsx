@@ -1,5 +1,5 @@
 import React from 'react'
-import { FileText, Youtube, File, Edit, Trash2, Eye } from 'lucide-react'
+import { FileText, Youtube, File, Edit, Trash2, Eye, Edit2 } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
 import { 
   Table,   
@@ -17,13 +17,16 @@ dayjs.extend(relativeTime);
 import { Content } from '@/types'
 import EditContentAlert from './EditContentAlert';
 import DeleteContentAlert from './DeleteContentAlert';
+import PermissionAlert from '@/Components/PermissionAlert';
 
 
 interface ContentListProps {
   contents: Content[]
+  canEdit: boolean
+  canDelete: boolean
 }
 
-const ContentList: React.FC<ContentListProps> = ({ contents }) => {
+const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete }) => {
 
   const sortedContents = [...contents].sort((a,b) => a.order - b.order);
 
@@ -65,7 +68,31 @@ const ContentList: React.FC<ContentListProps> = ({ contents }) => {
                               View
                             </Button>
                           </Link>
+                          {
+                            canEdit ? <EditContentAlert content={content} /> : <PermissionAlert
+                              children={'Edit'}
+                              buttonSize={'sm'}
+                              permission='edit a content'
+                              className='text-green-600 hover:text-green-700 hover:bg-green-50'
+                              icon={<Edit2 className='h-4 w-4 mr-1' />}
+                              buttonVariant={'outline'}
+
+                            />
+                          }
                           <EditContentAlert content={content} />
+
+                          {
+                            canEdit ? <DeleteContentAlert id={content.id} name={content.name} /> : <PermissionAlert
+                              children={'Delete'}
+                              buttonSize={'sm'}
+                              permission='edit a content'
+                              className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                              icon={<Trash2 className='h-4 w-4 mr-1' />}
+                              buttonVariant={'outline'}
+
+                            />
+                          }
+
                           <DeleteContentAlert id={content.id} name={content.name} />
                         </div>
                       </TableCell>

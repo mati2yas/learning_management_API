@@ -28,7 +28,7 @@ interface CreateExamQuestionAlertProps {
 
 const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: CreateExamQuestionAlertProps) => {
 
-  console.log(exam_grades)
+  // console.log(exam_grades)
 
   const [isOpen, setIsOpen] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])

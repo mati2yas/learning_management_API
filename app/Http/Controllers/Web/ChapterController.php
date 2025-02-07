@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ChapterController extends Controller
@@ -56,6 +57,9 @@ class ChapterController extends Controller
             'course_id' => $chapter->course_id,
             'contentsCount' => $chapter->contents->count(),
             'quizzesCount' => $chapter->quizzes->count(),
+            'canDeleteContents' => Auth::user()->hasDirectPermission('delete content'),
+            'canAddContents' => Auth::user()->hasDirectPermission('add content'),
+            'canUpdateContents' => Auth::user()->hasDirectPermission('update content'),
         ]
         );
     }

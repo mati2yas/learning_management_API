@@ -1,4 +1,4 @@
-import { Eye } from 'lucide-react'
+import { Edit2, Eye, Trash2 } from 'lucide-react'
 import { Button } from "./ui/button"
 import {
   Table,
@@ -15,15 +15,20 @@ import DeleteChapterAlert from '@/Pages/Chapters/DeleteChapterAlert';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from '@inertiajs/react';
+import PermissionAlert from './PermissionAlert';
 
 dayjs.extend(relativeTime);
 
 interface TableDemoProps {
   chapters: Chapter[];
+  canEditChapter: boolean
+  canDeleteChapter: boolean
 }
 
 export function EnhancedTableDemo({
   chapters,
+  canEditChapter,
+  canDeleteChapter
 }: TableDemoProps) {
   // Sort chapters by order number
   const sortedChapters = [...chapters].sort((a, b) => a.order - b.order);
@@ -64,7 +69,30 @@ export function EnhancedTableDemo({
                           </Button>
                         </Link>
       
+                        {
+                          canEditChapter ? <EditChapterAlert chapter={chapter} /> : <PermissionAlert
+                            children={'Edit'}
+                            buttonVariant={'outline'}
+                            className='text-green-600 hover:text-green-700 hover:bg-green-50bg-transparent'
+                            buttonSize={'sm'}
+                            permission='update a chapter'
+                            icon={<Edit2 className='h-4 w-4 mr-1' />}
+                          />
+                        }
                         <EditChapterAlert chapter={chapter} />
+
+                        {
+                          canDeleteChapter ? 
+                          <DeleteChapterAlert id={chapter.id} name={chapter.title} />
+                          : <PermissionAlert
+                            children={'Delete'}
+                            buttonVariant={'outline'}
+                            buttonSize={'sm'}
+                            icon={<Trash2 className="w-5 h-5 mr-2" />}
+                            permission='delete a course'
+                            className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                          />
+                        }
                         <DeleteChapterAlert id={chapter.id} name={chapter.title} />
                       </div>
                     </TableCell>

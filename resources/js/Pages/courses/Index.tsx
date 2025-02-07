@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head, Link, useForm, router } from '@inertiajs/react'
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
@@ -7,6 +7,7 @@ import { Input } from "@/Components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
+import PermissionAlert from '@/Components/PermissionAlert'
 
 
 
@@ -17,8 +18,11 @@ const Index: React.FC<IndexProps> = ({
   departments,
   batches,
   filters,
+  canAdd,
 }) => {
  
+
+  console.log(canAdd)
 
   const { data, setData } = useForm({
     category: filters.category || '',
@@ -62,6 +66,9 @@ const Index: React.FC<IndexProps> = ({
         <div className='flex justify-between items-center'>
           <React.Fragment>
             <h1 className="text-2xl font-semibold">Courses</h1>
+            {/* {
+              canAdd ? <CreateCourseAlert/> : <PermissionAlert permission={'Can Add'} children={'Add Course'} className="p-2 text-xs" />
+            } */}
             <CreateCourseAlert
             />
           </React.Fragment>

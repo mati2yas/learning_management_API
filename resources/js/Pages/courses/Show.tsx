@@ -1,6 +1,6 @@
 import { Head } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
-import { BookOpen, Users, GraduationCap, Building, Clock, Star, UserCheck, ThumbsUp } from "lucide-react"
+import { BookOpen, Users, GraduationCap, Building, Clock, Star, UserCheck, ThumbsUp, Pencil, Trash2 } from "lucide-react"
 import { EnhancedTableDemo } from "@/Components/TableDemo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
@@ -12,6 +12,7 @@ import ChapterCard from "@/Components/ChapterCard"
 import type { ShowCourseProps } from "@/types/show"
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime';
+import PermissionAlert from "@/Components/PermissionAlert"
 
 dayjs.extend(relativeTime);
 
@@ -28,6 +29,11 @@ const Show = ({
   departments,
   batches,
   chaptersCount,
+  canDelete,
+  canUpdate,
+  canAddChapters,
+  canDeleteChapters,
+  canUpdateChapters,
 }: ShowCourseProps) => {
 
   console.log('chaptercount', chaptersCount);
@@ -130,6 +136,22 @@ const Show = ({
                   <CardTitle>Admin Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {
+                    canUpdate ? <UpdateCourseAlert
+                    course={course}
+                    categories={categories}
+                    grades={grades}
+                    departments={departments}
+                    batches={batches}
+                    thumbnail={thumbnail}
+                  /> : <PermissionAlert
+                        children="Update Course"
+                        permission="update a course" 
+                        icon={<Pencil className="w-5 h-5 mr-2" />}
+                        className="w-full bg-blue-600 hover:bg-blue-700 capitalize"
+                        />
+
+                  }
                   <UpdateCourseAlert
                     course={course}
                     categories={categories}
@@ -138,6 +160,15 @@ const Show = ({
                     batches={batches}
                     thumbnail={thumbnail}
                   />
+
+                  {
+                    canDelete ?  <DeleteCourseAlert id={course.id} />: <PermissionAlert
+                    children="Delete Course"
+                    permission="update a course" 
+                    icon={<Trash2 className="w-5 h-5 mr-2" />}
+                    className="w-full bg-red-500 hover:bg-red-700 capitalize" buttonVariant={'destructive'}
+                    />
+                  }
                   <DeleteCourseAlert id={course.id} />
                 </CardContent>
               </Card>
@@ -190,14 +221,21 @@ const Show = ({
                   <TabsTrigger value="grid">Grid View</TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <EnhancedTableDemo chapters={chapters} />
+                  <EnhancedTableDemo 
+                    chapters={chapters} 
+                    canEditChapter={canUpdateChapters}
+                    canDeleteChapter={canDeleteChapters}  
+                  />
                 </TabsContent>
                 <TabsContent value="grid">
  
                     {chapters.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                       {chapters.map((chapter, index) => (
-                        <ChapterCard key={index} chapter={chapter} />
+                        <ChapterCard 
+                          key={index} 
+                          chapter={chapter} 
+                        />
                       ))}
                       </div>
                     ):(

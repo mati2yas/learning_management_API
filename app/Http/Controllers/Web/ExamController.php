@@ -20,6 +20,10 @@ class ExamController extends Controller
     {
         $query = ExamQuestion::query();
 
+        if($request->filled('examCourse')){
+            $query->where('exam_course_id', $request->input('examCourse'));
+        }
+
         if ($request->filled('examType')) {
             $query->where('exam_type_id', $request->input('examType'));
         }
@@ -45,7 +49,7 @@ class ExamController extends Controller
             'exam_types' => ExamType::all(),
             'exam_grades' => ExamGrade::all(),
             'exam_courses' => ExamCourse::all(),
-            'filters' => $request->only(['search','year','examType']),
+            'filters' => $request->only(['search','year','examType', 'examCourse']),
         ]);
     }
 
@@ -62,7 +66,7 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
     }
 
     /**
@@ -70,7 +74,12 @@ class ExamController extends Controller
      */
     public function show(ExamQuestion $examQuestion)
     {
-        //
+        $examYear = ExamYear::find($examQuestion->exam_year);
+        $examGrade = ExamGrade::find($examQuestion->exam_grade);
+        return Inertia::render('Exams/EditExam', [
+            'exam_year' => $examYear,
+            'exam_grade' => $examGrade,
+        ]);
     }
 
     /**

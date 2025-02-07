@@ -32,8 +32,9 @@ export default function Dashboard({ chapters, examQuestions, courseData, pending
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Dashboard
                     </h2>
-                    {/* <Button>Add Course</Button>
-                     */}
+                    {/* {
+                    canAdd ? <CreateCourseAlert/> : <PermissionAlert permission={'Can Add'} children={'Add Course'} className="p-2 text-xs" />
+                    } */}
                      <CreateCourseAlert />
                 </div>
             }

@@ -5,7 +5,6 @@ import { SubscriptionRequest } from "@/types";
 import { Link } from "@inertiajs/react";
 
 
-
 interface SubscriptionRequestsTableProps {
   subscriptionRequests: {
     data: SubscriptionRequest[]
@@ -15,7 +14,6 @@ interface SubscriptionRequestsTableProps {
 
 export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRequestsTableProps) {
 
-  console.log(subscriptionRequests)
 
   const getStatusColor = (status: any) => {
     switch (status) {

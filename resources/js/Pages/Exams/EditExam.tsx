@@ -1,19 +1,8 @@
-import { useForm } from "@inertiajs/react"
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/Components/ui/alert-dialog"
+import { Head, useForm } from "@inertiajs/react"
 import { Button } from "@/Components/ui/button"
 import { Textarea } from "@/Components/ui/textarea"
 import { Label } from "@/Components/ui/label"
 import { type FormEventHandler, useState, useEffect } from "react"
-import { PencilIcon, X } from "lucide-react"
-import { ScrollArea } from "@/Components/ui/scroll-area"
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
@@ -22,6 +11,9 @@ import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear, ExamQuesti
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
+import Authenticated from "@/Layouts/AuthenticatedLayout"
+import { X } from "lucide-react"
+
 
 interface EditExamQuestionAlertProps {
   exam_types: ExamType[]
@@ -30,11 +22,7 @@ interface EditExamQuestionAlertProps {
   question: ExamQuestion
 }
 
-const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
-
-  // console.log(question)
-  // console.log('examtype', exam_types)
-  // console.log('examgrade', exam_grades)
+const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false)
   const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
@@ -216,23 +204,23 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
-
+  
     if (!validateForm()) {
       return
     }
-
+  
     // Filter out empty options
     const validOptions = options.filter((option) => option.trim() !== "")
-
+  
     // Format answer based on selection type
     const formattedAnswer = isMultipleChoice
       ? (correctAnswer as string[]).filter((answer) => answer.trim() !== "")
       : [correctAnswer as string].filter((answer) => answer.trim() !== "")
-
+  
     // Update the data object
     setData("options", validOptions)
     setData("answer", formattedAnswer)
-
+  
     put(route("exam-questions.update", question.id), {
       preserveScroll: true,
       preserveState: false,
@@ -247,18 +235,18 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
   }
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <PencilIcon className="h-4 w-4" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[700px] max-h-[90vh] p-0">
-        <AlertDialogHeader className="p-6 pb-0">
-          <AlertDialogTitle>Edit Exam Question</AlertDialogTitle>
-          <AlertDialogDescription>Update the details for this exam question.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <ScrollArea className="max-h-[calc(90vh-130px)] overflow-y-auto px-6">
+    <Authenticated
+      header={
+        <div>
+          <h1>Edit</h1>
+        </div>
+      }
+    >
+
+      <Head title="Edit Exam Question" />
+      <div className="py-12">
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -485,19 +473,14 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
               <InputError message={errors.answer} />
             </div>
           </form>
-        </ScrollArea>
-        <AlertDialogFooter className="px-6 py-4">
-          <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={processing} onClick={submit}>
-            Update
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+
+
+          </div>
+        </div>
+      </div>
+      
+    </Authenticated>
   )
 }
 
-export default EditExamQuestionAlert
-
+export default EditExam

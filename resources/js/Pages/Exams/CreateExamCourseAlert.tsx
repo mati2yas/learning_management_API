@@ -1,5 +1,6 @@
 import { type FormEventHandler, useState, useEffect, useCallback } from "react"
 import { useForm } from "@inertiajs/react"
+import axios from "axios"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
@@ -14,25 +15,21 @@ import {
 } from "@/Components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { PlusCircle, X } from "lucide-react"
-import { ExamCourse, ExamGrade, ExamType } from "@/types"
-
+import type { ExamCourse, ExamGrade, ExamType } from "@/types"
+import { usePage } from "@inertiajs/react"
 
 const CreateExamCourseAlert = ({
   examTypes,
   examGrades,
-  examCourses,
 }: {
   examTypes: ExamType[]
   examGrades: ExamGrade[]
-  examCourses: ExamCourse[]
 }) => {
-
-  
   const [isOpen, setIsOpen] = useState(false)
-  const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>([
-    { title: "", sequence_order: 1 },
-  ])
+  const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>([])
   const [isNewCourse, setIsNewCourse] = useState(false)
+  const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
+  
 
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
@@ -62,24 +59,47 @@ const CreateExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
+  const fetchExamCourses = useCallback(async (examTypeId: string) => {
+    try {
+      const response = await axios.get(`/api/exam-courses/${examTypeId}`)
+      setExamCourses(response.data)
+    } catch (error) {
+      console.error("Error fetching exam courses:", error)
+    }
+  }, [])
+
+  const showExamGrade = () => {
+    const selectedExamType = examTypes.find((type) => type.id.toString() === data.exam_type_id)
+    return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
+  }
+
+  useEffect(() => {
+    if (data.exam_type_id && showExamGrade()) {
+      fetchExamCourses(data.exam_type_id)
+    } else {
+      setExamCourses([])
+    }
+  }, [data.exam_type_id, fetchExamCourses, showExamGrade])
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
-    // console.log(data)
     post(route("exam-courses.store"), {
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
         setIsOpen(false)
         reset()
-        setChapters([{ title: "", sequence_order: 1 }])
+        setChapters([])
         setIsNewCourse(false)
       },
-      onError:(errors)=>{
+      onError: (errors) => {
         console.log("validation errors:", errors)
-      }
+      },
     })
   }
+
+
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -98,7 +118,18 @@ const CreateExamCourseAlert = ({
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="exam_type_id">Exam Type</Label>
-            <Select value={data.exam_type_id} onValueChange={(value) => setData("exam_type_id", value)}>
+            <Select
+              value={data.exam_type_id}
+              onValueChange={(value) => {
+                setData("exam_type_id", value)
+                const selectedExamType = examTypes.find((type) => type.id.toString() === value)
+                if (selectedExamType && ["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())) {
+                  setData("exam_grade_id", "")
+                }
+                setData("exam_course_id", "")
+                setIsNewCourse(false)
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select Exam Type" />
               </SelectTrigger>
@@ -113,23 +144,30 @@ const CreateExamCourseAlert = ({
             {errors.exam_type_id && <p className="text-red-500 text-sm">{errors.exam_type_id}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="exam_grade_id">Exam Grade</Label>
-            <Select value={data.exam_grade_id} onValueChange={(value) => setData("exam_grade_id", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Exam Grade" />
-              </SelectTrigger>
-              <SelectContent>
-                {examGrades.map((grade) => (
-                  <SelectItem key={grade.id} value={grade.id.toString()}>
-                    Grade - {grade.grade}
-                    {grade.stream ? ` - ${grade.stream}` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
-          </div>
+          {showExamGrade() && (
+            <div className="space-y-2">
+              <Label htmlFor="exam_grade_id">Exam Grade</Label>
+              <Select
+                value={data.exam_grade_id}
+                onValueChange={(value) => {
+                  setData("exam_grade_id", value)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Exam Grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {examGrades.map((grade) => (
+                    <SelectItem key={grade.id} value={grade.id.toString()}>
+                      Grade - {grade.grade}
+                      {grade.stream ? ` - ${grade.stream}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="exam_course">Exam Course</Label>
@@ -176,7 +214,7 @@ const CreateExamCourseAlert = ({
           </div>
 
           <div className="space-y-2">
-            <Label>Chapters</Label>
+            <Label>Chapters (Optional)</Label>
             {chapters.map((chapter, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Input
@@ -199,7 +237,7 @@ const CreateExamCourseAlert = ({
               onClick={() => {
                 setIsOpen(false)
                 reset()
-                setChapters([{ title: "", sequence_order: 1 }])
+                setChapters([])
                 setIsNewCourse(false)
               }}
             >

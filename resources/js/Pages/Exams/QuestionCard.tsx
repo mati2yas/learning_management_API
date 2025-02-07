@@ -1,19 +1,24 @@
 import type React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Badge } from "@/Components/ui/badge"
-import type { ExamQuestion } from "@/types"
+import type { ExamGrade, ExamQuestion, ExamType, ExamYear } from "@/types"
+import EditExamQuestionAlert from "../Quiz-Question/EditExamQuestionAlert"
+import DeleteExamQuestionAlert from "./DeleteExamQuestionAlert"
 
 interface QuestionCardProps {
   question: ExamQuestion & {
     options: string
     answer: string
   }
+  examTypes : ExamType[]
+  examGrades: ExamGrade[]
+  examYears: ExamYear[]
   getExamCourseName: (id: number) => string
   getChapterTitle: (id: number) => string
   getExamYear: (id: number) => string | number
 }
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, getExamCourseName, getChapterTitle, getExamYear }) => {
+const QuestionCard: React.FC<QuestionCardProps> = ({ question, examTypes, examGrades, examYears,  getExamCourseName, getChapterTitle, getExamYear }) => {
   const parseJsonString = (jsonString: string): string[] => {
     try {
       return JSON.parse(jsonString)
@@ -36,7 +41,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, getExamCourseName
       <CardHeader>
         <CardTitle className="text-lg font-semibold">{question.question_text}</CardTitle>
 
-        
         <div className="flex flex-wrap gap-2 mt-2">
           <Badge variant="outline">{getExamCourseName(question.exam_course_id)}</Badge>
           <Badge variant="outline">{getChapterTitle(question.exam_chapter_id)}</Badge>
@@ -59,6 +63,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, getExamCourseName
             </div>
           ))}
         </div>
+        <div className="flex gap-2 mt-4">
+            <EditExamQuestionAlert exam_types={examTypes} question={question} exam_grades={examGrades} exam_years={examYears}            />
+            <DeleteExamQuestionAlert id={question.id}/>
+          </div>
       </CardContent>
     </Card>
   )

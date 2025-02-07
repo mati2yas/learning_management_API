@@ -55,6 +55,7 @@ class CourseController extends Controller
             'batches' => Batch::all(),
             'courses' => CourseResource::collection($courses) , // Pagination metadata is preserved
             'filters' => $request->only(['category', 'search']),
+            'canAdd' => Auth::user()->hasDirectPermission('add courses'),
         ]);
     }
     
@@ -139,6 +140,11 @@ class CourseController extends Controller
             'batches' => Batch::all(),
             'enrolledStudents' => $course->paidCourses->count(),
             'chaptersCount' => $course->chapters->count(),
+            'canUpdate' => Auth::user()->hasDirectPermission('update courses'),
+            'canDelete' => Auth::user()->hasDirectPermission('delete courses'),
+            'canAddChapters' => Auth::user()->hasDirectPermission('add chapters'),
+            'canUpdateChapters' => Auth::user()->hasDirectPermission('update chapters'),
+            'canDeleteChapters' => Auth::user()->hasDirectPermission('delete chapters')
         ]);
     }
 

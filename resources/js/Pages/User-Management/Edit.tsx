@@ -11,9 +11,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout';
 interface User {
   id: number,
   name: string;
-  // phone_no: string;
   email: string;
-
   password: string;
   password_confirmation: string;
   permissions: string[];

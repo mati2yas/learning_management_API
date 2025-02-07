@@ -13,6 +13,7 @@ use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\QuizResource;
+use App\Http\Resources\ExamYearResource;
 use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -22,6 +23,8 @@ use App\Models\Department;
 use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
+use App\Models\ExamQuestion;
+use App\Models\ExamType;
 use App\Models\ExamYear;
 use App\Models\Grade;
 use App\Models\Quiz;
@@ -167,6 +170,30 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
 
+
+Route::get('exams/exam-years/{examType}', function($examType){
+
+    $types = ['matric','ministry', 'ngat','exit'];
+
+    $examTypeRecord = ExamType::where('name', $examType)->first();
+
+    if (!$examTypeRecord) {
+        return response()->json(['error' => 'Invalid exam type'], 404);
+    }
+
+    // Fetch exam years with question counts using Eloquent
+    $examYears = ExamQuestion::with('examYear')
+        ->select('exam_year_id')
+        ->where('exam_type_id', $examTypeRecord->id)
+        ->groupBy('exam_year_id')
+        ->selectRaw('exam_year_id, COUNT(id) as question_count')
+        ->get();
+
+    // Return the data as a resource collection
+    return ExamYearResource::collection($examYears);
+
+});
+
 //for the web
 
 Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_course_id', $gradeId)->get());
@@ -204,4 +231,9 @@ Route::get('/departments', function(Request $request){
 Route::get('/batches', function(Request $request){
     return Batch::where('department_id', $request->department_id)->get();
 });
+
+Route::get('/exam-chapters/{id}', fn()=>ExamChapter::find($id));
+
+Route::get('/exam-courses/{id}', fn()=>ExamCourse::find($id));
+
 

@@ -10,4 +10,9 @@ export interface ShowCourseProps {
   departments: Department[];
   batches: Batch[];
   chaptersCount: number;
+  canDelete: boolean
+  canUpdate: boolean
+  canAddChapters: boolean
+  canUpdateChapters: boolean
+  canDeleteChapters: boolean
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Head, Link } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
-import { BookOpen, List, Grid, ArrowLeft, Clapperboard } from 'lucide-react'
+import { BookOpen, List, Grid, ArrowLeft, Clapperboard, PlusCircle } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
@@ -11,6 +11,7 @@ import { Chapter, Content, Quiz } from '@/types'
 import CreateContentAlert from '../Contents/CreateContentAlert'
 import QuizList from '../Quiz/QuizList'
 import CreateQuizAlert from '../Quiz/CreateQuizAlert'
+import PermissionAlert from '@/Components/PermissionAlert'
 
 
 
@@ -21,6 +22,9 @@ interface ChapterDetailProps {
   course_id: number
   contentsCount: number
   quizzesCount: number
+  canAddContents: boolean
+  canUpdateContents:boolean
+  canDeleteContents:boolean
 }
 
 const Show: React.FC<ChapterDetailProps> = ({ 
@@ -29,7 +33,10 @@ const Show: React.FC<ChapterDetailProps> = ({
   quizzes,
   course_id,
   contentsCount,
-  quizzesCount
+  quizzesCount,
+  canAddContents,
+  canUpdateContents,
+  canDeleteContents,
 }) => {
 
   function setIsAddQuizModalOpen(arg0: boolean): void {
@@ -79,6 +86,16 @@ const Show: React.FC<ChapterDetailProps> = ({
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Contents</CardTitle>
 
+                  {
+                    canAddContents ?  <CreateContentAlert id={chapter.id} title={chapter.title}/> : <PermissionAlert 
+                      children={'Add Content'}
+                      permission='add a content'
+                      buttonVariant={'outline'}
+                      className='p-2 text-xs'
+                      icon={<PlusCircle className='w-5 h-5 mr-2' />}
+                    />
+                  }
+
                   <CreateContentAlert id={chapter.id} title={chapter.title}/>
 
                 </div>
@@ -90,14 +107,20 @@ const Show: React.FC<ChapterDetailProps> = ({
                     <TabsTrigger value="grid"><Grid className="w-4 h-4 mr-2" /> Grid View</TabsTrigger>
                   </TabsList>
                   <TabsContent value="list">
+
                     <ContentList 
                       contents={contents} 
+                      canEdit={canUpdateContents} 
+                      canDelete={canDeleteContents} 
                     />
 
                   </TabsContent>
                   <TabsContent value="grid">
+
                     <ContentGrid 
                       contents={contents}
+                      canDelete={canDeleteContents}
+                      canEdit={canUpdateContents}
                     />
                   </TabsContent>
                 </Tabs>

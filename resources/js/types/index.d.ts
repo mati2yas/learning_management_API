@@ -131,6 +131,7 @@ export interface IndexProps {
       category: string;
       search: string;
     };
+    canAdd: boolean
   }
 
 export interface Content{
@@ -195,6 +196,7 @@ export interface ExamYear{
 }
 
 export interface ExamQuestion{
+    exam_type_id: any;
     exam_grade_id: any;
     text_explanation: string;
     id:number

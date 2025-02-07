@@ -1,18 +1,21 @@
 
 import { useState } from "react"
-import { Head, Link, useForm, usePage } from "@inertiajs/react"
+import { Head, useForm } from "@inertiajs/react"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/Components/ui/card"
 import { Badge } from "@/Components/ui/badge"
 import { Dialog, DialogContent, DialogTrigger } from "@/Components/ui/dialog"
-import { toast } from "@/hooks/use-toast"
 import { SubscriptionRequest } from "@/types"
 import RejectAlert from "./RejectAlert"
 import ApproveAlert from "./ApproveAlert"
+import PermissionAlert from "@/Components/PermissionAlert"
 
 
-const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } }) => {
+const Show = ({ subscription, canApprove, canReject }: { 
+  subscription: { data: SubscriptionRequest };
+  canApprove: boolean;
+  canReject: boolean; }) => {
 
   // console.log(subscription)
 
@@ -108,6 +111,14 @@ const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } })
                       Reject
                     </Button>
                   </Link> */}
+                  {
+                    canReject ?  <RejectAlert id={subscription.data.id} /> : <PermissionAlert
+                      buttonVariant={'destructive'}
+                      permission="reject a subscription"
+                      children={'Reject'}
+                    />
+                  }
+
                   <RejectAlert id={subscription.data.id} />
 
                   {/* <Link href={route('subscriptions.approve', subscription.data.id)} method="post">
@@ -115,7 +126,13 @@ const Show = ({ subscription }: { subscription: { data: SubscriptionRequest } })
                       Approve
                     </Button>
                   </Link> */}
-
+                  {
+                    canApprove ?  <ApproveAlert id={subscription.data.id} /> : <PermissionAlert 
+                      permission="reject a subscription"
+                      children={'Approve'}
+                      className="bg-green-500 text-white"
+                    />
+                  }
                   <ApproveAlert id={subscription.data.id} />
                 </>
               )}

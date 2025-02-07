@@ -9,4 +9,12 @@ class ExamQuestion extends Model
 {
     /** @use HasFactory<\Database\Factories\ExamQuestionFactory> */
     use HasFactory;
+
+    public function examChapter(){
+        return $this->belongsTo(ExamChapter::class);
+    }
+
+    public function examYear(){
+        return $this->belongsTO(ExamYear::class,'exam_year_id');
+    }
 }

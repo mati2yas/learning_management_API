@@ -17,4 +17,8 @@ class ExamQuestion extends Model
     public function examYear(){
         return $this->belongsTO(ExamYear::class,'exam_year_id');
     }
+
+    public function examGrade(){
+        return $this->belongsTo(ExamGrade::class);
+    }
 }

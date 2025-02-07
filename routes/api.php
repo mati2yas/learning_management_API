@@ -13,6 +13,7 @@ use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\QuizResource;
+use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\ExamYearResource;
 use App\Models\Batch;
 use App\Models\Category;
@@ -193,6 +194,23 @@ Route::get('exams/exam-years/{examType}', function($examType){
     return ExamYearResource::collection($examYears);
 
 });
+
+Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
+    // Assuming the request contains 'exam_year_id' to filter by
+    // $examYearId = $request->input('exam_year_id');
+
+    // Retrieve grades associated with the exam year via the exam_questions table
+    $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
+                    ->with('examGrade')  // Eager load the exam grade relationship
+                    ->get()
+                    ->pluck('examGrade') // Extract the exam grades from the questions
+                    ->unique();          // Ensure unique grades
+
+    // Return the result using the ExamGradeResource
+    return ExamGradeResource::collection($examGrades);
+});
+
+// Route::get()
 
 //for the web
 

@@ -13,9 +13,9 @@ import type { ShowCourseProps } from "@/types/show"
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime';
 import PermissionAlert from "@/Components/PermissionAlert"
+import { SessionToast } from "@/Components/SessionToast"
 
 dayjs.extend(relativeTime);
-
 
 const Show = ({
   course,
@@ -29,15 +29,13 @@ const Show = ({
   departments,
   batches,
   chaptersCount,
+  session,
   canDelete,
   canUpdate,
   canAddChapters,
   canDeleteChapters,
   canUpdateChapters,
 }: ShowCourseProps) => {
-
-  console.log('chaptercount', chaptersCount);
-
 
   const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A"
 
@@ -50,6 +48,7 @@ const Show = ({
       }
     >
       <Head title={course.course_name} />
+      {session && <SessionToast message={session} />}
       <div className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-8">

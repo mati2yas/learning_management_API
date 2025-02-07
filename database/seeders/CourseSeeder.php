@@ -13,6 +13,7 @@ class CourseSeeder extends Seeder
      */
     public function run(): void
     {
+        Course::query()->delete();
         Course::factory(30)->create();
     }
 }

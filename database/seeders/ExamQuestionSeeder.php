@@ -18,7 +18,7 @@ class ExamQuestionSeeder extends Seeder
     {
         // Create a Faker instance for generating random data
         $faker = Faker::create();
-        ExamQuestion::query()->delete(); // Ensure the table is cleared
+        // ExamQuestion::query()->delete(); // Ensure the table is cleared
 
         // Fetch all available exam years (real IDs)
         $examYears = ExamYear::all();

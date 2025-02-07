@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
 import PermissionAlert from '@/Components/PermissionAlert'
+import { SessionToast } from '@/Components/SessionToast'
 
 
 
@@ -19,6 +20,7 @@ const Index: React.FC<IndexProps> = ({
   batches,
   filters,
   canAdd,
+  session,
 }) => {
  
 
@@ -76,6 +78,9 @@ const Index: React.FC<IndexProps> = ({
       }
     >
       <Head title='Courses' />
+      {
+        session ? <SessionToast message={session}/> : null
+      }
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">

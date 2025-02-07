@@ -132,6 +132,7 @@ export interface IndexProps {
       search: string;
     };
     canAdd: boolean
+    session: string
   }
 
 export interface Content{
@@ -173,7 +174,7 @@ export interface FileContent{
 export interface ExamCourse{
     id: number;
     exam_year_id: number;
-    
+
     course_name: string;
     created_at?: string;
     updated_at?: string;

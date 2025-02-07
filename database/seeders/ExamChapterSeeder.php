@@ -15,7 +15,7 @@ class ExamChapterSeeder extends Seeder
      */
     public function run(): void
     {
-        ExamChapter::query()->delete();
+        // ExamChapter::query()->delete();
 
         if(DB::table('exam_chapters')->count() === 0){
             $exam_courses = ExamCourse::all();

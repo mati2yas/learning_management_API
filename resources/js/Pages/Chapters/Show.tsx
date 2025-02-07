@@ -12,6 +12,7 @@ import CreateContentAlert from '../Contents/CreateContentAlert'
 import QuizList from '../Quiz/QuizList'
 import CreateQuizAlert from '../Quiz/CreateQuizAlert'
 import PermissionAlert from '@/Components/PermissionAlert'
+import { SessionToast } from '@/Components/SessionToast'
 
 
 
@@ -25,6 +26,7 @@ interface ChapterDetailProps {
   canAddContents: boolean
   canUpdateContents:boolean
   canDeleteContents:boolean
+  session: string
 }
 
 const Show: React.FC<ChapterDetailProps> = ({ 
@@ -37,6 +39,7 @@ const Show: React.FC<ChapterDetailProps> = ({
   canAddContents,
   canUpdateContents,
   canDeleteContents,
+  session,
 }) => {
 
   function setIsAddQuizModalOpen(arg0: boolean): void {
@@ -58,6 +61,9 @@ const Show: React.FC<ChapterDetailProps> = ({
       }
     >
       <Head title={`Chapter - ${chapter.title}`} />
+      {
+        session ? <SessionToast message={session}/> : null
+      }
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8">

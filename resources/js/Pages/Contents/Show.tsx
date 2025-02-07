@@ -12,15 +12,18 @@ import EditYoutubeAlert from "../Youtube-Content/EditYoutubeAlert"
 import DeleteYoutubeAlert from "../Youtube-Content/DeleteYoutubeAlert"
 import EditFileContentAlert from "../File-Content/EditFileContentAlert"
 import DeleteFileContentAlert from "../File-Content/DeleteFIleContentAlert"
+import { SessionToast } from "@/Components/SessionToast"
+// import { SessionToast } from '../../Components/SessionToast';
 
 interface ContentDetailProps {
   content: Content
   youtube_contents?: YoutubeContent[]
   file_contents?: FileContent[]
   chapter_id: number
+  session: string
 }
 
-export default function ContentDetail({ content, youtube_contents, file_contents, chapter_id }: ContentDetailProps) {
+export default function ContentDetail({ content, youtube_contents, file_contents, chapter_id, session }: ContentDetailProps) {
 
   // console.log()
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false)
@@ -57,6 +60,10 @@ export default function ContentDetail({ content, youtube_contents, file_contents
     >
       <Head title={`Content -  ${content.name}`} />
 
+      {
+        session ? <SessionToast message={session}/> : null
+      }
+      
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="container mx-auto py-8">

@@ -56,6 +56,7 @@ class CourseController extends Controller
             'courses' => CourseResource::collection($courses) , // Pagination metadata is preserved
             'filters' => $request->only(['category', 'search']),
             'canAdd' => Auth::user()->hasDirectPermission('add courses'),
+            'session' => session('success'),
         ]);
     }
     
@@ -144,7 +145,8 @@ class CourseController extends Controller
             'canDelete' => Auth::user()->hasDirectPermission('delete courses'),
             'canAddChapters' => Auth::user()->hasDirectPermission('add chapters'),
             'canUpdateChapters' => Auth::user()->hasDirectPermission('update chapters'),
-            'canDeleteChapters' => Auth::user()->hasDirectPermission('delete chapters')
+            'canDeleteChapters' => Auth::user()->hasDirectPermission('delete chapters'),
+            'session' => session('success'),
         ]);
     }
 

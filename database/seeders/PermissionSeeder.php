@@ -12,6 +12,8 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        // Permission::query()->delete();
+
         if(Permission::count() == 0){
             $permissions = [
                 ['name'=> 'add courses'],
@@ -29,11 +31,25 @@ class PermissionSeeder extends Seeder
                 ['name'=> 'approve subscription'],
                 ['name'=> 'update subscription'],
                 ['name'=> 'delete subscription'],
+
+                ['name' => 'add quizzes'],
+                ['name'=> 'update quizzes'],
+                ['name' => 'delete quizzes'],
+
+                ['name' => 'add quiz questions'],
+                ['name' => 'update quiz questions'],
+                ['name' => 'delete quiz questions'],
+
+                ['name' => 'add exam questions'],
+                ['name' => 'update exam questions'],
+                ['name' => 'delete exam questions'],
+
+                ['name' => 'can view contents']
             ];
         
 
             foreach ($permissions as $permission) {
-                Permission::create([
+                Permission::firstOrCreate([
                     'name'=> $permission['name'],
                     'guard_name' => 'api'
                 ]);

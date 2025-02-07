@@ -15,6 +15,8 @@ class ExamTypeSeeder extends Seeder
     {
         // $faker = app(\Faker\Generator::class);
 
+        ExamType::query()->delete();
+
         if(DB::table('exam_types')->count() === 0){
             $exam_types = ['ministry', 'matric', 'ngat','exit'];
             foreach($exam_types as $exam_type){

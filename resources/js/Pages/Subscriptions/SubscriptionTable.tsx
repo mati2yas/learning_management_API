@@ -11,6 +11,8 @@ interface SubscriptionsTableProps {
 
 
 export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
+
+  console.log(subscriptions)
   return (
     <Table>
       <TableHeader>

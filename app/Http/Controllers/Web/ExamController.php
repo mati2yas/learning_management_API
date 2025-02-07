@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamQuestion;
@@ -72,22 +73,27 @@ class ExamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ExamQuestion $examQuestion)
+    public function show()
     {
-        $examYear = ExamYear::find($examQuestion->exam_year);
-        $examGrade = ExamGrade::find($examQuestion->exam_grade);
-        return Inertia::render('Exams/EditExam', [
-            'exam_year' => $examYear,
-            'exam_grade' => $examGrade,
-        ]);
+
+        // dd($examQuestion);
+
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ExamQuestion $examQuestion)
+    public function edit(string $id)
     {
-        //
+        $examQuestion = ExamQuestion::findOrFail($id);
+
+        // dd($examQuestion);
+        return Inertia::render('Exams/EditExam', [
+            'exam_years' => ExamYear::all(),
+            'exam_grades' => ExamGrade::all(),
+            'exam_types' => ExamType::all(),
+            'question' => $examQuestion
+        ]);
     }
 
     /**

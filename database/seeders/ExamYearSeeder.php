@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\ExamType;
+
 use App\Models\ExamYear;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +15,7 @@ class ExamYearSeeder extends Seeder
      */
     public function run(): void
     {
+        ExamYear::query()->delete();
         if (DB::table('exam_years')->count() === 0) {
             // Calculate current Ethiopian year
             $gregorianYear = Carbon::now()->year;
@@ -25,12 +26,12 @@ class ExamYearSeeder extends Seeder
 
             // Use the $years variable properly in the callback
         
-                foreach ($years as $year) {
-                    ExamYear::factory()->create([
-                        'exam_type_id' => 1,
-                        'year' => $year,
-                    ]);
-                }
+            foreach ($years as $year) {
+                ExamYear::factory()->create([
+                    // 'exam_type_id' => 1,
+                    'year' => $year,
+                ]);
+            }
            
         }
     }

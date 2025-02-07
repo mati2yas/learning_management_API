@@ -18,7 +18,7 @@ import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
 import QuestionForm from "./QuestionForm"
-import { usePage } from "@inertiajs/react"
+
 
 interface CreateExamQuestionAlertProps {
   exam_types?: ExamType[]
@@ -27,8 +27,6 @@ interface CreateExamQuestionAlertProps {
 }
 
 const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: CreateExamQuestionAlertProps) => {
-
-  // console.log(exam_grades)
 
   const [isOpen, setIsOpen] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
@@ -44,7 +42,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       exam_chapter_id: string
       questions: {
         question_text: string
-        question_image_url?: string
+        question_image_url: string | null
         text_explanation: string
         video_explanation_url: string
         options: string[]
@@ -62,6 +60,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
         question_text: "",
         text_explanation: "",
         video_explanation_url: "",
+        question_image_url: null,
         options: [],
         answer: [],
       },
@@ -145,6 +144,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       {
         question_text: "",
         text_explanation: "",
+        question_image_url: null,
         video_explanation_url: "",
         options: [],
         answer: [],

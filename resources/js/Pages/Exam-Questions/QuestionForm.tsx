@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { Button } from "@/Components/ui/button"
 import { Textarea } from "@/Components/ui/textarea"
 import { Label } from "@/Components/ui/label"
@@ -13,7 +13,7 @@ interface QuestionFormProps {
   question: {
     question_text: string
     text_explanation: string
-    question_image_url?: string
+    question_image_url: string | null
     video_explanation_url: string
     options: string[]
     answer: string[]
@@ -42,6 +42,21 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
     updateQuestion(index, "options", newOptions)
   }
 
+  const handleImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>, field: "question_image_url") => {
+      const file = event.target.files?.[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          const base64String = reader.result as string
+          updateQuestion(index, field, base64String)
+        }
+        reader.readAsDataURL(file)
+      }
+    },
+    [index, updateQuestion],
+  )
+
   return (
     <div className="space-y-4 border p-4 rounded-lg">
 
@@ -61,6 +76,20 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
           required
         />
         <InputError message={errors[`questions.${index}.question_text`]} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`question_image_url_${index}`}>Question Image</Label>
+        <Input
+          id={`question_image_url_${index}`}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "question_image_url")}
+        />
+        {question.question_image_url && (
+          <img src={question.question_image_url || "/placeholder.svg"} alt="Question" className="mt-2 max-w-xs" />
+        )}
+        <InputError>{errors[`questions.${index}.question_image`]}</InputError>
       </div>
 
       <div className="space-y-2">

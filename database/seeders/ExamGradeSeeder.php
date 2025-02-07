@@ -11,15 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class ExamGradeSeeder extends Seeder
 {
-    /**
+    /**d
      * Run the database seeds.
      */
     public function run(): void
     {
+        ExamGrade::query()->delete();
+
         if(DB::table('exam_grades')->count() === 0){
             
-
-            for ($grade = 1; $grade <= 8; $grade++) {
+            for ($grade = 6; $grade <= 8; $grade++) {
                 ExamGrade::firstOrCreate([
                     'grade' => $grade,
                 ]);

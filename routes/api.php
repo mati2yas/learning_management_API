@@ -200,11 +200,8 @@ Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
 
     // Retrieve grades associated with the exam year via the exam_questions table
     $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
-                    ->with('examGrade.examCourses.examChapters')  // Eager load the exam grade relationship
+                    ->with('examGrade.examCourses.examChapters')  // 
                     ->get()
-
-
-    // return response()->json($examGrades);
                     ->pluck('examGrade') // Extract the exam grades from the questions
                     ->unique();          //
     return ExamGradeResource::collection($examGrades);

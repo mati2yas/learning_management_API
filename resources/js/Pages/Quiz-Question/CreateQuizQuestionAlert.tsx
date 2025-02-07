@@ -75,7 +75,6 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
         image_explanation_url: null,
         options: [],
         answer: [],
-        
       },
     ])
   }

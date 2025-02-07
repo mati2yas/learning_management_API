@@ -173,6 +173,7 @@ export interface FileContent{
 export interface ExamCourse{
     id: number;
     exam_year_id: number;
+    
     course_name: string;
     created_at?: string;
     updated_at?: string;
@@ -205,7 +206,7 @@ export interface ExamQuestion{
     exam_year_id: number
     question_text: string
     video_explanation_url: string
-    question_image_url: string
+    question_image_url: string | null,
     options: string
     answer: string
     created_at?: string;
@@ -232,7 +233,9 @@ export interface ExamGrade{
             id: number
             user: { name: string, email?: string}
             courses: {id: number, name: string}[],
-            exam_course: {id: number, name: string}[] | null
+            exam_course: {
+                id: number, 
+                name: string}[] | null
             total_price: number
             proof_of_payment: string
             transaction_id: string

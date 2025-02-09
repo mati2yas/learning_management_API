@@ -109,7 +109,8 @@ class SubscriptionController extends Controller
     {
         $subscriptionRequest = SubscriptionRequest::findOrFail($id);
 
-    
+        
+
         $subscription_start_date = Carbon::now();
     
         // Determine duration based on subscription_type

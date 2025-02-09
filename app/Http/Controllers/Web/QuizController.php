@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class QuizController extends Controller
@@ -54,12 +55,19 @@ class QuizController extends Controller
     public function show(Quiz $quiz)
     {
         $quiz_questions = $quiz->quizQuestions()->get();
-
         
         return Inertia::render('Quiz/Show',[
             'quiz' => $quiz,
             'quiz_questions' => $quiz_questions,
-            'chapter_id' => $quiz->chapter_id
+            'chapter_id' => $quiz->chapter_id,
+            'session' => session('success'),
+
+            'canAddQuizQuestions' => Auth::user()->hasDirectPermission('add quiz questions'),
+
+            'canUpdateQuizQuestions' => Auth::user()->hasDirectPermission('update quiz questions'),
+
+            'canDeleteQuizQuestions' => Auth::user()->hasDirectPermission('delete quiz questions'),
+
         ]);
     }
 

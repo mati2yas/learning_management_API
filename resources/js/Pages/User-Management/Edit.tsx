@@ -1,255 +1,223 @@
-import React, { FormEventHandler, useEffect, useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
 
-import FormInput from '@/Components/FormInput';
-import PrimaryButton from '@/Components/PrimaryButton';
-import { Eye, EyeClosedIcon } from 'lucide-react';
-import { allPermissions } from '@/constants/allPermissions';
-import InputError from '@/Components/InputError';
-import Authenticated from '@/Layouts/AuthenticatedLayout';
+
+import { type FormEventHandler, useState } from "react"
+import { Head, useForm } from "@inertiajs/react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Input } from "@/Components/ui/input"
+import { Label } from "@/Components/ui/label"
+import { Button } from "@/Components/ui/button"
+import { Eye, EyeOff } from "lucide-react"
+import { GroupedPermissions } from "./GroupedPermission"
+import Authenticated from "@/Layouts/AuthenticatedLayout"
 
 interface User {
-  id: number,
-  name: string;
-  email: string;
-  password: string;
-  password_confirmation: string;
-  permissions: string[];
+  id: number
+  name: string
+  email: string
+  permissions: string[]
 }
 
 interface EditUser {
   user: {
     data: User
-  };
+  }
 }
 
-function Edit({ user }: EditUser) {
+const allPermissions = [
+  { name: "add courses" },
+  { name: "update courses" },
+  { name: "delete courses" },
+  { name: "add chapters" },
+  { name: "update chapters" },
+  { name: "delete chapters" },
+  { name: "add content" },
+  { name: "update content" },
+  { name: "delete content" },
+  { name: "approve subscription" },
+  { name: "update subscription" },
+  { name: "delete subscription" },
+  { name: "add quizzes" },
+  { name: "update quizzes" },
+  { name: "delete quizzes" },
+  { name: "add quiz questions" },
+  { name: "update quiz questions" },
+  { name: "delete quiz questions" },
+  { name: "add exam questions" },
+  { name: "update exam questions" },
+  { name: "delete exam questions" },
+  { name: "can view contents" },
+]
+
+const permissionGroups = [
+  {
+    title: "Courses",
+    permissions: allPermissions.filter((p) => p.name.includes("courses")),
+  },
+  {
+    title: "Chapters",
+    permissions: allPermissions.filter((p) => p.name.includes("chapters")),
+  },
+  {
+    title: "Content",
+    permissions: allPermissions.filter((p) => p.name.includes("content")),
+  },
+  {
+    title: "Subscriptions",
+    permissions: allPermissions.filter((p) => p.name.includes("subscription")),
+  },
+  {
+    title: "Quizzes",
+    permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),
+  },
+  {
+    title: "Exams",
+    permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
+  },
+  {
+    title: "Other",
+    permissions: allPermissions.filter((p) => p.name === "can view contents"),
+  },
+]
+
+export default function Edit({ user }: EditUser) {
   const userData = user.data
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassword2, setShowPassword2] = useState(false);
-  const [stations, setStations] = useState<{ id: string; name: string }[]>([]);
-  const [stationQuery, setStationQuery] = useState('');
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword2, setShowPassword2] = useState(false)
 
-  // Initialize the form state with user object values
-  const { data, setData, put, processing, errors, reset } = useForm({
+  const { data, setData, put, processing, errors } = useForm({
     name: userData.name,
-    
     email: userData.email,
-
-    password: '', // Keeping password empty for security reasons
-    password_confirmation: '',
+    password: "",
+    password_confirmation: "",
     permissions: userData.permissions || [],
-  });
-
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(userData.permissions || []);
-
-  // console.log(user.data)
+  })
 
   const handlePermissionChange = (permission: string) => {
-    const updatedPermissions = selectedPermissions.includes(permission)
-      ? selectedPermissions.filter((p) => p !== permission)
-      : [...selectedPermissions, permission];
+    const updatedPermissions = data.permissions.includes(permission)
+      ? data.permissions.filter((p) => p !== permission)
+      : [...data.permissions, permission]
 
-    setSelectedPermissions(updatedPermissions);
-    setData('permissions', updatedPermissions);
-  };
+    setData("permissions", updatedPermissions)
+  }
 
   const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-    put(route('user-managements.update', { user_management: userData.id }), {
-      onSuccess: () => {
-        // Handle success (e.g., show a success message, redirect)
-      },
-      onError: (errors) => {
-        console.log('Validation errors:', errors);
-      }
-    });
-  };
-
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const togglePasswordVisibility2 = () => {
-    setShowPassword2(!showPassword2);
-  };
+    e.preventDefault()
+    put(route("user-managements.update", { user_management: userData.id }))
+  }
 
   return (
     <Authenticated
-      header={<div><h1>Edit User</h1></div>}
+      header={
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Edit User</h1>
+        </div>
+      }
     >
-      <Head title="User Edit" />
+      <Head title="Edit User Privileges" />
       <div className="py-12">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-            <form onSubmit={submit}>
-              <div className='flex justify-center gap-x-20 flex-col sm:flex-row'>
-                <div>
-                  <FormInput
-                    labelName='Worker Name'
-                    htmlFor='name'
-                    name='name'
-                    errorMessage={errors.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('name', e.target.value)}
-                    value={data.name}
-                    placeholder="Jon Doe"
-                    type="text"
-                  />
-
-                  {/* <FormInput
-                    labelName='Admin Phone Number'
-                    htmlFor='phone_no'
-                    name='phone_no'
-                    errorMessage={errors.phone_no}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('phone_no', e.target.value)}
-                    value={data.phone_no}
-                    placeholder="+251xxxxxxxxx"
-                    type="text"
-                  /> */}
-
-                  <FormInput
-                    labelName='Admin Email'
-                    htmlFor='email'
-                    name='email'
-                    errorMessage={errors.email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('email', e.target.value)}
-                    value={data.email}
-                    placeholder="admin@example.com"
-                    type="email"
-                  />
-{/* 
-                  <div className="mb-4 mt-2">
-                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admin's Gender</label>
-                    <div className="flex gap-x-4 px-3 items-center">
-                      <input
-                        id="gender-male"
-                        name="gender"
-                        type="radio"
-                        value="male"
-                        checked={data.gender === 'male'}
-                        onChange={(e) => setData('gender', e.target.value)}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 gap-8">
+            <form onSubmit={submit} className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>User Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={data.name}
+                        onChange={(e) => setData("name", e.target.value)}
+                        placeholder="Jon Doe"
                       />
-                      <span>Male</span>
+                      {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
                     </div>
-                    <div className="flex gap-x-4 px-3 items-center">
-                      <input
-                        id="gender-female"
-                        name="gender"
-                        type="radio"
-                        value="female"
-                        checked={data.gender === 'female'}
-                        onChange={(e) => setData('gender', e.target.value)}
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={data.email}
+                        onChange={(e) => setData("email", e.target.value)}
+                        placeholder="admin@example.com"
                       />
-                      <span>Female</span>
+                      {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                     </div>
-                    <div className="flex gap-x-4 px-3 items-center">
-                      <input
-                        id="gender-other"
-                        name="gender"
-                        type="radio"
-                        value="other"
-                        checked={data.gender === 'other'}
-                        onChange={(e) => setData('gender', e.target.value)}
-                      />
-                      <span>Other</span>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">New Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={data.password}
+                          onChange={(e) => setData("password", e.target.value)}
+                          placeholder="Leave blank to keep current password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
                     </div>
-                    <InputError message={errors.gender} />
-                  </div> */}
-                </div>
-
-                <div>
-                  {/* <FormInput
-                    labelName="Admin Salary"
-                    htmlFor="salary"
-                    name="salary"
-                    errorMessage={errors.salary}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('salary', e.target.value)}
-                    type="text"
-                    placeholder="10,000"
-                    value={data.salary}
-                  /> */}
-
-
-                  {/**Password */}
-                  <div className="mt-4">
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                    <div className='relative'>
-                      <input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                      />
-                      <span
-                        className="absolute inset-y-0 right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                        onClick={togglePasswordVisibility}
-                      >
-                        {showPassword ? <Eye size={20} /> : <EyeClosedIcon />}
-                      </span>
+                    <div className="space-y-2">
+                      <Label htmlFor="password_confirmation">Confirm New Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="password_confirmation"
+                          type={showPassword2 ? "text" : "password"}
+                          value={data.password_confirmation}
+                          onChange={(e) => setData("password_confirmation", e.target.value)}
+                          placeholder="Leave blank to keep current password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0"
+                          onClick={() => setShowPassword2(!showPassword2)}
+                        >
+                          {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {errors.password_confirmation && (
+                        <p className="text-sm text-red-500">{errors.password_confirmation}</p>
+                      )}
                     </div>
-                    <InputError message={errors.password} />
                   </div>
+                </CardContent>
+              </Card>
 
-                    {/**Password Confirmation */}
-                  <div className="mt-4">
-                    <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
-                    <div className='relative'>
-                      <input
-                        id="password_confirmation"
-                        type={showPassword2 ? "text" : "password"}
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                      />
-                      <span
-                        className="absolute inset-y-0 right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                        onClick={togglePasswordVisibility2}
-                      >
-                        {showPassword2 ? <Eye size={20} /> : <EyeClosedIcon />}
-                      </span>
-                    </div>
-                    <InputError message={errors.password_confirmation} />
-                  </div>
-                </div>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>User Permissions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <GroupedPermissions
+                    permissionGroups={permissionGroups}
+                    selectedPermissions={data.permissions}
+                    onPermissionChange={handlePermissionChange}
+                  />
+                </CardContent>
+              </Card>
 
-              {/**Permissions */}
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Permissions</label>
-                <div className="flex flex-wrap gap-4 mt-3">
-                  {allPermissions.map((permission, index) => (
-                    <label key={index} className="inline-flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        className="form-checkbox h-4 w-4 text-indigo-600 dark:text-indigo-400"
-                        checked={selectedPermissions.includes(permission.name)}
-                        onChange={() => handlePermissionChange(permission.name)}
-                      />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{permission.name}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <InputError message={errors.permissions} />
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <PrimaryButton className="ml-4" disabled={processing}>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={processing}>
                   Update User
-                </PrimaryButton>
+                </Button>
               </div>
             </form>
           </div>
         </div>
       </div>
     </Authenticated>
-  );
+  )
 }
 
-export default Edit;

@@ -149,16 +149,15 @@ const Show = ({
                         icon={<Pencil className="w-5 h-5 mr-2" />}
                         className="w-full bg-blue-600 hover:bg-blue-700 capitalize"
                         />
-
                   }
-                  <UpdateCourseAlert
+                  {/* <UpdateCourseAlert
                     course={course}
                     categories={categories}
                     grades={grades}
                     departments={departments}
                     batches={batches}
                     thumbnail={thumbnail}
-                  />
+                  /> */}
 
                   {
                     canDelete ?  <DeleteCourseAlert id={course.id} />: <PermissionAlert
@@ -168,7 +167,7 @@ const Show = ({
                     className="w-full bg-red-500 hover:bg-red-700 capitalize" buttonVariant={'destructive'}
                     />
                   }
-                  <DeleteCourseAlert id={course.id} />
+                  {/* <DeleteCourseAlert id={course.id} /> */}
                 </CardContent>
               </Card>
 
@@ -188,6 +187,7 @@ const Show = ({
                   <CardTitle>Course Info</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+
                   <UserActionInfo
                     icon={<Clock className="w-5 h-5" />}
                     label="Created"
@@ -225,6 +225,7 @@ const Show = ({
                     canEditChapter={canUpdateChapters}
                     canDeleteChapter={canDeleteChapters}  
                   />
+
                 </TabsContent>
                 <TabsContent value="grid">
  

@@ -39,6 +39,8 @@ class SubscriptionResource extends JsonResource
                     'updated_at' => $this->subscriptionRequest->updated_at,
                 ];
             }),
+            'subscription_start_date' => $this->subscription_start_date,
+            'subscription_end_date' => $this->subscription_end_date,
         ];
     }
 }

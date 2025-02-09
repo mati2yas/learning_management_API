@@ -19,6 +19,14 @@ class ExamCourse extends Model
         return $this->belongsTo(ExamYear::class);
     }
 
+    public function examGrade(){
+        return $this->belongsTo(ExamGrade::class);
+    }
+
+    public function examType(){
+        return $this->belongsTo(ExamType::class);
+    }
+
     public function examQuestions()
     {
         return $this->hasMany(ExamQuestion::class);

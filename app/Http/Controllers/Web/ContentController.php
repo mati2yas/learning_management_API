@@ -38,7 +38,7 @@ class ContentController extends Controller
 
         Content::create($attrs);
 
-        return redirect()->route('chapters.show', $request->chapter_id);
+        return redirect()->route('chapters.show', $request->chapter_id)->with('success', 'Content Created Successfully.');
 
     }
 
@@ -59,6 +59,7 @@ class ContentController extends Controller
         'text_contents' => $text_contents,
         'file_contents' => $file_contents,
         'chapter_id' => $content->chapter_id,
+        'session' => session('success')
         ]);
     }
 
@@ -85,7 +86,7 @@ class ContentController extends Controller
 
         $content->update($attrs);
 
-        return redirect()->route('chapters.show', $request->chapter_id);
+        return redirect()->route('chapters.show', $request->chapter_id)->with('success', 'Content Updated Successfully.');
     }
 
     /**

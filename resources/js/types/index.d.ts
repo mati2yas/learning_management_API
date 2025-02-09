@@ -173,7 +173,15 @@ export interface FileContent{
 
 export interface ExamCourse{
     id: number;
+
     exam_year_id: number;
+    exam_type_id: number;
+    exam_grade_id: number;
+
+    exam_chapters:{
+        title: string,
+        sequence_order: number
+    }[]
 
     course_name: string;
     created_at?: string;
@@ -185,8 +193,8 @@ export interface ExamChapter{
     exam_grade_id: number;
     title: string;
     sequence_order: number;
-    created_at?: string;
-    updated_at?: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface ExamYear{
@@ -261,7 +269,7 @@ export interface Subscription{
             updated_at?: string;
         }
         subscription_start_date: string
-        subscription_expiry_date: string
+        subscription_end_date: string
         created_at?: string;
         updated_at?: string;
   

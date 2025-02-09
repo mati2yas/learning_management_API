@@ -24,9 +24,10 @@ interface ContentListProps {
   contents: Content[]
   canEdit: boolean
   canDelete: boolean
+  canView: boolean
 }
 
-const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete }) => {
+const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete, canView }) => {
 
   const sortedContents = [...contents].sort((a,b) => a.order - b.order);
 
@@ -62,12 +63,26 @@ const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete 
                       <TableCell className='text-nowrap'>{dayjs(content.updated_at).fromNow()}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end space-x-2">
-                          <Link href={route('contents.show', content.id)}>
-                            <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                          </Link>
+
+                          {
+                          canView ?                           <Link href={route('contents.show', content.id)}>
+                                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  View
+                                </Button>
+                              </Link>
+                           : <PermissionAlert
+                              children={'View'}
+                              buttonSize={'sm'}
+                              permission='view a content'
+                              className='text-blue-600 hover:text-blue-700 hover:bg-blue-50'
+                              icon={<Eye className='h-4 w-4 mr-1' />}
+                              buttonVariant={'outline'}
+
+                            />
+                          }
+
+
                           {
                             canEdit ? <EditContentAlert content={content} /> : <PermissionAlert
                               children={'Edit'}
@@ -79,10 +94,10 @@ const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete 
 
                             />
                           }
-                          <EditContentAlert content={content} />
+
 
                           {
-                            canEdit ? <DeleteContentAlert id={content.id} name={content.name} /> : <PermissionAlert
+                            canDelete ? <DeleteContentAlert id={content.id} name={content.name} /> : <PermissionAlert
                               children={'Delete'}
                               buttonSize={'sm'}
                               permission='edit a content'
@@ -93,7 +108,6 @@ const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete 
                             />
                           }
 
-                          <DeleteContentAlert id={content.id} name={content.name} />
                         </div>
                       </TableCell>
                     </TableRow>

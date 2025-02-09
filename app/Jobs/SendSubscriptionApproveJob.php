@@ -17,21 +17,20 @@ class SendSubscriptionApproveJob implements ShouldQueue
     protected $subscriptionRequest;
     protected $superAdmins;
     protected $workers;
-    protected $user;
+    protected $associatedUser;
     protected $subscription;
 
 
     /**
      * Create a new job instance.
      */
-    public function __construct($subscriptionRequest, $subscription, $superAdmins, $workers, $user)
+    public function __construct($subscriptionRequest, $subscription, $superAdmins, $workers, $associatedUser)
     {
         $this->subscriptionRequest = $subscriptionRequest;
         $this->subscription = $subscription;
         $this->superAdmins = $superAdmins;
         $this->workers = $workers;
-        $this->user = $user;
-      
+        $this->associatedUser = $associatedUser;
     }
 
     /**
@@ -41,6 +40,7 @@ class SendSubscriptionApproveJob implements ShouldQueue
     {
         Notification::send($this->superAdmins, new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription));
         Notification::send($this->workers, new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription));
-        $this->user->notify(new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription, true));
+
+        $this->associatedUser->notify(new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription, true));
     }
 }

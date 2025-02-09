@@ -11,9 +11,10 @@ interface ContentGridProps {
   contents: Content[]
   canEdit: boolean
   canDelete: boolean
+  canView: boolean
 }
 
-const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit }) => {
+const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit, canView }) => {
 
   return (
     <>
@@ -38,9 +39,9 @@ const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit 
 
                 />
               }
-                <EditContentAlert 
+                {/* <EditContentAlert 
                   content={content}
-                />
+                /> */}
 
                 {
                   canDelete ? <DeleteContentAlert id={content.id} name={content.name} /> : <PermissionAlert
@@ -53,10 +54,10 @@ const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit 
                   />
                 }
 
-                <DeleteContentAlert 
+                {/* <DeleteContentAlert 
                   id={content.id}
                   name={content.name}
-                />
+                /> */}
               </div>
             </CardContent>
           </Card>

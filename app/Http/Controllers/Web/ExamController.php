@@ -10,6 +10,7 @@ use App\Models\ExamQuestion;
 use App\Models\ExamType;
 use App\Models\ExamYear;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ExamController extends Controller
@@ -38,7 +39,7 @@ class ExamController extends Controller
         }
 
 
-        $exam_questions = $query->latest()->paginate(perPage: 60);
+        $exam_questions = $query->latest()->paginate(perPage: 30);
 
         // dd($exam_questions);
 
@@ -51,6 +52,10 @@ class ExamController extends Controller
             'exam_grades' => ExamGrade::all(),
             'exam_courses' => ExamCourse::all(),
             'filters' => $request->only(['search','year','examType', 'examCourse']),
+
+            'canAddExamQuestions' => Auth::user()->hasDirectPermission('add exam questions'),
+            'canUpdateExamQuestions' => Auth::user()->hasDirectPermission('update exam questions'),
+            'canDeleteExamQuestions' => Auth::user()->hasDirectPermission('delete exam questions'),
         ]);
     }
 

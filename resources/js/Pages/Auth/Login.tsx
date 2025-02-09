@@ -101,9 +101,9 @@ export default function Login({
                         Log in
                     </PrimaryButton>
 
-                    <Link href={'/register'} className="ms-4">
+                    {/* <Link href={'/register'} className="ms-4">
                         <PrimaryButton>Register</PrimaryButton>
-                    </Link>
+                    </Link> */}
                 </div>
             </form>
         </GuestLayout>

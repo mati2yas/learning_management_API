@@ -40,8 +40,7 @@ class ChapterController extends Controller
 
         $chapter = Chapter::create($attrs);
  
-        return redirect()->route('courses.show', $chapter->course_id)->with('success', "Chapter created successfully.");
-        
+        return redirect()->route('courses.show', $chapter->course_id)->with('success', 'Chapter created successfully.');
     }
 
     /**
@@ -57,9 +56,19 @@ class ChapterController extends Controller
             'course_id' => $chapter->course_id,
             'contentsCount' => $chapter->contents->count(),
             'quizzesCount' => $chapter->quizzes->count(),
+
             'canDeleteContents' => Auth::user()->hasDirectPermission('delete content'),
             'canAddContents' => Auth::user()->hasDirectPermission('add content'),
             'canUpdateContents' => Auth::user()->hasDirectPermission('update content'),
+            'canViewContents' => Auth::user()->hasDirectPermission('can view contents'),
+            
+            'canAddQuizzes' => Auth::user()->hasDirectPermission('add quizzes'),
+
+            'canUpdateQuizzes' => Auth::user()->hasDirectPermission('update quizzes'),
+
+            'canDeleteQuizzes' => Auth::user()->hasDirectPermission('delete quizzes'),
+
+            
             'session' => session('success'),
         ]
         );
@@ -87,7 +96,7 @@ class ChapterController extends Controller
         $chapter->update($attrs);
 
 
-        return to_route('courses.show', $chapter->course_id)->with('success', "Chapter updated successfully.");
+        return to_route('courses.show', $chapter->course_id)->with('success', 'Chapter updated successfully.');
     }
 
     /**
@@ -98,6 +107,6 @@ class ChapterController extends Controller
         $course_id = $chapter->course_id;
         $chapter->delete();
 
-        return to_route('courses.show', $course_id)->with('success', "Chapter deleted successfully.");
+        return to_route('courses.show', $course_id)->with('success', 'Chapter deleted successfully.');
     }
 }

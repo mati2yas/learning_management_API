@@ -1,6 +1,6 @@
 import { Button } from "@/Components/ui/button"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Edit2, PlusCircle, Trash2 } from "lucide-react"
 import { Head, Link, usePage } from "@inertiajs/react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Badge } from "@/Components/ui/badge"
@@ -8,14 +8,25 @@ import EditQuizQuestionAlert from "../Quiz-Question/EditQuizQuestionAlert"
 import DeleteQuizQuestionAlert from "../Quiz-Question/DeleteQuizQuestionAlert"
 import CreateQuizQuestionAlert from "../Quiz-Question/CreateQuizQuestionAlert"
 import type { Quiz, QuizQuestion } from "@/types"
+import { SessionToast } from "@/Components/SessionToast"
+import PermissionAlert from "@/Components/PermissionAlert"
 
 interface ShowProps {
   quiz: Quiz
   quiz_questions: QuizQuestion[]
   chapter_id: number
-}
 
-const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
+  canAddQuizQuestions: boolean,
+  canUpdateQuizQuestions: boolean,
+  canDeleteQuizQuestions: boolean,
+
+  session: string
+}
+  
+const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestions,
+  canUpdateQuizQuestions,
+  canDeleteQuizQuestions,
+   session}: ShowProps) => {
  
   return (
     <Authenticated
@@ -31,11 +42,25 @@ const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
       }
     >
       <Head title="Quiz Detail" />
+
+      {
+        session ? <SessionToast message={session}/> : null
+      }
+
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-xl font-semibold">Quiz Questions</h2>
-            <CreateQuizQuestionAlert quizId={quiz.id} title={quiz.title} />
+            {
+              canAddQuizQuestions ? <CreateQuizQuestionAlert quizId={quiz.id} title={quiz.title} /> : <PermissionAlert 
+              children={'Add Content'}
+              permission='add a content'
+              buttonVariant={'outline'}
+              className='p-2 text-xs'
+              icon={<PlusCircle className='w-5 h-5 mr-2' />}
+            /> 
+            }
+            
           </div>
           {quiz_questions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
@@ -45,7 +70,8 @@ const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {quiz_questions.map((question) => (
-                <QuizQuestionCard key={question.id} question={question} />
+                <QuizQuestionCard key={question.id} question={question}   canUpdateQuizQuestions={canUpdateQuizQuestions}
+                canDeleteQuizQuestions={canDeleteQuizQuestions}  />
               ))}
             </div>
           )}
@@ -57,9 +83,11 @@ const Show = ({ quiz, quiz_questions, chapter_id }: ShowProps) => {
 
 interface QuizQuestionCardProps {
   question: QuizQuestion
+  canUpdateQuizQuestions: boolean
+  canDeleteQuizQuestions: boolean
 }
 
-const QuizQuestionCard = ({ question }: QuizQuestionCardProps) => {
+const QuizQuestionCard = ({ question, canDeleteQuizQuestions, canUpdateQuizQuestions }: QuizQuestionCardProps) => {
   const options = JSON.parse(question.options as unknown as string)
 
   return (
@@ -84,8 +112,28 @@ const QuizQuestionCard = ({ question }: QuizQuestionCardProps) => {
       </CardContent>
       <CardFooter className="flex justify-between items-center">
         <div className="flex space-x-2">
-          <EditQuizQuestionAlert quiz_question={question} />
-          <DeleteQuizQuestionAlert id={question.id} question_number={question.question_number} />
+          {
+              canUpdateQuizQuestions ?  <EditQuizQuestionAlert quiz_question={question} />: <PermissionAlert 
+              children={'Edit'}
+              permission='edit a quiz question'
+              buttonVariant={'outline'}
+              className='text-green-600 hover:text-green-700 hover:bg-green-50'
+              buttonSize={'sm'}
+              icon={<Edit2 className='w-4 h-4 mr-1' />}
+            /> 
+          }
+
+          {
+              canDeleteQuizQuestions ?  <DeleteQuizQuestionAlert id={question.id} question_number={question.question_number} />: <PermissionAlert 
+              children={'Delete'}
+              permission='delete a quiz question'
+              buttonVariant={'outline'}
+              className='text-red-600 hover:text-red-700 hover:bg-red-50'
+              buttonSize={'sm'}
+              icon={<Trash2 className='w-5 h-5 mr-2' />}
+            /> 
+          }
+          
         </div>
         
         {question.video_explanation_url && (

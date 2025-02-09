@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useEffect, useState, useCallback } from "react"
 import { Head, Link, router, useForm } from "@inertiajs/react"
@@ -7,11 +5,12 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
 import type { ExamChapter, ExamCourse, ExamGrade, ExamQuestion, ExamType, ExamYear } from "@/types"
 import CreateExamQuestionAlert from "../Exam-Questions/CreateExamQuestionAlert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { Search } from "lucide-react"
+import { PlusCircle, Search } from "lucide-react"
 import { Input } from "@/Components/ui/input"
 import QuestionCard from "./QuestionCard"
 import axios from "axios"
-import CreateExamCourseAlert from "./CreateExamCourseAlert"
+import { SessionToast } from "@/Components/SessionToast"
+import PermissionAlert from "@/Components/PermissionAlert"
 // import { Inertia } from "@inertiajs/react"
 
 interface ExamIndexProps {
@@ -36,6 +35,11 @@ interface ExamIndexProps {
     examGrade: string
     examChapter: string
   }
+  canAddExamQuestions: boolean,
+  canUpdateExamQuestions: boolean,
+  canDeleteExamQuestions: boolean,
+
+  session: string
 }
 
 const Index: React.FC<ExamIndexProps> = ({
@@ -46,7 +50,12 @@ const Index: React.FC<ExamIndexProps> = ({
   exam_types,
   exam_grades,
   filters,
+  canAddExamQuestions,
+  canUpdateExamQuestions,
+  canDeleteExamQuestions,
+  session
 }) => {
+  
   const { data, setData } = useForm({
     examType: filters?.examType || "",
     search: filters?.search || "",
@@ -148,7 +157,7 @@ const Index: React.FC<ExamIndexProps> = ({
   }, [data.examCourse, fetchExamChapters])
 
   const showExamGrade = () => {
-    const selectedExamType = exam_types.find((type) => type.id.toString() === data.examType)
+    const selectedExamType = exam_types?.find((type) => type.id.toString() === data.examType)
     return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
   }
 
@@ -161,18 +170,32 @@ const Index: React.FC<ExamIndexProps> = ({
     <AuthenticatedLayout
       header={
         <div className="flex justify-between items-center">
+          <div>
           <h1 className="text-2xl font-semibold">Exams</h1>
+          </div>
+          
           <div className="flex gap-2">
-            <CreateExamCourseAlert examTypes={exam_types} examGrades={exam_grades} />
-            <CreateExamQuestionAlert exam_years={exam_years} exam_types={exam_types} exam_grades={exam_grades} />
+            {
+              canAddExamQuestions ? <CreateExamQuestionAlert exam_years={exam_years} exam_types={exam_types} exam_grades={exam_grades} /> : <PermissionAlert children={"Add Exam Questions"} 
+              permission={"can add exam questions"}   
+              buttonVariant={'outline'}
+              icon={<PlusCircle className="mr-2 h-4 w-4" />}             
+              />
+            }
+           
           </div>
         </div>
       }
     >
       <Head title="Exams" />
+      {
+        session ? <SessionToast message={session} /> : null
+      }
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
+
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+
             <div className="flex flex-wrap gap-4">
               <Select value={data.examType} onValueChange={handleTypeChange}>
                 <SelectTrigger className="w-full sm:w-[200px]">
@@ -233,7 +256,7 @@ const Index: React.FC<ExamIndexProps> = ({
                   <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
                 <SelectContent>
-                  {exam_years.map((exam_year) => (
+                  {exam_years?.map((exam_year) => (
                     <SelectItem key={exam_year.id} value={exam_year.id.toString()}>
                       {exam_year.year}
                     </SelectItem>
@@ -254,8 +277,8 @@ const Index: React.FC<ExamIndexProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {exam_questions.data.map((question) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {exam_questions?.data.map((question) => (
               <QuestionCard
                 key={question.id}
                 question={{
@@ -266,7 +289,10 @@ const Index: React.FC<ExamIndexProps> = ({
                 examTypes={exam_types}
                 getExamCourseName={getExamCourseName}
                 getChapterTitle={getChapterTitle}
-                getExamYear={getExamYear} examGrades={exam_grades} examYears={exam_years}              />
+                getExamYear={getExamYear} examGrades={exam_grades} examYears={exam_years}  
+                canEdit={canUpdateExamQuestions}
+                canDelete={canDeleteExamQuestions}
+              />
             ))}
           </div>
 

@@ -7,9 +7,11 @@ import { Badge } from "@/Components/ui/badge"
 import type { ExamGrade, ExamQuestion, ExamType, ExamYear } from "@/types"
 import DeleteExamQuestionAlert from "./DeleteExamQuestionAlert"
 import { Link } from "@inertiajs/react"
-import { PencilIcon, X } from "lucide-react"
-import { Dialog, DialogContent, DialogClose } from "@/Components/ui/dialog"
+import { PencilIcon, Trash2, X } from "lucide-react"
+import { Dialog, DialogContent } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
+import PermissionAlert from "@/Components/PermissionAlert"
+
 
 interface QuestionCardProps {
   question: ExamQuestion & {
@@ -20,6 +22,8 @@ interface QuestionCardProps {
   examTypes: ExamType[]
   examGrades: ExamGrade[]
   examYears: ExamYear[]
+  canEdit: boolean
+  canDelete: boolean
   getExamCourseName: (id: number) => string
   getChapterTitle: (id: number) => string
   getExamYear: (id: number) => string | number
@@ -30,12 +34,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   examTypes,
   examGrades,
   examYears,
+  canEdit,
+  canDelete,
   getExamCourseName,
   getChapterTitle,
   getExamYear,
 }) => {
   const [isImageOpen, setIsImageOpen] = useState(false)
-
 
   const parseJsonString = (jsonString: string): string[] => {
     try {
@@ -48,6 +53,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
   const options = parseJsonString(question.options)
   const answers = parseJsonString(question.answer)
+
+  const getImageUrl = (url: string | null) => {
+    if (!url) return undefined
+    return url.startsWith("/id") ? `https://picsum.photos${url.replace("storage/", "")}` : url
+  }
 
   return (
     <Card className="w-full mb-4">
@@ -65,32 +75,35 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         {question.question_image_url && (
           <div className="mb-4">
             <div
-              className="relative min-h-[200px] max-h-[400px] overflow-hidden rounded-lg shadow-md cursor-pointer"
+              className="relative aspect-video overflow-hidden rounded-lg shadow-md cursor-pointer"
               onClick={() => setIsImageOpen(true)}
             >
               <img
-                src={question.question_image_url || "/placeholder.svg"}
+                src={getImageUrl(question.question_image_url) || "/placeholder.svg"}
                 alt="Question Image"
-                className="absolute top-0 left-0 w-full h-full object-contain"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           </div>
         )}
 
         <Dialog open={isImageOpen} onOpenChange={setIsImageOpen}>
-          <DialogContent className="max-w-4xl w-full max-h-[90vh]">
-            <div className="relative w-full h-full">
+          <DialogContent className="max-w-4xl w-full p-0">
+            <div className="relative w-full h-full max-h-[90vh] overflow-hidden">
               <img
-                src={question.question_image_url || "/placeholder.svg"}
+                src={getImageUrl(question.question_image_url) || "/placeholder.svg"}
                 alt="Question Image"
                 className="w-full h-full object-contain"
               />
-              <DialogClose className="absolute top-2 right-2">
-                <Button variant="ghost" size="icon">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </Button>
-              </DialogClose>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2"
+                onClick={() => setIsImageOpen(false)}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -110,10 +123,31 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           ))}
         </div>
         <div className="flex gap-2 mt-4">
-          <Link className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9 flex items-center justify-center rounded-md" href={route("exams.edit", question.id)}>
-          <PencilIcon className="h-4 w-4" />
-          </Link>
-          <DeleteExamQuestionAlert id={question.id} />
+          {canEdit ? (
+            <Link
+              className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9 flex items-center justify-center rounded-md"
+              href={route("exams.edit", question.id)}
+            >
+              <PencilIcon className="h-4 w-4" />
+            </Link>
+          ) : (
+            <PermissionAlert
+              children={undefined}
+              permission={"can update exam question"}
+              icon={<PencilIcon className="h-4 w-4" />}
+              className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9 flex items-center justify-center rounded-md"
+            />
+          )}
+
+          {canDelete ? (
+            <DeleteExamQuestionAlert id={question.id} />
+          ) : (
+            <PermissionAlert
+              children={""}
+              permission={"can delete exam question"}
+              icon={<Trash2 className="w-4 h-4" />}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

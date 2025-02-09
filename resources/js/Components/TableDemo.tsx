@@ -79,7 +79,7 @@ export function EnhancedTableDemo({
                             icon={<Edit2 className='h-4 w-4 mr-1' />}
                           />
                         }
-                        <EditChapterAlert chapter={chapter} />
+                        {/* <EditChapterAlert chapter={chapter} /> */}
 
                         {
                           canDeleteChapter ? 
@@ -93,7 +93,7 @@ export function EnhancedTableDemo({
                             className='text-red-600 hover:text-red-700 hover:bg-red-50'
                           />
                         }
-                        <DeleteChapterAlert id={chapter.id} name={chapter.title} />
+                        {/* <DeleteChapterAlert id={chapter.id} name={chapter.title} /> */}
                       </div>
                     </TableCell>
                   </TableRow>

@@ -11,7 +11,6 @@ import RejectAlert from "./RejectAlert"
 import ApproveAlert from "./ApproveAlert"
 import PermissionAlert from "@/Components/PermissionAlert"
 
-
 const Show = ({ subscription, canApprove, canReject }: { 
   subscription: { data: SubscriptionRequest };
   canApprove: boolean;
@@ -119,7 +118,7 @@ const Show = ({ subscription, canApprove, canReject }: {
                     />
                   }
 
-                  <RejectAlert id={subscription.data.id} />
+                 
 
                   {/* <Link href={route('subscriptions.approve', subscription.data.id)} method="post">
                     <Button variant={"secondary"} className=" bg-green-500" disabled={processing}>
@@ -133,7 +132,7 @@ const Show = ({ subscription, canApprove, canReject }: {
                       className="bg-green-500 text-white"
                     />
                   }
-                  <ApproveAlert id={subscription.data.id} />
+                 
                 </>
               )}
             </CardFooter>

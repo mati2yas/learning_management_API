@@ -57,7 +57,7 @@ export default function Dashboard({ chapters, examQuestions, courseData, pending
                                 />
                                 
                                 <StatCard
-                                    title="Total Exams"
+                                    title="Total Exam Questions"
                                     value={examQuestions}
                                     icon={<EqualApproximately className="h-4 w-4 text-muted-foreground" />}
                                     description="The total number of examination questions"

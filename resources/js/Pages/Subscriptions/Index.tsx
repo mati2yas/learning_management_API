@@ -12,8 +12,6 @@ interface SubscriptionIndexProps {
   subscriptions: {
     data: Subscription[]
   }
-  
-
 
   subscriptionRequests: {
     data: SubscriptionRequest[]
@@ -22,7 +20,7 @@ interface SubscriptionIndexProps {
 
 const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => {
   
-  console.log(subscriptionRequests)
+  console.log('sub', subscriptionRequests)
   const [activeTab, setActiveTab] = useState("requests")
 
   return (
@@ -42,13 +40,16 @@ const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => 
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="mb-4">
+
                   <TabsTrigger value="requests">Subscription Requests</TabsTrigger>
                   <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
                 </TabsList>
+
                 <TabsContent value="requests">
                   <SubscriptionRequestsTable
                   subscriptionRequests={subscriptionRequests}  />
                 </TabsContent>
+
                 <TabsContent value="subscriptions">
                   <SubscriptionsTable subscriptions={subscriptions}  />
                 </TabsContent>

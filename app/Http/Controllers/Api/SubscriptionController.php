@@ -18,25 +18,6 @@ class SubscriptionController extends Controller
      * Display a listing of the resource.
      */
 
-     private function getPriceColumnBySubscriptionType($subscriptionType)
-        {
-            $mapping = [
-                'oneMonth' => 'price_one_month',
-                'threeMonths' => 'price_three_month',
-                'sixMonths' => 'price_six_month',
-                'yearly' => 'price_one_year',
-            ];
-
-            return $mapping[$subscriptionType] ?? null;
-        }
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     
      public function store(Request $request)
      {
@@ -58,7 +39,6 @@ class SubscriptionController extends Controller
      
          $validatedData = $attrs->validated();
      
-       
          if ($request->hasFile('screenshot')) {
              $file = $request->file('screenshot');
              $fileName = time() . '_' . $file->getClientOriginalName();
@@ -112,6 +92,19 @@ class SubscriptionController extends Controller
              'message' => 'Subscription request created successfully',
              'total_price' => $totalPrice,
          ]);
+     }
+
+
+     private function getPriceColumnBySubscriptionType($subscriptionType)
+     {
+         $mapping = [
+             'oneMonth' => 'price_one_month',
+             'threeMonths' => 'price_three_month',
+             'sixMonths' => 'price_six_month',
+             'yearly' => 'price_one_year',
+         ];
+
+         return $mapping[$subscriptionType] ?? null;
      }
     
     

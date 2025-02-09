@@ -80,13 +80,16 @@ Route::middleware(['auth', 'verified'])->resource('file-contents', FileContentCo
 
 Route::middleware(['auth', 'verified'])->resource('quiz-questions', QuizQuesitonController::class);
 
-Route::middleware(['auth', 'verified'])->resource('user-management', UserManagementController::class);
+// Route::middleware(['auth', 'verified'])->resource('user-management', UserManagementController::class);
 
 Route::middleware(['auth', 'verified'])->resource('exams', ExamController::class);
 
 Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestionController::class);
 
-Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
+Route::group(['middleware' => ['role:admin']], function () { 
+    Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
+ });
+
 
 Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionController::class);
 

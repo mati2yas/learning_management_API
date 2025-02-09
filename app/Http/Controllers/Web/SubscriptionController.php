@@ -12,6 +12,7 @@ use App\Models\SubscriptionRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -22,7 +23,11 @@ class SubscriptionController extends Controller
     public function index()
     {
         // dd(Subscription::with('subscriptionRequest')->get());
+
+        // dd(SubscriptionRequest::with(['user', 'courses'])->get());
+
         return Inertia::render('Subscriptions/Index', [
+
             'subscriptions' => SubscriptionResource::collection(Subscription::with([
                 'subscriptionRequest.user',
                 'subscriptionRequest.courses',
@@ -56,6 +61,8 @@ class SubscriptionController extends Controller
 
         return Inertia::render('Subscriptions/Show', [
             'subscription' => new SubscriptionRequestResource($subscription->load(['user', 'courses'])),
+            'canApprove' => Auth::user()->hasDirectPermission('approve subscription'),
+            'canReject' => Auth::user()->hasDirectPermission('update subscription')
         ]);
     }
 
@@ -132,7 +139,11 @@ class SubscriptionController extends Controller
         $superAdmins = User::role('admin')->get();
         $workers = User::role('worker')->get();
 
-        dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $request->user() ));
+        $associatedUser = User::find($subscriptionRequest->user_id);
+
+        // dd($associatedUser->name);
+
+        dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $associatedUser));
     
         return redirect()->route('subscriptions.index')->with('success', 'Subscription is approved.');
     }

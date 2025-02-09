@@ -14,8 +14,6 @@ import CreateQuizAlert from '../Quiz/CreateQuizAlert'
 import PermissionAlert from '@/Components/PermissionAlert'
 import { SessionToast } from '@/Components/SessionToast'
 
-
-
 interface ChapterDetailProps {
   chapter: Chapter
   contents: Content[]
@@ -23,9 +21,18 @@ interface ChapterDetailProps {
   course_id: number
   contentsCount: number
   quizzesCount: number
+
   canAddContents: boolean
   canUpdateContents:boolean
   canDeleteContents:boolean
+  canViewContents: boolean
+
+  canAddQuizzes: boolean
+  canUpdateQuizzes: boolean
+  canDeleteQuizzes: boolean
+
+
+
   session: string
 }
 
@@ -36,15 +43,19 @@ const Show: React.FC<ChapterDetailProps> = ({
   course_id,
   contentsCount,
   quizzesCount,
+
   canAddContents,
   canUpdateContents,
   canDeleteContents,
+  canViewContents,
+  
+  canAddQuizzes,
+  canUpdateQuizzes,
+  canDeleteQuizzes,
   session,
 }) => {
 
-  function setIsAddQuizModalOpen(arg0: boolean): void {
-    throw new Error('Function not implemented.')
-  }
+  console.log(session)
 
   return (
     <AuthenticatedLayout
@@ -102,8 +113,6 @@ const Show: React.FC<ChapterDetailProps> = ({
                     />
                   }
 
-                  <CreateContentAlert id={chapter.id} title={chapter.title}/>
-
                 </div>
               </CardHeader>
               <CardContent>
@@ -118,6 +127,7 @@ const Show: React.FC<ChapterDetailProps> = ({
                       contents={contents} 
                       canEdit={canUpdateContents} 
                       canDelete={canDeleteContents} 
+                      canView={canViewContents}
                     />
 
                   </TabsContent>
@@ -127,6 +137,7 @@ const Show: React.FC<ChapterDetailProps> = ({
                       contents={contents}
                       canDelete={canDeleteContents}
                       canEdit={canUpdateContents}
+                      canView={canViewContents}
                     />
                   </TabsContent>
                 </Tabs>
@@ -138,22 +149,26 @@ const Show: React.FC<ChapterDetailProps> = ({
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Chapter Quizzes</CardTitle>
-                    <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/>
+
+                    {
+                      canAddQuizzes ?  <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/> : <PermissionAlert 
+                        children={'Add Quizzes'}
+                        permission='add a quiz'
+                        buttonVariant={'outline'}
+                        className='p-2 text-xs'
+                        icon={<PlusCircle className='w-5 h-5 mr-2' />}
+                      />
+                    }
+                    {/* <CreateQuizAlert id={chapter.id} chapter_title={chapter.title}/> */}
                 </div>
               </CardHeader>
               <CardContent>
-                <QuizList quizzes={quizzes} />
+                <QuizList quizzes={quizzes} canAddQuizzes={canAddQuizzes} canUpdateQuizzes={canUpdateQuizzes} canDeleteQuizzes={canDeleteQuizzes} />
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-
-      {/* <AddQuizModal 
-        isOpen={isAddQuizModalOpen} 
-        onClose={() => setIsAddQuizModalOpen(false)} 
-      /> */}
-
 
     </AuthenticatedLayout>
   )

@@ -9,8 +9,8 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
 
+    const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
@@ -48,6 +48,13 @@ export default function Authenticated({
                                     Exams
                                 </NavLink>
 
+                                <NavLink
+                                    href={route('exam-courses.index')}  
+                                    active={route().current('exam-courses.index')} 
+                                >
+                                    Exam Courses
+                                </NavLink>
+
                                 
                                 <NavLink
                                     href={route('subscriptions.index')}  
@@ -58,8 +65,8 @@ export default function Authenticated({
 
 
                                 <NavLink
-                                    href={route('user-management.index')}  
-                                    active={route().current('user-management.index')} 
+                                    href={route('user-managements.index')}  
+                                    active={route().current('user-managements.index')} 
                                 >
                                     User Management
                                 </NavLink>
@@ -180,6 +187,13 @@ export default function Authenticated({
                             active={route().current('exams.index')}
                         >
                             Exams
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            href={route('exam-courses.index')}
+                            active={route().current('exam-courses.index')}
+                        >
+                            Exam Courses
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink

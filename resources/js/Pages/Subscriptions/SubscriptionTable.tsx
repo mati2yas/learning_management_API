@@ -12,7 +12,8 @@ interface SubscriptionsTableProps {
 
 export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
 
-  console.log(subscriptions)
+  // console.log('subscripton table',subscriptions)
+
   return (
     <Table>
       <TableHeader>
@@ -29,7 +30,7 @@ export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
             <TableCell>{subscription.subscription_request.user.name}</TableCell>
             <TableCell>{subscription.subscription_request.course ? subscription.subscription_request.course.name : subscription.subscription_request.exam_course?.name ?? 'N/A'}</TableCell>
             <TableCell>{subscription.subscription_start_date}</TableCell>
-            <TableCell>{subscription.subscription_expiry_date}</TableCell>
+            <TableCell>{subscription.subscription_end_date}</TableCell>
           </TableRow>
         ))}
       </TableBody>

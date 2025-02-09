@@ -45,6 +45,8 @@ export default function ContentDetail({ content, youtube_contents, file_contents
       .catch(() => alert("An error occurred while downloading the file."))
   }
 
+  console.log(session)
+
   return (
     <Authenticated
       header={
@@ -83,7 +85,6 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                     <Button onClick={() => setIsYouTubeDialogOpen(true)} className="mb-4">
                       <PlusCircle className="mr-2 h-4 w-4" /> Add Video Content
                     </Button>
-
 
                     { (youtube_contents ?? []).length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16">

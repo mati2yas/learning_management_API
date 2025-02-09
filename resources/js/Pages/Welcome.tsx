@@ -36,12 +36,12 @@ export default function Welcome({ auth }: PageProps<{}>) {
                                         >
                                             Login
                                         </Link>
-                                        <Link
+                                        {/* <Link
                                             href={route('register')}
                                             className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
                                         >
                                             Sign up
-                                        </Link>
+                                        </Link> */}
                                     </>
                                 )}
                             </div>

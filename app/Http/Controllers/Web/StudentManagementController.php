@@ -27,7 +27,7 @@ class StudentManagementController extends Controller
             $query->where('name','like','%'. request('name') .'%');
         }
 
-        $users = $query->orderBy($sortField, $sortDirection)->paginate(10);
+        $users = $query->orderBy($sortField, $sortDirection)->with(['subscriptionRequests.subscriptions','subscriptionRequests.courses'])->paginate(10);
 
         return Inertia::render("Student-Management/Index", [
             'users' => StudentManagementIndexResource::collection( $users ),

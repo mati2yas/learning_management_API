@@ -7,17 +7,36 @@ import realativeTime from 'dayjs/plugin/relativeTime'
 
 import TextInput from '@/Components/TextInput'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-// import { AlertDelete } from './AlertDelete'
-import ShowAdminPrevillage from '@/Components/ShowAdminPrevillage'
 import AlertBan from './AlertBan'
-import ShowDrawer from './ShowDrawer'
+import UserDetailDrawer from './ShowDrawer'
+import { ExamCourse } from '@/types'
+// import { SubscriptionRequest } from '@/types'
 
 dayjs.extend(realativeTime)
 
-interface user{
+interface SubscriptionRequest {
+  id: number
+  exam_course: ExamCourse[] | null
+  total_price: number
+  proof_of_payment: string
+  transaction_id: string
+  status: "Pending" | "Approved" | "Rejected"
+  created_at: string
+  updated_at: string
+  subscription: {
+    id: number
+    subscription_start_date: string
+    subscription_end_date: string
+    created_at: string
+    updated_at: string
+  } | null
+}
+
+interface User{
   email: string
   id: number,
   name: string,
+  subscriptionRequests: SubscriptionRequest[]
   created_at: string,
   updated_at: string,
   station?: {name: string}
@@ -27,7 +46,7 @@ interface user{
 }
 
 interface UsersResponse{
-  data: user[]
+  data: User[]
   links: any
   meta: {links: any[]}
 }
@@ -40,6 +59,8 @@ interface IndexProps{
 
 const Index = ({users, queryParams={}, success}: IndexProps) => {
 
+  console.log(users)
+
   queryParams = queryParams || {}
 
   // console.log(users)
@@ -49,7 +70,7 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
     } else {
       delete queryParams[name];
     }
-    router.get(route('user-managements.index'), queryParams);
+    router.get(route('student-managements.index'), queryParams);
   };
 
   const sortChanged = (name: string) => {
@@ -59,7 +80,7 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
       queryParams.sort_field = name;
       queryParams.sort_direction = 'asc';
     }
-    router.get(route('user-managements.index'), queryParams);
+    router.get(route('student-managements.index'), queryParams);
   };
 
   const onKeyDown = (name: string, e: any) => {
@@ -72,8 +93,8 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
     <Authenticated
       header={
         <div className='flex justify-between'>
-          <h1 className=' font-bold'>User Management</h1>
-          <Link href={route('user-managements.create')}>Add Users</Link>
+          <h1 className=' font-bold'>Student Management</h1>
+        
       </div>
       }
     >
@@ -166,7 +187,7 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
                   <TableHead className='w-10'>
                     <TextInput 
                       className=' w-full'
-                      placeholder='Admin Name'
+                      placeholder='Student Name'
                       defaultValue={queryParams.name}
                       onBlur={(e)=> searchFieldChanged('name', e.target.value)}
                       onKeyDown={(e) => onKeyDown('name', e)}
@@ -206,23 +227,34 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
                         /> */}
                         </>}
                       </TableCell>
-                      <TableCell className=' text-nowrap'>
-                        {user.creator?.name || 'N/A'}
-                      </TableCell>
-                      <TableCell className=' text-nowrap'>
-                        {user.updater?.name || 'N/A'}
-                      </TableCell>
+
                       <TableCell className='flex gap-x-3 items-center'>
-                        <ShowDrawer />
+                        <UserDetailDrawer user={user} />
                         <AlertBan user={user}/>
                       </TableCell>
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
           </div>
+
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            {users.meta.links?.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
+              <Link
+                key={index}
+                href={link.url || '#'}
+                className={`px-4 py-2 border rounded ${
+                  link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'
+                } ${!link.url ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
+                preserveScroll
+                preserveState
+              >
+                <span dangerouslySetInnerHTML={{ __html: link.label }}></span>
+              </Link>
+            ))}
+          </div>
+
         </div>
       </div>
       

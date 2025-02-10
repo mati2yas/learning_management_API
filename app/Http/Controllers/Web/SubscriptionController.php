@@ -92,6 +92,10 @@ class SubscriptionController extends Controller
 
     public function rejection(string $id, Request $request){
 
+        $attrs=$request->validate([
+            'message' => 'required|string'
+        ]);
+
         $subscriptionRequest = SubscriptionRequest::findOrFail($id);
 
         $subscriptionRequest->update(['status' => "Rejected"]);
@@ -99,7 +103,7 @@ class SubscriptionController extends Controller
         $superAdmins = User::role('admin')->get();
         $workers = User::role('worker')->get();
 
-        dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $request->user()));
+        dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $request->user(), $attrs['message']));
 
         return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
        

@@ -10,18 +10,18 @@ use Illuminate\Notifications\Notification;
 class SubscriptionRejectionNotification extends Notification
 {
     use Queueable;
-
     
     private $subscriptionRequest;
     private $forRequestedUser;
-  
+    private $message;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($subscriptionRequest, $forRequestedUser = false)
+    public function __construct($message, $subscriptionRequest, $forRequestedUser = false)
     {
         $this->subscriptionRequest = $subscriptionRequest;
+        $this->message=$message;
         $this->forRequestedUser = $forRequestedUser;
     }
 
@@ -42,7 +42,7 @@ class SubscriptionRejectionNotification extends Notification
     {
         $mailMessage = (new MailMessage)
         ->subject('Subscription Rejected')
-        ->line('Sorry your subscription was rejected. Make sure you send the right transaction ID ')
+        ->line('Sorry your subscription was rejected. ')->line('Reason: '.strval($this->message))
                     ->line('Thank you for using our application!');
                     
         if (!$this->forRequestedUser) {

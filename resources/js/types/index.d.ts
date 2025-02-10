@@ -252,7 +252,6 @@ export interface ExamGrade{
             status: 'Pending' | 'Approved' | 'Rejected'
             created_at?: string;
             updated_at?: string;
-    
     }
 
 export interface Subscription{

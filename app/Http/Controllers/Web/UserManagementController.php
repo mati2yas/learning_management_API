@@ -24,7 +24,7 @@ class UserManagementController extends Controller
         $sortDirection = request('sort_direction', 'desc');
 
         $query = User::whereHas('roles', function($query) {
-            $query->where('name', 'worker')->where('guard_name', 'api');
+            $query->where('name', 'worker')->where('guard_name', 'web');
         });
 
         if(request('name')) {

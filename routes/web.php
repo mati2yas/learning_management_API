@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\ExamQuestionController;
 use App\Http\Controllers\Web\FileContentController;
 use App\Http\Controllers\Web\QuizController;
 use App\Http\Controllers\Web\QuizQuesitonController;
+use App\Http\Controllers\Web\StudentManagementController;
 use App\Http\Controllers\Web\SubscriptionController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
@@ -89,6 +90,10 @@ Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestion
 Route::group(['middleware' => ['role:admin']], function () { 
     Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
  });
+
+Route::middleware(['auth', 'verified'])->resource('student-managements', StudentManagementController::class);
+
+Route::middleware(['auth', 'verified'])->post('student-managements',[StudentManagementController::class, 'ban'])->name('student-managements.ban');
 
 
 Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionController::class);

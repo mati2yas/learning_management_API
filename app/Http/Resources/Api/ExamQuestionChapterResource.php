@@ -22,7 +22,7 @@ class ExamQuestionChapterResource extends JsonResource
             "exam_type_id" => $this->exam_type_id,
             "exam_chapter_id" => $this->exam_chapter_id,
 
-            "question_text"=> $this->quesiton_text,
+            "question_text"=> $this->question_text,
             "options" => $this->options,
             "answer" => $this->answer ,
             "question_image_url" =>  $this->question_image_url,

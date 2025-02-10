@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserManagementIndexResource;
 use App\Http\Resources\Web\UserEditResource;
 use App\Jobs\EmailVerificationSendWorkerJob;
+use App\Jobs\SendCustomEmailJob;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -62,26 +65,37 @@ class UserManagementController extends Controller
             'permissions' => 'array',
         ]);
     
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'created_by' => Auth::user()->id,
-        ]);
+        DB::beginTransaction();
     
-        $workerRoleApi = Role::where('name', 'worker')->where('guard_name', 'api')->first();
-        $workerRoleWeb = Role::where('name', 'worker')->where('guard_name', 'web')->first();
+        try {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'created_by' => Auth::user()->id,
+                'email_verified_at' => Carbon::now(), // Mark the user as verified
+            ]);
     
-        $user->assignRole($workerRoleApi); 
-        $user->assignRole($workerRoleWeb); 
-        
-        dispatch(new EmailVerificationSendWorkerJob($user, $validated['password']));
+            $workerRoleApi = Role::where('name', 'worker')->where('guard_name', 'api')->first();
+            $workerRoleWeb = Role::where('name', 'worker')->where('guard_name', 'web')->first();
     
-        if(!empty($validated['permissions'])){
-            $user->syncPermissions($validated['permissions']);
+            $user->assignRole($workerRoleApi); 
+            $user->assignRole($workerRoleWeb); 
+            
+            if(!empty($validated['permissions'])){
+                $user->syncPermissions($validated['permissions']);
+            }
+    
+            // Dispatch the job to send the custom email
+            dispatch(new SendCustomEmailJob($user, $validated['password']));
+    
+            DB::commit();
+    
+            return to_route('user-managements.index')->with('success', 'A user created successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'An error occurred while creating the user: ' . $e->getMessage());
         }
-    
-        return to_route('user-managements.index')->with('success','A user created successfully');
     }
 
 

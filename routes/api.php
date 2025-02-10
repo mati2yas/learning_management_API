@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
 use App\Http\Controllers\Api\v1\CourseController;
 use App\Http\Controllers\Api\v1\HomepageCourseController;
-use App\Http\Controllers\Api\VerificationController;
 use App\Http\Resources\Api\ChapterContentResource;
 use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
@@ -195,11 +194,11 @@ Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
 });
 
 
-Route::get('exams/exam-years/{examTypeId}', function($examTypeId){
+Route::get('exams/exam-years/{examTypeName}', function($examTypeName){
 
     $types = ['matric','ministry', 'ngat','exit'];
 
-    $examTypeRecord = ExamType::findOrFail($examTypeId);
+    $examTypeRecord = ExamType::where('name',$examTypeName)->first();
 
     if (!$examTypeRecord) {
         return response()->json(['error' => 'Invalid exam type'], 404);

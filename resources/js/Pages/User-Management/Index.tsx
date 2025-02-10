@@ -13,11 +13,12 @@ import ShowAdminPrevillage from '@/Components/ShowAdminPrevillage'
 dayjs.extend(realativeTime)
 
 interface user{
+  email: string
   id: number,
   name: string,
   created_at: string,
   updated_at: string,
-  station?: {name: string}
+  // station?: {name: string}
   creator?: {name: string},
   updater?: {name: string},
   permissions: string[]
@@ -193,7 +194,7 @@ function Index({users, queryParams={}, success}: IndexProps) {
                         {user.name}
                       </TableCell>
                       <TableCell className=' text-nowrap'>
-                        {user.station?.name || 'N/A'}
+                        {user.email || 'N/A'}
                       </TableCell>
                       <TableCell className=' text-nowrap'>
                         {dayjs(user.created_at).fromNow() || 'N/A'}

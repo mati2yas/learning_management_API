@@ -48,7 +48,7 @@ class ExamQuestionSeeder extends Seeder
             // Loop through each exam year and seed 60 questions for each course
             foreach ($examYears as $examYear) {
                 // Seed 60 questions for this exam_year and course
-                for ($i = 0; $i < 2; $i++) {
+                for ($i = 0; $i < 1; $i++) {
                     // Generate random options as an array of strings
                     $options = [
                         $faker->country(),

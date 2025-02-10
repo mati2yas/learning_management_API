@@ -37,12 +37,12 @@ class DatabaseSeeder extends Seeder
 
 
 
-        // $this->callOnce(ExamTypeSeeder::class);//right
+        $this->callOnce(ExamTypeSeeder::class);//right
         $this->callOnce(ExamYearSeeder::class); //right
-        // $this->callOnce(ExamGradeSeeder::class); // right
-        // $this->callOnce(ExamCourseSeeder::class);// right
-        // $this->callOnce(ExamChapterSeeder::class); // right
-        // $this->callOnce(ExamQuestionSeeder::class);
+        $this->callOnce(ExamGradeSeeder::class); // right
+        $this->callOnce(ExamCourseSeeder::class);// right
+        $this->callOnce(ExamChapterSeeder::class); // right
+        $this->callOnce(ExamQuestionSeeder::class);
         
     }
 }

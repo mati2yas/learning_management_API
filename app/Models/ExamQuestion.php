@@ -21,4 +21,8 @@ class ExamQuestion extends Model
     public function examGrade(){
         return $this->belongsTo(ExamGrade::class);
     }
+
+    public function examType(){
+        return $this->belongsTo(ExamType::class);
+    }
 }

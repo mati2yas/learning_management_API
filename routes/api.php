@@ -14,6 +14,7 @@ use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
+use App\Http\Resources\Api\ExamQuestionChapterResource;
 use App\Http\Resources\ExamYearResource;
 use App\Models\Batch;
 use App\Models\Category;
@@ -171,6 +172,23 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
 
+Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
+
+    $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)
+    ->with([ 'examChapter.examCourse'])
+    ->get();
+
+    return ExamQuestionChapterResource::collection($questions);
+});
+
+
+Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
+    $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
+    ->get();
+
+    return ExamQuestionChapterResource::collection($questions);
+});
+
 
 Route::get('exams/exam-years/{examType}', function($examType){
 
@@ -197,8 +215,6 @@ Route::get('exams/exam-years/{examType}', function($examType){
 
 Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
 
-
-    // Retrieve grades associated with the exam year via the exam_questions table
     $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
                     ->with('examGrade.examCourses.examChapters')  // 
                     ->get()

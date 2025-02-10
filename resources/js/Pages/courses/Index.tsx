@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head, Link, useForm, router, usePage } from '@inertiajs/react'
+import { Head, Link, useForm, router } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
@@ -22,9 +22,7 @@ const Index: React.FC<IndexProps> = ({
   canAdd,
   session,
 }) => {
- 
 
-  console.log(canAdd)
 
   const { data, setData } = useForm({
     category: filters.category || '',
@@ -71,8 +69,11 @@ const Index: React.FC<IndexProps> = ({
             {/* {
               canAdd ? <CreateCourseAlert/> : <PermissionAlert permission={'Can Add'} children={'Add Course'} className="p-2 text-xs" />
             } */}
-            <CreateCourseAlert
-            />
+            {
+              canAdd ?             <CreateCourseAlert
+              /> : <PermissionAlert children={'Add Course'} permission={'can add a course'} buttonVariant={'outline'} className='p-2 text-xs' />
+            }
+
           </React.Fragment>
         </div>
       }

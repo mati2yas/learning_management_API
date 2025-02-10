@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { ArrowRight, Book, EqualApproximately } from 'lucide-react';
 import CreateCourseAlert from './courses/CreateCourseAlert';
+import PermissionAlert from '@/Components/PermissionAlert';
 
 interface CourseData {
     browser: string;
@@ -18,10 +19,11 @@ interface DashboardProps {
     courseData: CourseData[]
     pendingSubscriptions: number
     users: number
+    canAdd: boolean
 
 }
 
-export default function Dashboard({ chapters, examQuestions, courseData, pendingSubscriptions, users }: DashboardProps) {
+export default function Dashboard({ chapters, examQuestions, courseData, pendingSubscriptions, users, canAdd }: DashboardProps) {
 
     const isPendingPayments = true;
 
@@ -32,10 +34,11 @@ export default function Dashboard({ chapters, examQuestions, courseData, pending
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Dashboard
                     </h2>
-                    {/* {
-                    canAdd ? <CreateCourseAlert/> : <PermissionAlert permission={'Can Add'} children={'Add Course'} className="p-2 text-xs" />
-                    } */}
-                     <CreateCourseAlert />
+                    {
+                        canAdd ?             <CreateCourseAlert
+                        /> : <PermissionAlert children={'Add Course'} permission={'can add a course'} buttonVariant={'outline'} className='p-2 text-xs' />
+                    }
+                    
                 </div>
             }
         >

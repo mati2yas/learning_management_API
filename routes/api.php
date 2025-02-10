@@ -12,6 +12,7 @@ use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
+use App\Http\Resources\Api\ExamCourseTypeResource;
 use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;
@@ -172,6 +173,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
 
+
+
+
+
 Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
 
     $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)
@@ -190,11 +195,11 @@ Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
 });
 
 
-Route::get('exams/exam-years/{examType}', function($examType){
+Route::get('exams/exam-years/{examTypeId}', function($examTypeId){
 
     $types = ['matric','ministry', 'ngat','exit'];
 
-    $examTypeRecord = ExamType::where('name', $examType)->first();
+    $examTypeRecord = ExamType::findOrFail($examTypeId);
 
     if (!$examTypeRecord) {
         return response()->json(['error' => 'Invalid exam type'], 404);
@@ -213,6 +218,7 @@ Route::get('exams/exam-years/{examType}', function($examType){
 
 });
 
+
 Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
 
     $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
@@ -222,6 +228,12 @@ Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
                     ->unique();          //
     return ExamGradeResource::collection($examGrades);
 });
+
+Route::get('exams/exam-courses/{exam_type_id}', function($exam_type_id){
+
+    return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $exam_type_id)->with('examQuestions.examYear')->get()); 
+});
+
 
 // Route::get()
 

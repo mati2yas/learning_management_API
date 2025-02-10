@@ -14,6 +14,7 @@ interface QuestionFormProps {
     question_text: string
     text_explanation: string
     question_image_url: string | null
+    image_explanation_url:  string | null
     video_explanation_url: string
     options: string[]
     answer: string[]
@@ -43,7 +44,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
   }
 
   const handleImageUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>, field: "question_image_url") => {
+    (event: React.ChangeEvent<HTMLInputElement>, field: "question_image_url" | "image_explanation_url") => {
       const file = event.target.files?.[0]
       if (file) {
         const reader = new FileReader()
@@ -112,6 +113,20 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
           onChange={(e) => updateQuestion(index, "video_explanation_url", e.target.value)}
         />
         <InputError message={errors[`questions.${index}.video_explanation_url`]} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
+        <Input
+          id={`image_explanation_url_${index}`}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
+        />
+        {question.image_explanation_url && (
+          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
+        )}
+        <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
       </div>
 
       <div className="space-y-2">

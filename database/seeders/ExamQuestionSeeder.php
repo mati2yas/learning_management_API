@@ -20,6 +20,7 @@ class ExamQuestionSeeder extends Seeder
         $faker = Faker::create();
         // ExamQuestion::query()->delete(); // Ensure the table is cleared
 
+        ExamQuestion::query()->delete();
         // Fetch all available exam years (real IDs)
         $examYears = ExamYear::all();
 
@@ -47,7 +48,7 @@ class ExamQuestionSeeder extends Seeder
             // Loop through each exam year and seed 60 questions for each course
             foreach ($examYears as $examYear) {
                 // Seed 60 questions for this exam_year and course
-                for ($i = 0; $i < 60; $i++) {
+                for ($i = 0; $i < 2; $i++) {
                     // Generate random options as an array of strings
                     $options = [
                         $faker->country(),
@@ -73,6 +74,7 @@ class ExamQuestionSeeder extends Seeder
                         'text_explanation' => $faker->paragraph(),
                         'video_explanation_url' => $videoExplanation,
                         'question_image_url' => fake()->randomElement(['/id/' . rand(1, 200) . '/200/300']),
+                        'image_explanation_url' => fake()->randomElement(['/id/' . rand(1, 200) . '/200/300']),
                         'options' => json_encode($options), // Store options as a JSON array
                         'answer' => json_encode($answer), // Store answer as a JSON array
                     ]);

@@ -45,7 +45,10 @@ class ExamQuestionController extends Controller
                 'questions' => 'required|array|min:1',
 
                 'questions.*.question_text' => 'required|string',
+                
                 'questions.*.question_image_url' => 'nullable',
+                'questions.*.image_explanation_url' => 'nullable',
+                
                 'questions.*.text_explanation' => 'required|string',
                 'questions.*.video_explanation_url' => 'nullable|url',
                 'questions.*.options' => 'required|array|min:2',

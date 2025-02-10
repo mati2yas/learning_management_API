@@ -216,6 +216,7 @@ export interface ExamQuestion{
     question_text: string
     video_explanation_url: string
     question_image_url: string | null,
+    image_explanation_url: string | null,
     options: string
     answer: string
     created_at?: string;

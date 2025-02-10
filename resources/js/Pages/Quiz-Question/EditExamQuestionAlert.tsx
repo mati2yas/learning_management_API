@@ -42,6 +42,9 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
   const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))
 
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(question.question_image_url)
+  const [imageExplanationPreview, setImageExplanationPreview] = useState<string | null>(
+    question.image_explanation_url,
+  )
 
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
@@ -172,13 +175,19 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const field = e.target.name as "question_image_url" | "video_explanation_url";
     if (e.target.files && e.target.files[0]) {
-      setData("question_image_url", e.target.files[0])
+      const file = e.target.files[0]
+      setData(field, file)
       const reader = new FileReader()
       reader.onload = () => {
-        setQuestionImagePreview(reader.result as string)
+        if (field === "question_image_url") {
+          setQuestionImagePreview(reader.result as string)
+        } else {
+          setImageExplanationPreview(reader.result as string)
+        }
       }
-      reader.readAsDataURL(e.target.files[0])
+      reader.readAsDataURL(file)
     }
   }
 
@@ -368,15 +377,12 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
 
             <div className="space-y-2">
               <Label htmlFor="question_image_url">Image (optional)</Label>
-              <Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
               {questionImagePreview && (
-                <div className="mt-2">
+              <><Input id="question_image_url" type="file" name="question_image_url" onChange={handleImageChange} />
                   <img
-                    src={questionImagePreview || "/placeholder.svg"}
-                    alt="Question Preview"
-                    className="w-32 h-32 object-cover"
-                  />
-                </div>
+                  src={questionImagePreview || "/placeholder.svg"}
+                  alt="Question Preview"
+                  className="w-32 h-32 object-cover" /></>
               )}
               <InputError message={errors.question_image_url} />
             </div>
@@ -484,6 +490,14 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
               )}
               <InputError message={errors.answer} />
             </div>
+            <AlertDialogFooter className="px-6 py-4">
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={processing} onClick={submit}>
+                Update
+              </Button>
+            </AlertDialogFooter>
           </form>
         </ScrollArea>
         <AlertDialogFooter className="px-6 py-4">

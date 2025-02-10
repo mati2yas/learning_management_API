@@ -26,6 +26,7 @@ class ExamQuestionChapterResource extends JsonResource
             "options" => $this->options,
             "answer" => $this->answer ,
             "question_image_url" =>  $this->question_image_url,
+            'image_explanation_url' => $this->image_explanation_url,
             "text_explanation" => $this->text_explanation,
             "video_explanation_url" => $this->video_explanation_url,
         ];

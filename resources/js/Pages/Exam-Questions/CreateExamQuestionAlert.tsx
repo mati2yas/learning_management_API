@@ -43,8 +43,9 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       questions: {
         question_text: string
         question_image_url: string | null
+        image_explanation_url: string | null
         text_explanation: string
-        video_explanation_url: string
+        video_explanation_url: string | null
         options: string[]
         answer: string[]
       }[]
@@ -60,7 +61,8 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
         question_text: "",
         text_explanation: "",
         video_explanation_url: "",
-        question_image_url: null,
+        question_image_url: "",
+        image_explanation_url: "",
         options: [],
         answer: [],
       },
@@ -148,6 +150,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
         video_explanation_url: "",
         options: [],
         answer: [],
+        image_explanation_url: null
       },
     ])
   }

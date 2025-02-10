@@ -15,7 +15,7 @@ class ExamYearSeeder extends Seeder
      */
     public function run(): void
     {
-        // ExamYear::query()->delete();
+        ExamYear::query()->delete();
 
         if (DB::table('exam_years')->count() === 0) {
             // Calculate current Ethiopian year

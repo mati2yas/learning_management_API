@@ -11,8 +11,11 @@ use App\Models\Subscription;
 use App\Models\SubscriptionRequest;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -90,66 +93,80 @@ class SubscriptionController extends Controller
         //
     }
 
-    public function rejection(string $id, Request $request){
-
-        $attrs=$request->validate([
-            'message' => 'required|string'
-        ]);
-
-        $subscriptionRequest = SubscriptionRequest::findOrFail($id);
-
-        $subscriptionRequest->update(['status' => "Rejected"]);
-
-        $superAdmins = User::role('admin')->get();
-        $workers = User::role('worker')->get();
-
-        dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $request->user(), $attrs['message']));
-
-        return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
-       
+    public function rejection(string $id, Request $request)
+    {
+        try {
+            $attrs = $request->validate([
+                'message' => 'required|string'
+            ]);
+    
+            DB::beginTransaction();
+    
+            $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+            $subscriptionRequest->update(['status' => "Rejected"]);
+    
+            $superAdmins = User::role('admin')->get();
+            $workers = User::role('worker')->get();
+            $user = $subscriptionRequest->user;
+    
+            DB::commit();
+    
+            // Dispatch job after successful commit
+            dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $user, $attrs['message']));
+    
+            return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->route('subscriptions.index')->with('error', 'Subscription request not found.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the error
+            Log::error('Error in subscription rejection: ' . $e->getMessage());
+            return redirect()->route('subscriptions.index')->with('error', 'An error occurred while rejecting the subscription.');
+        }
     }
 
     public function approve(string $id, Request $request)
     {
-        $subscriptionRequest = SubscriptionRequest::findOrFail($id);
-
+        DB::beginTransaction();
+    
+        try {
+            $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+    
+            $subscription_start_date = Carbon::now();
         
-
-        $subscription_start_date = Carbon::now();
-    
-        // Determine duration based on subscription_type
-        $durations = [
-            'oneMonth' => 1,
-            'threeMonths' => 3,
-            'sixMonths' => 6,
-            'yearly' => 12,
-        ];
-    
-        // Get the duration (default to 1 month if not found)
-        $duration = $durations[$subscriptionRequest->subscription_type];
+            $durations = [
+                'oneMonth' => 1,
+                'threeMonths' => 3,
+                'sixMonths' => 6,
+                'yearly' => 12,
+            ];
         
-        // Calculate subscription end date
-        $subscription_end_date = $subscription_start_date->copy()->addMonths($duration);
+            $duration = $durations[$subscriptionRequest->subscription_type] ?? 1;
+            
+            $subscription_end_date = $subscription_start_date->copy()->addMonths($duration);
+        
+            $subscription = $subscriptionRequest->subscriptions()->create([
+                'subscription_start_date' => $subscription_start_date,
+                'subscription_end_date' => $subscription_end_date,
+            ]);
+        
+            $subscriptionRequest->update(['status' => "Approved"]);
     
-        // Store the subscription in the subscriptions table
-         $subscription= $subscriptionRequest->subscriptions()->create([
-            'subscription_start_date' => $subscription_start_date,
-            'subscription_end_date' => $subscription_end_date,
-        ]);
+            $superAdmins = User::role('admin')->get();
+            $workers = User::role('worker')->get();
     
-        // Save the updated subscription request
-        // $subscriptionRequest->save();
-        $subscriptionRequest->update(['status' => "Approved"]);
-
-        $superAdmins = User::role('admin')->get();
-        $workers = User::role('worker')->get();
-
-        $associatedUser = User::find($subscriptionRequest->user_id);
-
-        // dd($associatedUser->name);
-
-        dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $associatedUser));
+            $associatedUser = User::findOrFail($subscriptionRequest->user_id);
     
-        return redirect()->route('subscriptions.index')->with('success', 'Subscription is approved.');
+            dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $associatedUser));
+    
+            DB::commit();
+    
+            return redirect()->route('subscriptions.index')->with('success', 'Subscription is approved.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Subscription approval failed: ' . $e->getMessage());
+            return redirect()->route('subscriptions.index')->with('error', 'Subscription approval failed. Please try again.');
+        }
     }
 }

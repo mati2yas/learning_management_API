@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 
 class EmailVerificationWithPasswordNotification extends Notification implements ShouldQueue
@@ -15,36 +16,19 @@ class EmailVerificationWithPasswordNotification extends Notification implements 
 
     protected $password;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($password)
     {
         $this->password = $password;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail($notifiable)
     {
-        // $verificationUrl = url('/verify-email/' . $notifiable->id . '/' . sha1($notifiable->email));
-
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify', 
-             Carbon::now()->addMinutes(60), // URL will expire in 60 minutes
-            ['id' => $notifiable->getKey(), 'hash' => sha1($notifiable->email)]
-        );
+        $verificationUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
             ->subject('Verify Your Email & Set Your Password')
@@ -56,11 +40,18 @@ class EmailVerificationWithPasswordNotification extends Notification implements 
             ->line('Thank you!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
+    protected function verificationUrl($notifiable)
+    {
+        return URL::temporarySignedRoute(
+            'verification.verify',
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
+    }
+
     public function toArray(object $notifiable): array
     {
         return [
@@ -68,3 +59,4 @@ class EmailVerificationWithPasswordNotification extends Notification implements 
         ];
     }
 }
+

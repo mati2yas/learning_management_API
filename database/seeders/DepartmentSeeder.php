@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Department;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -99,7 +100,7 @@ class DepartmentSeeder extends Seeder
                 'Urban Planning and Development'
             ];
 
-            $department = Department::where('name', 'university')->first();
+            $department = Category::where('name', 'university')->first();
             
             foreach ($names as $name) {
                 Department::factory()->create([

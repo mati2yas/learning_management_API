@@ -57,7 +57,11 @@ class UserSeeder extends Seeder
             'delete exam courses',
 
             'can ban',
-            'can unban'
+            'can unban',
+
+            'add worker',
+            'update worker',
+            'delete worker',
         ];
 
         // Sync all the permissions to the user

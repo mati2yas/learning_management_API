@@ -41,6 +41,10 @@ export const allPermissions = [
   {name: 'update exam courses'},
   {name: 'delete exam courses'} ,
 
+  {name: 'add worker'},
+  {name: 'update worker'},
+  {name: 'delete worker'} ,
+
   {name: 'can ban'},
   {name: 'can unban'}
 

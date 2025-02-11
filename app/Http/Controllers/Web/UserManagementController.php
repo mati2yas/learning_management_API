@@ -41,6 +41,10 @@ class UserManagementController extends Controller
         return Inertia::render("User-Management/Index", [
             'users' => UserManagementIndexResource::collection( $users ),
             'queryParams' => request()->query() ?: null,
+            'session' => session('success'),
+            'canAdd' => Auth::user()->hasDirectPermission('add worker'),
+            'canUpdate' => Auth::user()->hasDirectPermission('update worker'),
+            'canDelete' => Auth::user()->hasDirectPermission('delete worker'),
         ]);
 
         

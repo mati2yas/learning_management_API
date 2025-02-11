@@ -52,6 +52,10 @@ class PermissionSeeder extends Seeder
 
                 ['name' => 'can ban'],
                 ['name' => 'can unban'],
+
+                ['name' => 'add worker'],
+                ['name' => 'update worker'],
+                ['name' => 'delete worker'],
             ];
         
 

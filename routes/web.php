@@ -87,9 +87,9 @@ Route::middleware(['auth', 'verified'])->resource('exams', ExamController::class
 
 Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestionController::class);
 
-Route::group(['middleware' => ['role:admin']], function () { 
+
     Route::middleware(['auth', 'verified'])->resource('user-managements', UserManagementController::class);
- });
+
 
 Route::middleware(['auth', 'verified'])->resource('student-managements', StudentManagementController::class);
 

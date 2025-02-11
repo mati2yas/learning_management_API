@@ -39,10 +39,11 @@ const allPermissions = [
   { name: "delete exam courses" },
 
   { name: "can ban" },
-  { name: "can unban" },
+  { name: "can unban"},
 
-
-
+  { name: "add worker" },
+  { name: "update worker"},
+  { name: "delete worker"},
 ]
 
 const permissionGroups = [
@@ -70,10 +71,10 @@ const permissionGroups = [
     title: "Exams",
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
   },
-  // {
-  //   title: "Exams Courses",
-  //   permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
-  // },
+  {
+    title: "Workers management",
+    permissions: allPermissions.filter((p) => p.name.includes("worker")),
+  },
   {
     title: "Contents",
     permissions: allPermissions.filter((p) => p.name === "can view contents"),

@@ -10,6 +10,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { AlertDelete } from './AlertDelete'
 import ShowAdminPrevillage from '@/Components/ShowAdminPrevillage'
 import { SessionToast } from '@/Components/SessionToast'
+import PermissionAlert from '@/Components/PermissionAlert'
 
 dayjs.extend(realativeTime)
 
@@ -35,13 +36,17 @@ interface IndexProps{
   users: UsersResponse,
   queryParams?: any,
   session: string,
+  canAdd: boolean
+  canUpdate: boolean
+  canDelete: boolean
 }
 
 
-function Index({users, queryParams={}, session}: IndexProps) {
+function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: IndexProps) {
   queryParams = queryParams || {}
 
-  // console.log(users)
+  console.log(canAdd,canUpdate,canDelete)
+  
   const searchFieldChanged = (name: string, value: any) => {
     if (value) {
       queryParams[name] = value;
@@ -71,7 +76,10 @@ function Index({users, queryParams={}, session}: IndexProps) {
         header={
           <div className='flex justify-between'>
             <h1 className=' font-bold'>User Management</h1>
-            <Link href={route('user-managements.create')}>Add Users</Link>
+            {
+              canAdd ?   <Link href={route('user-managements.create')}>Add User</Link> : <PermissionAlert children={'Add Worker'} permission={'can add a worker'} buttonVariant={'outline'} />
+            }
+          
         </div>
         }
     >
@@ -108,15 +116,6 @@ function Index({users, queryParams={}, session}: IndexProps) {
                         </div>
                       </div>
                     </TableHead >
-                    {/* <TableHead onClick={()=> sortChanged('gender')} className='text-nowrap'>
-                    <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Gender</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
                     <TableHead onClick={()=> sortChanged('email')} className=' text-nowrap'>
                       <div className='flex items-center gap-x-1'>
                         <span className='text-nowrap'>Email</span>
@@ -126,26 +125,6 @@ function Index({users, queryParams={}, session}: IndexProps) {
                         </div>
                       </div>
                     </TableHead>
-                    {/* <TableHead onClick={()=> sortChanged('phone_no')} className='text-nowrap'>
-                      <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Phone Number</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
-
-                    {/* <TableHead className=' text-nowrap'>Station</TableHead> */}
-                    {/* <TableHead onClick={()=> sortChanged('salary')} className='text-nowrap'>
-                      <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Salary</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
 
                     <TableHead onClick={()=> sortChanged('create_at')} className=' text-nowrap'>
                       <div className='flex items-center gap-x-1'>
@@ -216,7 +195,10 @@ function Index({users, queryParams={}, session}: IndexProps) {
                         {user.updater?.name || 'N/A'}
                       </TableCell>
                       <TableCell className='flex gap-x-3 items-center'>
-                        <Dropdown>
+                        
+                            {
+                              canUpdate ?  
+                              <Dropdown>
                           <Dropdown.Trigger>
                           <button>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -224,22 +206,23 @@ function Index({users, queryParams={}, session}: IndexProps) {
                             </svg>
                           </button>
                           </Dropdown.Trigger>
+                              <Dropdown.Content >
+                              <Dropdown.Link
+                                as='button'
+                                href={route('user-managements.edit', user.id)} 
+                                method='get'
+                              >
+                                Edit
+                              </Dropdown.Link>
+                            </Dropdown.Content>
+                            </Dropdown> : <PermissionAlert children={'Edit'} permission='can edit a worker' buttonVariant={'outline'} />
+                            }
 
-                          <Dropdown.Content >
-                            <Dropdown.Link
-                              as='button'
-                              href={route('user-managements.edit', user.id)} 
-                              method='get'
-                            >
-                              Edit
-                            </Dropdown.Link>
-                            {/* <Dropdown.Link as='button' href={route('user-managements.destroy',user.id )} method="delete">
-                              Delete
-                            </Dropdown.Link> */}
-                            {/* <AlertDelete user={user} /> */}
-                          </Dropdown.Content>
-                        </Dropdown>
-                        <AlertDelete user={user}/>
+
+                        {
+                          canDelete ? <AlertDelete user={user}/> : <PermissionAlert permission='can delete a user' children={'Delete'}  buttonVariant={'destructive'}/>
+                        }
+                        
                       </TableCell>
 
                     </TableRow>

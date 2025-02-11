@@ -44,5 +44,4 @@ export const allPermissions = [
   {name: 'can ban'},
   {name: 'can unban'}
 
-  
 ]

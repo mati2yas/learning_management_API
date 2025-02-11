@@ -81,10 +81,10 @@ const permissionGroups = [
     title: "Exams",
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
   },
-  {
-    title: "Exams Courses",
-    permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
-  },
+  // {
+  //   title: "Exams Courses",
+  //   permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
+  // },
   {
     title: "Contents",
     permissions: allPermissions.filter((p) => p.name === "can view contents"),
@@ -94,7 +94,7 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name === "can ban"),
   },
   {
-    title: "UnBan User",
+    title: "Unban User",
     permissions: allPermissions.filter((p) => p.name === "can unban"),
   },
   

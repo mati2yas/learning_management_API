@@ -9,6 +9,7 @@ import TextInput from '@/Components/TextInput'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { AlertDelete } from './AlertDelete'
 import ShowAdminPrevillage from '@/Components/ShowAdminPrevillage'
+import { SessionToast } from '@/Components/SessionToast'
 
 dayjs.extend(realativeTime)
 
@@ -33,11 +34,11 @@ interface UsersResponse{
 interface IndexProps{
   users: UsersResponse,
   queryParams?: any,
-  success: string,
+  session: string,
 }
 
 
-function Index({users, queryParams={}, success}: IndexProps) {
+function Index({users, queryParams={}, session}: IndexProps) {
   queryParams = queryParams || {}
 
   // console.log(users)
@@ -75,7 +76,9 @@ function Index({users, queryParams={}, success}: IndexProps) {
         }
     >
       <Head title='user management' />
-      
+      {
+        session ? <SessionToast message={session} /> : null
+      }
       <div className="py-12">
         <div className="max-w-[1300px] mx-auto sm:px-6 lg:px-8">
           <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-900">

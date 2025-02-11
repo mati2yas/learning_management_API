@@ -13,6 +13,8 @@ class ChapterSeeder extends Seeder
      */
     public function run(): void
     {
+        Chapter::query()->delete();
+        
         if (DB::table('chapters')->count() === 0) {
             $courses = Course::all();
             $courses->each(function ($course) {

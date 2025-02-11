@@ -15,6 +15,8 @@ class YoutubeContentSeeder extends Seeder
      */
     public function run(): void
     {
+        YoutubeContent::query()->delete();
+        
         if(DB::table('youtube_contents')->count() === 0){
             $contents = Content::all();
 

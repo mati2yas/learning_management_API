@@ -15,6 +15,8 @@ class FileContentSeeder extends Seeder
      */
     public function run(): void
     {
+        FileContent::query()->delete();
+        
         if (DB::table('file_contents')->count() === 0) {
             $contents = Content::all();
 

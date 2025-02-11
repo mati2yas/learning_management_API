@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
 
         // Get all the permissions by name
         $permissions = [
-            'add courses',
+            'add coaurses',
             'update courses',
             'delete courses',
             'add chapters',

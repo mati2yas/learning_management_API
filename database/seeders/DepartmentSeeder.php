@@ -14,6 +14,7 @@ class DepartmentSeeder extends Seeder
      */
     public function run(): void
     {
+        
         Department::query()->delete();
         if (DB::table('departments')->count() == 0) {
             // $names = [
@@ -97,10 +98,12 @@ class DepartmentSeeder extends Seeder
                 'Statistics', 
                 'Urban Planning and Development'
             ];
+
+            $department = Department::where('name', 'university')->first();
             
             foreach ($names as $name) {
                 Department::factory()->create([
-                    'category_id' => 3, // Assuming '3' corresponds to University in your categories
+                    'category_id' => $department->id, // Assuming '3' corresponds to University in your categories
                     'department_name' => $name,
                 ]);
             }

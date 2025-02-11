@@ -14,9 +14,10 @@ class GradeSeeder extends Seeder
      */
     public function run(): void
     {
+        Grade::query()->delete();
+
         if(FacadesDB::table('grades')->count() == 0){
 
-            // Fetch category IDs for 'lower_grades' and 'higher_grades'
             $lowerGradesCategory = Category::where('name', 'lower_grades')->first();
             $higherGradesCategory = Category::where('name', 'higher_grades')->first();
 

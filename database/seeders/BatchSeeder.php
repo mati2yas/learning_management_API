@@ -15,6 +15,7 @@ class BatchSeeder extends Seeder
     public function run(): void
     {
         Batch::query()->delete();
+        
         if (DB::table('batches')->count() == 0) {
             // Retrieve all departments
             $departments = Department::all();

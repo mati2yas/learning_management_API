@@ -15,6 +15,8 @@ class QuizSeeder extends Seeder
      */
     public function run(): void
     {
+        Quiz::query()->delete();
+        
         if(DB::table('quizzes')->count() === 0){
 
             $chapters = Chapter::all();

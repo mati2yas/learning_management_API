@@ -14,6 +14,8 @@ class ContentSeeder extends Seeder
      */
     public function run(): void
     {
+        Content::query()->delete();
+        
         if(DB::table('contents')->count() === 0 ){
             
             $chapters = Chapter::all();

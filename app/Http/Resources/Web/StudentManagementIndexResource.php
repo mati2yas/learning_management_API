@@ -39,6 +39,7 @@ class StudentManagementIndexResource extends JsonResource
                     ] : null,
                 ];
             }),
+            'bannedUser' => $this->bannedUser ? $this->bannedUser->is_banned : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

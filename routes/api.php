@@ -223,7 +223,7 @@ Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
     $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
                     ->with('examGrade.examCourses.examChapters')  // 
                     ->get()
-                    ->pluck('examGrade') // Extract the exam grades from the questions
+                    ->pluck('examGrade') 
                     ->unique();          //
     return ExamGradeResource::collection($examGrades);
 });

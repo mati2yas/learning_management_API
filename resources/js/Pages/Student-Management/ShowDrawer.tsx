@@ -15,6 +15,9 @@ import { Badge } from "@/Components/ui/badge"
 import { Separator } from "@/Components/ui/separator"
 import { Ban, ChevronDown, ChevronUp } from "lucide-react"
 import { ExamCourse } from "@/types"
+import AlertUnBan from "./AlertUnBan"
+import PermissionAlert from "@/Components/PermissionAlert"
+import AlertBan from "./AlertBan"
 
 interface Course {
   id: number
@@ -43,6 +46,7 @@ interface User {
   id: number
   name: string
   email: string
+  bannedUser: boolean
   subscriptionRequests: SubscriptionRequest[]
   created_at: string
   updated_at: string
@@ -50,17 +54,17 @@ interface User {
 
 interface UserDetailProps {
   user: User
+  canBan: boolean
+  canUnban: boolean
 }
 
-export default function UserDetailDrawer({ user }: UserDetailProps) {
+export default function UserDetailDrawer({ user, canBan, canUnban }: UserDetailProps) {
+
+
   const [isOpen, setIsOpen] = useState(false)
   const [expandedRequests, setExpandedRequests] = useState<number[]>([])
 
-  const handleBanUser = () => {
-    // Implement ban user logic here
-    console.log("User banned:", user.name)
-    setIsOpen(false)
-  }
+
 
   const toggleRequestExpansion = (requestId: number) => {
     setExpandedRequests((prev) =>
@@ -143,10 +147,20 @@ export default function UserDetailDrawer({ user }: UserDetailProps) {
           <SheetClose asChild>
             <Button variant="outline">Close</Button>
           </SheetClose>
-          <Button variant="destructive" onClick={handleBanUser}>
-            <Ban className="mr-2 h-4 w-4" />
-            Ban User
-          </Button>
+
+          {
+            user.bannedUser ?(
+              canUnban ?
+            <AlertUnBan user={user} /> : <PermissionAlert children={'UnBan'}
+            permission='can unban a user' 
+            buttonVariant={'outline'}
+            className='bg-green-600 text-white p-2'/>
+          ): (
+              canBan ?
+            <AlertBan user={user}/> : <PermissionAlert children={'Ban'} permission={'can ban a user'}
+            buttonVariant={'outline'} className='bg-red-600 text-white p-2' />
+          )
+          }
         </SheetFooter>
       </SheetContent>
     </Sheet>

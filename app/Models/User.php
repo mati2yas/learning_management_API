@@ -119,6 +119,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(SubscriptionRequest::class);
     }
 
+    public function bannedUser(){
+        return $this->hasOne(BannedUser::class);
+    }
+
     
 
     protected function casts(): array

@@ -6,6 +6,7 @@ use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ExamCourseController extends Controller
@@ -34,13 +35,14 @@ class ExamCourseController extends Controller
 
         // dd($exam_courses);
 
-
-
         return inertia("Exam-Course/Index",[
             'examCourses' => $exam_courses,
             'examTypes' => ExamType::all(),
             'examGrades' => ExamGrade::all(),
-            'session' => session('success')
+            'session' => session('success'),
+            'canAddExamCourse' => Auth::user()->hasDirectPermission('add exam courses'),
+            'canUpdateExamCourse' => Auth::user()->hasDirectPermission('update exam courses'),
+            'canDeleteExamCourse' => Auth::user()->hasDirectPermission('delete exam courses'),
         ]);
     }
 

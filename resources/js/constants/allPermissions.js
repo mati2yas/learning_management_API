@@ -37,12 +37,12 @@ export const allPermissions = [
   {name: 'can view contents'},
 
   // Exam Courses
-  // {name: 'add exam courses'},
-  // {name: 'delete exam courses'},
-  // {name: 'delete exam courses'} ,
+  {name: 'add exam courses'},
+  {name: 'update exam courses'},
+  {name: 'delete exam courses'} ,
 
-  // {name: 'can ban'}
+  {name: 'can ban'},
+  {name: 'can unban'}
 
-  // User Manageme
   
 ]

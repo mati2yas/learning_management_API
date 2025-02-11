@@ -43,8 +43,20 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
   },
   {
-    title: "Other",
+    title: "Exams Courses",
+    permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
+  },
+  {
+    title: "Contents",
     permissions: allPermissions.filter((p) => p.name === "can view contents"),
+  },
+  {
+    title: "Ban User",
+    permissions: allPermissions.filter((p) => p.name === "can ban"),
+  },
+  {
+    title: "UnBan User",
+    permissions: allPermissions.filter((p) => p.name === "can unban"),
   },
 ]
 

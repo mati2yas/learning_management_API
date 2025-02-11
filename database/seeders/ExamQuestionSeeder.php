@@ -20,7 +20,7 @@ class ExamQuestionSeeder extends Seeder
         $faker = Faker::create();
         // ExamQuestion::query()->delete(); // Ensure the table is cleared
 
-        ExamQuestion::query()->delete();
+        // ExamQuestion::query()->delete();
         // Fetch all available exam years (real IDs)
         $examYears = ExamYear::all();
 

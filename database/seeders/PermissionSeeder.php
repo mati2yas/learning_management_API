@@ -12,7 +12,7 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Permission::query()->delete();
+        Permission::query()->delete();
 
         if(Permission::count() == 0){
             $permissions = [
@@ -40,12 +40,18 @@ class PermissionSeeder extends Seeder
                 ['name' => 'update quiz questions'],
                 ['name' => 'delete quiz questions'],
 
-                
                 ['name' => 'add exam questions'],
                 ['name' => 'update exam questions'],
                 ['name' => 'delete exam questions'],
 
-                ['name' => 'can view contents']
+                ['name' => 'can view contents'],
+
+                ['name' => 'add exam courses'],
+                ['name' => 'update exam courses'],
+                ['name' => 'delete exam courses'],
+
+                ['name' => 'can ban'],
+                ['name' => 'can unban'],
             ];
         
 

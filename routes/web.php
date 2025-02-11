@@ -93,7 +93,9 @@ Route::group(['middleware' => ['role:admin']], function () {
 
 Route::middleware(['auth', 'verified'])->resource('student-managements', StudentManagementController::class);
 
-Route::middleware(['auth', 'verified'])->post('student-managements',[StudentManagementController::class, 'ban'])->name('student-managements.ban');
+Route::middleware(['auth', 'verified'])->post('student-managements/ban',[StudentManagementController::class, 'ban'])->name('student-managements.ban');
+
+Route::middleware(['auth', 'verified'])->post('student-managements/unban',[StudentManagementController::class, 'unBan'])->name('student-managements.unban');
 
 
 Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionController::class);

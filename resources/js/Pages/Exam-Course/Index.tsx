@@ -13,13 +13,14 @@ import CreateExamCourseAlert from "../Exams/CreateExamCourseAlert"
 dayjs.extend(relativeTime)
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Input } from "@/Components/ui/input"
-import { Search } from "lucide-react"
+import { Edit2, Search, Trash2 } from "lucide-react"
+import PermissionAlert from "@/Components/PermissionAlert"
 
 interface IndexProps {
   examCourses: any[]
-  canEdit: boolean
-  canDelete: boolean
-  canView: boolean
+  canAddExamCourse: boolean
+  canUpdateExamCourse: boolean
+  canDeleteExamCourse: boolean
   examTypes: ExamType[]
   examGrades: ExamGrade[]
   session: any
@@ -28,9 +29,9 @@ interface IndexProps {
 
 const Index: React.FC<IndexProps> = ({
   examCourses,
-  canEdit,
-  canDelete,
-  canView,
+  canAddExamCourse,
+  canUpdateExamCourse,
+  canDeleteExamCourse,
   examTypes,
   examGrades,
   session,
@@ -68,6 +69,7 @@ const Index: React.FC<IndexProps> = ({
 
   return (
     <Authenticated header={<h1 className="text-2xl font-semibold">Exam Courses</h1>}>
+
       <Head title="Exam Courses" />
       {session && <SessionToast message={session} />}
       <div className="py-12">
@@ -131,8 +133,23 @@ const Index: React.FC<IndexProps> = ({
                       />
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                      <EditExamCourseAlert examTypes={examTypes} examGrades={examGrades} examCourse={course} />
-                      <DeleteExamCourseAlert id={course.id} course_name={course.course_name} />
+                      {
+                        canUpdateExamCourse ?                       <EditExamCourseAlert examTypes={examTypes} examGrades={examGrades} examCourse={course} /> : <PermissionAlert children={'Edit'} permission={"can edit an exam course"}
+                        buttonSize={'sm'}
+                        buttonVariant={'outline'}
+                        className={'text-green-600 hover:text-green-700 hover:bg-green-50'}
+                        icon={<Edit2 className="h-4 w-4 mr-1" />} />
+                      }
+
+                      {
+                        canDeleteExamCourse ?              
+                        <DeleteExamCourseAlert id={course.id} course_name={course.course_name} />: <PermissionAlert children={'Delete'} permission={"can delete an exam course"}
+                        buttonSize={'sm'}
+                        buttonVariant={'outline'}
+                        className={'text-red-600 hover:text-red-700 hover:bg-red-50'}
+                        icon={<Trash2 className="h-4 w-4 mr-1" />} />
+                      }
+
                     </TableCell>
                   </TableRow>
                 ))}

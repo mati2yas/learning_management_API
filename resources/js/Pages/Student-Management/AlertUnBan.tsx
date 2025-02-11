@@ -4,18 +4,19 @@ import { Button } from "@/Components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 import PrimaryLink from "@/Components/PrimaryLink";
-import { Link, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 
 interface User {
   id: number;
   name: string;
 }
 
-interface AlertBanProps {
+interface AlertUnbanProps {
   user: User;
 }
 
-const AlertBan = ({user}: AlertBanProps) => {
+const AlertUnBan = ({user}: AlertUnbanProps 
+) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,7 +31,7 @@ const AlertBan = ({user}: AlertBanProps) => {
   const submit:FormEventHandler =(e) =>{
 
     e.preventDefault()
-    post(route('student-managements.ban'),{
+    post(route('student-managements.unban'),{
       onSuccess: () => {
         closeDialog()
       },
@@ -44,8 +45,8 @@ const AlertBan = ({user}: AlertBanProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant={"outline"} className="bg-red-600 text-white p-2" onClick={() => setIsOpen(true)}>
-          Ban
+        <Button variant={"outline"} className="bg-green-600 text-white p-2" onClick={() => setIsOpen(true)}>
+          UnBan
         </Button>
       </AlertDialogTrigger>
 
@@ -53,7 +54,7 @@ const AlertBan = ({user}: AlertBanProps) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will Ban <strong>{user.name + " "}</strong>
+             This will UnBan <strong>{user.name + " "}</strong>
             
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -76,4 +77,4 @@ const AlertBan = ({user}: AlertBanProps) => {
   )
 }
 
-export default AlertBan
+export default AlertUnBan

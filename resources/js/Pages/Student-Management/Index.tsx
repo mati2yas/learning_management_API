@@ -10,6 +10,8 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import AlertBan from './AlertBan'
 import UserDetailDrawer from './ShowDrawer'
 import { ExamCourse } from '@/types'
+import AlertUnBan from './AlertUnBan'
+import PermissionAlert from '@/Components/PermissionAlert'
 // import { SubscriptionRequest } from '@/types'
 
 dayjs.extend(realativeTime)
@@ -36,6 +38,7 @@ interface User{
   email: string
   id: number,
   name: string,
+  bannedUser: boolean
   subscriptionRequests: SubscriptionRequest[]
   created_at: string,
   updated_at: string,
@@ -55,9 +58,11 @@ interface IndexProps{
   users: UsersResponse,
   queryParams?: any,
   success: string,
+  canBan: boolean,
+  canUnBan: boolean,
 }
 
-const Index = ({users, queryParams={}, success}: IndexProps) => {
+const Index = ({users, queryParams={}, success, canBan, canUnBan}: IndexProps) => {
 
   console.log(users)
 
@@ -128,15 +133,7 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
                         </div>
                       </div>
                     </TableHead >
-                    {/* <TableHead onClick={()=> sortChanged('gender')} className='text-nowrap'>
-                    <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Gender</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
+
                     <TableHead onClick={()=> sortChanged('email')} className=' text-nowrap'>
                       <div className='flex items-center gap-x-1'>
                         <span className='text-nowrap'>Email</span>
@@ -146,26 +143,7 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
                         </div>
                       </div>
                     </TableHead>
-                    {/* <TableHead onClick={()=> sortChanged('phone_no')} className='text-nowrap'>
-                      <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Phone Number</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
 
-                    {/* <TableHead className=' text-nowrap'>Station</TableHead> */}
-                    {/* <TableHead onClick={()=> sortChanged('salary')} className='text-nowrap'>
-                      <div className='flex items-center gap-x-1'>
-                        <span className='text-nowrap'>Salary</span>
-                        <div className=' hover:cursor-pointer'>
-                          <ChevronUpIcon className='w-4' />
-                          <ChevronDownIcon className='w-4 -mt-3' />
-                        </div>
-                      </div>
-                    </TableHead> */}
 
                     <TableHead onClick={()=> sortChanged('create_at')} className=' text-nowrap'>
                       <div className='flex items-center gap-x-1'>
@@ -229,8 +207,21 @@ const Index = ({users, queryParams={}, success}: IndexProps) => {
                       </TableCell>
 
                       <TableCell className='flex gap-x-3 items-center'>
-                        <UserDetailDrawer user={user} />
-                        <AlertBan user={user}/>
+                        <UserDetailDrawer user={user} canBan={canBan} canUnban={canUnBan} />
+                        {
+                          user.bannedUser ?(
+                            canUnBan ?
+                          <AlertUnBan user={user} /> : <PermissionAlert children={'UnBan'}
+                          permission='can unban a user' 
+                          buttonVariant={'outline'}
+                          className='bg-green-600 text-white p-2'/>
+                        ): (
+                            canBan ?
+                          <AlertBan user={user}/> : <PermissionAlert children={'Ban'} permission={'can ban a user'}
+                          buttonVariant={'outline'} className='bg-red-600 text-white p-2' />
+                        )
+                        }
+                        
                       </TableCell>
                     </TableRow>
                   ))}

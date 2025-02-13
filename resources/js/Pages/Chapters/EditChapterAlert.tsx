@@ -91,7 +91,6 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 name="description"
                 value={data.description}
                 onChange={(e) => setData('description', e.target.value)}
-                required
               />
               <InputError message={errors.description} className="mt-2" />
             </div>

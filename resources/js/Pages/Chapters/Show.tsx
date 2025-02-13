@@ -55,8 +55,6 @@ const Show: React.FC<ChapterDetailProps> = ({
   session,
 }) => {
 
-  console.log(session)
-
   return (
     <AuthenticatedLayout
       header={

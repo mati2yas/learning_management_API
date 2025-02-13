@@ -19,6 +19,8 @@ interface CreateMultipleQuizzesAlertProps {
   chapter_title: string
 }
 
+const MAX_QUIZZES = 10
+
 const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzesAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [quizTitles, setQuizTitles] = useState<string[]>([""])
@@ -32,39 +34,45 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
     setData("chapter_id", id)
   }, [id, setData])
 
-  const addQuizTitle = useCallback(() => {
-    setQuizTitles((prev) => [...prev, ""])
-  }, [])
-
-  const removeQuizTitle = useCallback((index: number) => {
-    setQuizTitles((prev) => prev.filter((_, i) => i !== index))
-  }, [])
-
-  const updateQuizTitle = useCallback((index: number, value: string) => {
-    setQuizTitles((prev) => {
-      const newTitles = [...prev]
-      newTitles[index] = value
-      return newTitles
-    })
-  }, [])
-
   const updateFormData = useCallback(() => {
     const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
-    setData((prevData) => ({
-      ...prevData,
-      quizzes: quizzes,
-    }))
-  }, [quizTitles, setData])
+    setData("quizzes", quizzes)
+  }, [setData])
 
-  useEffect(() => {
-    updateFormData()
+  const addQuizTitle = useCallback(() => {
+    setQuizTitles((prev) => {
+      const newTitles = prev.length < MAX_QUIZZES ? [...prev, ""] : prev
+      updateFormData()
+      return newTitles
+    })
   }, [updateFormData])
+
+  const removeQuizTitle = useCallback(
+    (index: number) => {
+      setQuizTitles((prev) => {
+        const newTitles = prev.filter((_, i) => i !== index)
+        updateFormData()
+        return newTitles
+      })
+    },
+    [updateFormData],
+  )
+
+  const updateQuizTitle = useCallback(
+    (index: number, value: string) => {
+      setQuizTitles((prev) => {
+        const newTitles = [...prev]
+        newTitles[index] = value
+        updateFormData()
+        return newTitles
+      })
+    },
+    [updateFormData],
+  )
+
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
-    updateFormData()
-
-    console.log("Submitting data:", data)
 
     post(route("quizzes.store"), {
       preserveState: true,
@@ -91,7 +99,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>Create Quizzes for {chapter_title}</AlertDialogTitle>
-          <AlertDialogDescription>Add one or more quiz titles</AlertDialogDescription>
+          <AlertDialogDescription>Add up to {MAX_QUIZZES} quiz titles</AlertDialogDescription>
         </AlertDialogHeader>
 
         <form onSubmit={submit} className="space-y-4">
@@ -115,9 +123,11 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
             </div>
           ))}
 
-          <Button type="button" variant="outline" onClick={addQuizTitle}>
-            Add Another Quiz
-          </Button>
+          {quizTitles.length < MAX_QUIZZES && (
+            <Button type="button" variant="outline" onClick={addQuizTitle}>
+              Add Another Quiz
+            </Button>
+          )}
 
           <div className="flex justify-end space-x-2">
             <AlertDialogCancel

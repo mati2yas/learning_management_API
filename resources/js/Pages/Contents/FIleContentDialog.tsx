@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useForm } from "@inertiajs/react" 
+import { useForm } from "@inertiajs/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
@@ -13,8 +13,8 @@ interface FileContentDialogProps {
 }
 
 export default function FileContentDialog({ isOpen, onClose, contentId }: FileContentDialogProps) {
-
   const [fileSizeError, setFileSizeError] = useState<string | null>(null)
+  const [fileTypeError, setFileTypeError] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset, progress } = useForm({
     title: "",
@@ -30,7 +30,7 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
         onClose()
       },
       onError: (errors) => {
-        console.log('Validation errors:', errors);
+        console.log("Validation errors:", errors)
       },
     })
   }
@@ -38,18 +38,28 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
+
+      // Check file type
+      if (file.type !== "application/pdf") {
+        setFileTypeError("Only PDF files are allowed")
+        setData("file_url", null)
+        return
+      }
+
+      // Check file size
       if (file.size > 50 * 1024 * 1024) {
         setFileSizeError("File size must not exceed 50MB")
         setData("file_url", null)
-       
-      } else {
-        setFileSizeError(null)
-        setData("file_url", file)
-        const reader = new FileReader()
+        return
       }
+
+      setFileSizeError(null)
+      setFileTypeError(null)
+      setData("file_url", file)
     } else {
       setData("file_url", null)
       setFileSizeError(null)
+      setFileTypeError(null)
     }
   }
 
@@ -57,11 +67,11 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add File Content</DialogTitle>
+          <DialogTitle>Add PDF Content</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div >
+            <div>
               <Label htmlFor="title" className="text-right">
                 Title
               </Label>
@@ -73,28 +83,29 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
               />
               <InputError message={errors.title} className="mt-2" />
             </div>
-            <div >
+            <div>
               <Label htmlFor="file_url" className="text-right">
-                File
+                PDF File
               </Label>
               <Input
                 id="file_url"
                 type="file"
+                accept=".pdf,application/pdf"
                 onChange={handleFileChange}
                 className="col-span-3"
               />
-
-            {fileSizeError && <p className="text-red-500 text-sm">{fileSizeError}</p>}
-            {progress && (
-              <progress value={progress.percentage} max="100" className="w-full h-2 bg-gray-200 rounded-lg mt-2">
-                {progress.percentage}%
-              </progress>
-            )}
+              {fileTypeError && <p className="text-red-500 text-sm">{fileTypeError}</p>}
+              {fileSizeError && <p className="text-red-500 text-sm">{fileSizeError}</p>}
+              {progress && (
+                <progress value={progress.percentage} max="100" className="w-full h-2 bg-gray-200 rounded-lg mt-2">
+                  {progress.percentage}%
+                </progress>
+              )}
               <InputError className="mt-2" message={errors.file_url} />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={processing}>
+            <Button type="submit" disabled={processing || !!fileSizeError || !!fileTypeError}>
               Add Content
             </Button>
           </DialogFooter>

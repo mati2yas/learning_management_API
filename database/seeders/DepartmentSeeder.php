@@ -71,6 +71,7 @@ class DepartmentSeeder extends Seeder
                 'Dentistry', 
                 'Economics', 
                 'Electrical Engineering', 
+                'Freshman',
                 'Geography and Environmental Studies', 
                 'Geology', 
                 'History and Heritage Management', 

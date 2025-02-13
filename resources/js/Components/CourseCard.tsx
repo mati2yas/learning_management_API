@@ -20,6 +20,7 @@ interface CourseCardProps {
   topicsCount: number
   saves: number
   likes: number
+  paidCourses: number
   price_one_month: number
   price_three_month: number
   price_six_month: number
@@ -52,6 +53,7 @@ export function CourseCard({
   topicsCount,
   saves,
   likes,
+  paidCourses,
   price_one_month,
   price_three_month,
   price_six_month,

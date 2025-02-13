@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\StudentManagementController;
 use App\Http\Controllers\Web\SubscriptionController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
+use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\ExamQuestion;
@@ -35,22 +36,28 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
 
-    $categories = [
-        3 => ['label' => 'chrome', 'color' => 'var(--color-chrome)'],
-        1 => ['label' => 'safari', 'color' => 'var(--color-safari)'],
-        2 => ['label' => 'firefox', 'color' => 'var(--color-firefox)'],
-        4 => ['label' => 'edge', 'color' => 'var(--color-edge)'],
+    // Fetch categories dynamically by name
+    $categories = Category::whereIn('name', ['lower_grades', 'higher_grades', 'university', 'random_courses'])
+        ->pluck('id', 'name');
+
+    // Define colors for categories
+    $categoryColors = [
+        'lower_grades' => 'var(--color-chrome)',
+        'higher_grades' => 'var(--color-safari)',
+        'university' => 'var(--color-firefox)',
+        'random_courses' => 'var(--color-edge)',
     ];
 
-    $courseData = collect($categories)->map(function ($details, $categoryId) {
+    // Prepare course data dynamically
+    $courseData = collect($categories)->map(function ($categoryId, $categoryName) use ($categoryColors) {
         return [
-            'browser' => $details['label'],
+            'browser' => $categoryName,
             'visitors' => Course::where('category_id', $categoryId)->count(),
-            'fill' => $details['color'],
+            'fill' => $categoryColors[$categoryName] ?? 'var(--color-default)',
         ];
     })->values()->all();
 
-    return Inertia::render('Dashboard',[
+    return Inertia::render('Dashboard', [
         'courseData' => $courseData,
         'chapters' => Chapter::count(),
         'examQuestions' => ExamQuestion::count(),

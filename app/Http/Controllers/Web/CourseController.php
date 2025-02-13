@@ -9,7 +9,6 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Department;
 use App\Models\Grade;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -112,6 +111,8 @@ class CourseController extends Controller
     public function show(Course $course)
     {
 
+        // dd($course);
+
         $thumbnail = Storage::url($course->thumbnail);
 
         $category_name = Category::findOrFail($course->category_id)->name;
@@ -141,6 +142,7 @@ class CourseController extends Controller
             'batches' => Batch::all(),
             'enrolledStudents' => $course->paidCourses->count(),
             'chaptersCount' => $course->chapters->count(),
+            'paidCourses' => $course->paidCourses->count(),
             'canUpdate' => Auth::user()->hasDirectPermission('update courses'),
             'canDelete' => Auth::user()->hasDirectPermission('delete courses'),
             'canAddChapters' => Auth::user()->hasDirectPermission('add chapters'),

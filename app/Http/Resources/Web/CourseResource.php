@@ -23,6 +23,7 @@ class CourseResource extends JsonResource
             'topicsCount' => $this->chapters->count(),
             'saves' => $this->saves->count(),
             'likes' => $this->likes->count(),
+            'paidCourses' => $this->paidCourses->count(),
             'price_one_month' => $this->price_one_month,
             'on_sale_one_month' => $this->on_sale_one_month,
             'price_three_month' => $this->price_three_month,

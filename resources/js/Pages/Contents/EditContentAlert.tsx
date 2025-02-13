@@ -59,6 +59,7 @@ const EditContentAlert = ({content}: EditContentAlertProps) => {
               <TextInput
                 id="name"
                 name="name"
+                className="w-full"
                 value={data.name}
                 onChange={(e) => setData('name', e.target.value)}
                 required
@@ -69,10 +70,11 @@ const EditContentAlert = ({content}: EditContentAlertProps) => {
 
             <div className="mb-4">
               <InputLabel htmlFor="order" value="Content Order" />
-              <input
+              <TextInput
                 id="order"
                 name="order"
                 type="number"
+                className="w-full"
                 value={data.order}
                 onChange={(e) => setData('order', Number(e.target.value))}
                 required

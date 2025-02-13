@@ -59,6 +59,7 @@ const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
               <TextInput
                 id="name"
                 name="name"
+                className="w-full"
                 value={data.name}
                 onChange={(e) => setData('name', e.target.value)}
                 required
@@ -73,6 +74,7 @@ const CreateContentAlert = ({id, title}:CreateContentAlertProps) => {
                 id="order"
                 name="order"
                 type="number"
+                className="w-full"
                 value={data.order}
                 onChange={(e) => setData('order', e.target.value)}
                 required

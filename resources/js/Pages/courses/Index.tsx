@@ -23,6 +23,7 @@ const Index: React.FC<IndexProps> = ({
   session,
 }) => {
 
+  // console.log(courses);
 
   const { data, setData } = useForm({
     category: filters.category || '',
@@ -66,9 +67,6 @@ const Index: React.FC<IndexProps> = ({
         <div className='flex justify-between items-center'>
           <React.Fragment>
             <h1 className="text-2xl font-semibold">Courses</h1>
-            {/* {
-              canAdd ? <CreateCourseAlert/> : <PermissionAlert permission={'Can Add'} children={'Add Course'} className="p-2 text-xs" />
-            } */}
             {
               canAdd ?             <CreateCourseAlert
               /> : <PermissionAlert children={'Add Course'} permission={'can add a course'} buttonVariant={'outline'} className='p-2 text-xs' />
@@ -126,6 +124,7 @@ const Index: React.FC<IndexProps> = ({
                   topicsCount={course.topicsCount}
                   saves={course.saves}
                   likes={course.likes} 
+                  paidCourses={course.paidCourses}
                   price_one_month={course.price_one_month} 
                   price_three_month={course.price_three_month} 
                   price_six_month={course.price_six_month} 

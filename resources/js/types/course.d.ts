@@ -10,6 +10,7 @@ export interface Course{
   number_of_chapters: number;
   saves: number;
   likes: number;
+  paidCourses: number;
   price_one_month: number;
   on_sale_one_month: number;
   price_three_month: number;

@@ -29,6 +29,7 @@ const Show = ({
   departments,
   batches,
   chaptersCount,
+  paidCourses,
   session,
   canDelete,
   canUpdate,
@@ -37,6 +38,7 @@ const Show = ({
   canUpdateChapters,
 }: ShowCourseProps) => {
 
+  console.log(course)
   const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A"
 
   return (
@@ -76,20 +78,20 @@ const Show = ({
                   </div>
                 </div>
                 <CardContent className="p-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex sm:flex-row flex-col justify-between">
                     <InfoItem
                       icon={<BookOpen className="w-5 h-5" />}
-                      label="Chapters"
+                      label="Chapters:"
                       value={chaptersCount}
                     />
                     {course.grade_id && (
-                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade" value={gradeName} />
+                      <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade:" value={gradeName} />
                     )}
                     {course.department_id && (
-                      <InfoItem icon={<Building className="w-5 h-5" />} label="Department" value={department_name} />
+                      <InfoItem icon={<Building className="w-5 h-5" />} label="Department:" value={department_name} />
                     )}
                     {course.batch_id && (
-                      <InfoItem  icon={<Users className="w-5 h-5 text-nowrap" />} label="Batch" value={batch_name} />
+                      <InfoItem  icon={<Users className="w-5 h-5 text-nowrap" />} label="Batch:" value={batch_name} />
                     )}
                   </div>
                 </CardContent>
@@ -150,14 +152,6 @@ const Show = ({
                         className="w-full bg-blue-600 hover:bg-blue-700 capitalize"
                         />
                   }
-                  {/* <UpdateCourseAlert
-                    course={course}
-                    categories={categories}
-                    grades={grades}
-                    departments={departments}
-                    batches={batches}
-                    thumbnail={thumbnail}
-                  /> */}
 
                   {
                     canDelete ?  <DeleteCourseAlert id={course.id} />: <PermissionAlert
@@ -167,7 +161,7 @@ const Show = ({
                     className="w-full bg-red-500 hover:bg-red-700 capitalize" buttonVariant={'destructive'}
                     />
                   }
-                  {/* <DeleteCourseAlert id={course.id} /> */}
+                
                 </CardContent>
               </Card>
 
@@ -177,7 +171,7 @@ const Show = ({
                   <CardTitle>Course Statistics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <StatItem icon={<UserCheck className="w-5 h-5" />} label="Enrolled Students" value="120" />
+                  <StatItem icon={<UserCheck className="w-5 h-5" />} label="Enrolled Students" value={paidCourses} />
                 </CardContent>
               </Card>
 
@@ -294,7 +288,7 @@ const PriceItem = ({ duration, regularPrice, salePrice }: PriceItemProps) => (
 interface StatItemProps {
   icon: React.ReactNode
   label: string
-  value: string
+  value: number | string
 }
 
 const StatItem = ({ icon, label, value }: StatItemProps) => (

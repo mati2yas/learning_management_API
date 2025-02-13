@@ -12,6 +12,8 @@ import { Button } from "@/Components/ui/button"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { PlusCircle } from "lucide-react"
 import QuizQuestionForm from "./QuizQuestionFrom"
+import { toast } from "@/hooks/use-toast"
+// import { toast } from "@/Components/ui/use-toast"
 
 interface CreateQuizQuestionAlertProps {
   quizId: number
@@ -33,6 +35,8 @@ interface QuestionData {
 const generateUniqueId = () => {
   return Math.random().toString(36).substr(2, 9)
 }
+
+const MAX_QUESTIONS = 10
 
 const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -63,6 +67,14 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
   }, [isOpen])
 
   const addQuestion = () => {
+    if (data.questions.length >= MAX_QUESTIONS) {
+      toast({
+        title: "Maximum questions reached",
+        description: `You can only add up to ${MAX_QUESTIONS} questions at a time.`,
+        variant: "destructive",
+      })
+      return
+    }
     setData("questions", [
       ...data.questions,
       {
@@ -97,31 +109,52 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
     clearErrors()
   }
 
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   const validateForm = (): boolean => {
     let isValid = true
     clearErrors()
 
+    if (data.questions.length === 0) {
+      setError("questions", "At least one question is required")
+      isValid = false
+    }
+
     data.questions.forEach((question, index) => {
       if (question.question_number <= 0) {
-        setError(`questions.${index}.question_number` as any, "Question number must be greater than 0")
+        setError("questions", `Question number must be greater than 0 for question ${index + 1}`)
         isValid = false
       }
       if (question.text.trim() === "") {
-        setError(`questions.${index}.text` as any, "Question text is required")
+        setError("questions", `Question text is required for question ${index + 1}`)
         isValid = false
       }
       if (question.text_explanation.trim() === "") {
-        setError(`questions.${index}.text_explanation` as any, "Explanation is required")
+        setError("questions", `Explanation is required for question ${index + 1}`)
         isValid = false
       }
-
+      if (question.video_explanation_url && !isValidUrl(question.video_explanation_url)) {
+        setError("questions", `Invalid URL format at question ${index + 1}`)
+        isValid = false
+      }
       if (question.options.length > 0) {
         if (question.options.some((option) => option.trim() === "")) {
-          setError(`questions.${index}.options` as any, "All options must be non-empty")
+          setError("questions", "All options must be non-empty")
           isValid = false
         }
         if (question.answer.length === 0) {
-          setError(`questions.${index}.answer` as any, "Please select at least one answer when options are provided")
+          setError("questions", `Please select at least one answer when options are provided for question ${index + 1}`)
+          isValid = false
+        }
+        if (new Set(question.options).size !== question.options.length) {
+          setError("questions", `Options must be unique at question ${index + 1}`)
           isValid = false
         }
       }
@@ -181,9 +214,14 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
               ))}
             </div>
 
-            <Button type="button" variant="outline" onClick={addQuestion}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addQuestion}
+              disabled={data.questions.length >= MAX_QUESTIONS}
+            >
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Another Question
+              Add Another Question ({data.questions.length}/{MAX_QUESTIONS})
             </Button>
           </form>
         </ScrollArea>

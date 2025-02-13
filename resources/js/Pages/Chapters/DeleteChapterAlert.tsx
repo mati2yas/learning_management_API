@@ -36,8 +36,8 @@ const DeleteChapterAlert = ({id, name}:DeleteChapterAlertProps) => {
       <AlertDialogHeader>
         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
         <AlertDialogDescription>
-          This action cannot be undone. This will permanently delete <span className=" font-bold">{name}</span> 
-          and remove the course data from the servers.
+          This action cannot be undone. This will permanently delete <span className=" font-bold">{name } </span> 
+           and remove the course data from the servers.
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

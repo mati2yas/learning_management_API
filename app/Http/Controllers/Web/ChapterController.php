@@ -35,7 +35,7 @@ class ChapterController extends Controller
             'course_id' => 'required',
             'order' => 'required',
             'title' => 'required',
-            'description' => 'required',
+            'description' => 'nullable',
         ]);
 
         $chapter = Chapter::create($attrs);
@@ -68,7 +68,6 @@ class ChapterController extends Controller
 
             'canDeleteQuizzes' => Auth::user()->hasDirectPermission('delete quizzes'),
 
-            
             'session' => session('success'),
         ]
         );
@@ -91,6 +90,7 @@ class ChapterController extends Controller
             'course_id' => 'required',
             'order' => 'required',
             'title' => 'required',
+            'description' => ''
         ]);
 
         $chapter->update($attrs);

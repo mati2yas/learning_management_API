@@ -26,6 +26,13 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
               <p className="text-sm text-gray-600">{quiz.title} questions</p>
             </div>
             <div className="flex space-x-2">
+
+            <Link href={route('quizzes.show', quiz.id)}>
+                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
+              </Link>
                 
                 {
                   canUpdateQuizzes ? <EditQuizAlert quiz={quiz}/>: <PermissionAlert
@@ -52,13 +59,6 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
                   />
                 }
                 {/* <DeleteQuizAlert title={quiz.title} id={quiz.id} /> */}
-  
-              <Link href={route('quizzes.show', quiz.id)}>
-                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-              </Link>
   
             </div>
           </div>

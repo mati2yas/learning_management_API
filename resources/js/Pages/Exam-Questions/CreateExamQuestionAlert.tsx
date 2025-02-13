@@ -9,7 +9,7 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { Button } from "@/Components/ui/button"
-import { type FormEventHandler, useState, useEffect } from "react"
+import { type FormEventHandler, useState, useEffect, useMemo } from "react"
 import { PlusCircle } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import InputError from "@/Components/InputError"
@@ -69,6 +69,27 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
     ],
   })
 
+  const showExamGrade = useMemo(() => {
+    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
+  }, [data.exam_type_id, exam_types])
+
+  const getFilteredExamGrades = useMemo(() => {
+    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    if (!selectedExamType) return []
+
+    switch (selectedExamType.name) {
+      case "6th Grade Ministry":
+        return exam_grades?.filter((grade) => [5, 6].includes(grade.grade)) || []
+      case "8th Grade Ministry":
+        return exam_grades?.filter((grade) => [7, 8].includes(grade.grade)) || []
+      case "ESSLCE":
+        return exam_grades?.filter((grade) => grade.grade >= 9 && grade.grade <= 12) || []
+      default:
+        return []
+    }
+  }, [data.exam_type_id, exam_types, exam_grades])
+
   useEffect(() => {
     if (!isOpen) {
       resetForm()
@@ -120,7 +141,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
     setData({ ...data, exam_year_id: value, exam_course_id: "", exam_grade_id: "", exam_chapter_id: "" })
     setExamCourses([])
     setExamChapters([])
-    if (["ngat", "exit"].includes(selectedExamTypeName.toLowerCase())) {
+    if (!showExamGrade) {
       fetchExamCourses()
     }
   }
@@ -129,9 +150,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
     setData({ ...data, exam_grade_id: value, exam_course_id: "", exam_chapter_id: "" })
     setExamCourses([])
     setExamChapters([])
-    if (["ministry", "matric"].includes(selectedExamTypeName.toLowerCase())) {
-      fetchExamCourses()
-    }
+    fetchExamCourses()
   }
 
   const handleExamCourseChange = (value: string) => {
@@ -296,7 +315,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
                 </div>
               )}
 
-              {data.exam_year_id && ["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && (
+              {showExamGrade && data.exam_year_id && (
                 <div>
                   <InputLabel htmlFor="exam-grade" value="Exam Grade" />
                   <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
@@ -304,9 +323,10 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
                       <SelectValue placeholder="Select an exam grade" />
                     </SelectTrigger>
                     <SelectContent>
-                      {exam_grades?.map((examGrade) => (
+                      {getFilteredExamGrades.map((examGrade) => (
                         <SelectItem key={examGrade.id} value={examGrade.id.toString()}>
-                          Grade - {examGrade.grade}{examGrade.stream ? examGrade.stream : ''}
+                          Grade - {examGrade.grade}
+                          {examGrade.stream ? ` - ${examGrade.stream}` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -315,8 +335,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
                 </div>
               )}
 
-              {((["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && data.exam_grade_id) ||
-                (["ngat", "exit"].includes(selectedExamTypeName.toLowerCase()) && data.exam_year_id)) && (
+              {((showExamGrade && data.exam_grade_id) || (!showExamGrade && data.exam_year_id)) && (
                 <div>
                   <InputLabel htmlFor="exam-course" value="Exam Course" />
                   <Select value={data.exam_course_id} onValueChange={handleExamCourseChange}>

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
 use App\Models\ExamType;
-use App\Models\ExamYear;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -16,25 +15,49 @@ class ExamCourseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $faker = app(\Faker\Generator::class);
-
-        
         ExamCourse::query()->delete();
+        
         if(DB::table('exam_courses')->count() === 0) {
-            // Get all exam types and exam grades
             $exam_types = ExamType::all();
             $exam_grades = ExamGrade::all();
 
-            // Loop through each combination of exam types and exam grades
-            $exam_types->each(function($exam_type) use ($exam_grades) {
-                $exam_grades->each(function($exam_grade) use ($exam_type) {
-                    ExamCourse::factory()->create([
-                        'exam_type_id' => $exam_type->id,
-                        'exam_grade_id' => $exam_grade->id,
-                        'course_name' => fake()->unique()->promptAI('Ethiopian National Examination Courses Name', fake()->name)
-                    ]);
-                });
-            });
+            foreach ($exam_types as $exam_type) {
+                switch ($exam_type->name) {
+                    case '6th Grade Ministry':
+                        $this->createCoursesForGrades($exam_type, $exam_grades->whereIn('grade', [5, 6]));
+                        break;
+                    case '8th Grade Ministry':
+                        $this->createCoursesForGrades($exam_type, $exam_grades->whereIn('grade', [7, 8]));
+                        break;
+                    case 'ESSLCE':
+                        $this->createCoursesForGrades($exam_type, $exam_grades->whereIn('grade', [10, 11, 12]));
+                        break;
+                    default:
+                        $this->createCoursesWithoutGrade($exam_type);
+                        break;
+                }
+            }
         }
     }
+
+    private function createCoursesForGrades($exam_type, $grades)
+    {
+        foreach ($grades as $grade) {
+            ExamCourse::factory()->create([
+                'exam_type_id' => $exam_type->id,
+                'exam_grade_id' => $grade->id,
+                'course_name' => fake()->unique()->promptAI('Ethiopian National Examination Courses Name', fake()->name)
+            ]);
+        }
+    }
+
+    private function createCoursesWithoutGrade($exam_type)
+    {
+        ExamCourse::factory()->create([
+            'exam_type_id' => $exam_type->id,
+            'exam_grade_id' => null,
+            'course_name' => fake()->unique()->promptAI('Ethiopian National Examination Courses Name', fake()->name)
+        ]);
+    }
 }
+

@@ -42,7 +42,6 @@
         "clsx": "^2.1.1",
         "dayjs": "^1.11.13",
         "framer-motion": "^12.4.1",
-        "lodash": "^4.17.21",
         "lucide-react": "^0.469.0",
         "reacharts": "^0.4.5",
         "recharts": "^2.15.0",

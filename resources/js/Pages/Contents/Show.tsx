@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Head, Link, usePage } from "@inertiajs/react"
 import { Button } from "@/Components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { ArrowLeft, PlusCircle } from "lucide-react"
 
@@ -109,42 +109,44 @@ export default function ContentDetail({
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {youtube_contents &&
                           Array.isArray(youtube_contents) &&
-                          youtube_contents.map((content) => {
-                            const videoId = extractVideoId(content.url)
-                            return (
-                              <Card key={content.id} className="overflow-hidden">
-                                <CardHeader className="p-4">
-                                  <CardTitle className="text-base font-medium truncate">{content.title}</CardTitle>
-                                </CardHeader>
-                                {videoId && (
-                                  <div className="aspect-video">
-                                    <iframe
-                                      className="w-full h-full"
-                                      src={`https://www.youtube.com/embed/${videoId}`}
-                                      title={content.title}
-                                      frameBorder="0"
-                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                      allowFullScreen
-                                    ></iframe>
-                                  </div>
-                                )}
-                                <CardContent className="p-4">
-                                  <a
-                                    href={content.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-500 hover:underline text-sm block truncate"
-                                  >
-                                    {content.url}
-                                  </a>
-                                  <div className="flex justify-end space-x-2 mt-2">
-                                    <EditYoutubeAlert youtube_content={content} />
-                                    <DeleteYoutubeAlert title={content.title} id={content.id} />
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            )
-                          })}
+                          youtube_contents
+                            .sort((a, b) => a.youtube_number - b.youtube_number)
+                            .map((content) => {
+                              const videoId = extractVideoId(content.url)
+                              return (
+                                <Card key={content.id} className="overflow-hidden">
+                                  <CardHeader className="p-4">
+                                    <CardTitle className="text-base font-medium truncate">{content.youtube_number}.  {content.title}</CardTitle>
+                                  </CardHeader>
+                                  {videoId && (
+                                    <div className="aspect-video">
+                                      <iframe
+                                        className="w-full h-full"
+                                        src={`https://www.youtube.com/embed/${videoId}`}
+                                        title={content.title}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                      ></iframe>
+                                    </div>
+                                  )}
+                                  <CardContent className="p-4">
+                                    <a
+                                      href={content.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-500 hover:underline text-sm block truncate"
+                                    >
+                                      {content.url}
+                                    </a>
+                                    <div className="flex justify-end space-x-2 mt-2">
+                                      <EditYoutubeAlert youtube_content={content} />
+                                      <DeleteYoutubeAlert title={content.title} id={content.id} />
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              )
+                            })}
                       </div>
                     )}
                   </CardContent>
@@ -171,26 +173,30 @@ export default function ContentDetail({
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {file_contents &&
                           Array.isArray(file_contents) &&
-                          file_contents.map((content) => (
-                            <Card key={content.id}>
-                              <CardHeader className="p-4">
-                                <CardTitle className="text-base font-medium truncate">{content.title}</CardTitle>
-                              </CardHeader>
-                              <CardContent className="p-4">
-                                <Button
-                                  variant="outline"
-                                  className="w-full mb-2"
-                                  onClick={() => handleFileDownload("/" + "storage/" + content.file_url, content.title)}
-                                >
-                                  Download File
-                                </Button>
-                                <div className="flex justify-end space-x-2">
-                                  <EditFileContentAlert file_content={content} />
-                                  <DeleteFileContentAlert id={content.id} title={content.title} />
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                          file_contents
+                            .sort((a, b) => a.file_number - b.file_number)
+                            .map((content) => (
+                              <Card key={content.id}>
+                                <CardHeader className="p-4">
+                                  <CardTitle className="text-base font-medium truncate">{content.file_number}. {content.title}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                  <Button
+                                    variant="outline"
+                                    className="w-full mb-2"
+                                    onClick={() =>
+                                      handleFileDownload("/" + "storage/" + content.file_url, content.title)
+                                    }
+                                  >
+                                    Download File
+                                  </Button>
+                                  <div className="flex justify-end space-x-2">
+                                    <EditFileContentAlert file_content={content} />
+                                    <DeleteFileContentAlert id={content.id} title={content.title} />
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
                       </div>
                     )}
                   </CardContent>

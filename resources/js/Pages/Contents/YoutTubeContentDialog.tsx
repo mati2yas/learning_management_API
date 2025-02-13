@@ -16,6 +16,7 @@ interface YouTubeContentDialogProps {
 
 export default function YouTubeContentDialog({ isOpen, onClose, contentId }: YouTubeContentDialogProps) {
   const { data, setData, post, processing, errors, reset } = useForm({
+    youtube_number: 0,
     title: "",
     url: "",
     content_id: contentId,
@@ -64,6 +65,20 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
                 className="col-span-3"
               />
               <InputError message={errors.title} className="mt-2" />
+            </div>
+
+            <div>
+              <Label htmlFor="order" className="text-right">
+                Order
+              </Label>
+              <Input
+                id="order"
+                value={data.youtube_number}
+                onChange={(e) => setData("youtube_number", Number(e.target.value))}
+                className="col-span-3"
+                type="number"
+              />
+              <InputError message={errors.youtube_number} className="mt-2" />
             </div>
 
             <div>

@@ -30,6 +30,7 @@ class YoutubeContentController extends Controller
     public function store(Request $request)
     {
         $attrs = $request->validate([
+            'youtube_number' => 'required|integer|min:1',
             'title' => 'required|string',
             'url' => 'required|url',
             'content_id' => 'required'
@@ -62,6 +63,7 @@ class YoutubeContentController extends Controller
     public function update(Request $request, YoutubeContent $youtubeContent)
     {
         $attrs = $request->validate([
+            'youtube_number' => 'required|integer|min:1',
             'title' => 'required|string',
             'url' => 'required|url',
             'content_id' => 'required'

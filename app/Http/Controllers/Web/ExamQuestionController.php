@@ -32,15 +32,16 @@ class ExamQuestionController extends Controller
     
     public function store(Request $request)
     {
-        // Log::info('Received exam question data:', $request->all());
+   
     
         try {
             $validatedData = $request->validate([
                 'exam_type_id' => 'required|exists:exam_types,id',
                 'exam_year_id' => 'required|exists:exam_years,id',
                 'exam_course_id' => 'required|exists:exam_courses,id',
-                'exam_grade_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_grades,id',
-                'exam_chapter_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_chapters,id',
+                'exam_grade_id' => 'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE',
+                'exists:exam_grades,id',
+                'exam_chapter_id' =>  'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE|exists:exam_chapters,id',
 
                 'questions' => 'required|array|min:1',
 
@@ -160,8 +161,9 @@ class ExamQuestionController extends Controller
                 'exam_type_id' => 'required|exists:exam_types,id',
                 'exam_year_id' => 'required|exists:exam_years,id',
                 'exam_course_id' => 'required|exists:exam_courses,id',
-                'exam_grade_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_grades,id',
-                'exam_chapter_id' => 'required_if:exam_type_id,!=,ngat|exists:exam_chapters,id',
+                'exam_grade_id' => 'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE',
+                'exists:exam_grades,id',
+                'exam_chapter_id' =>  'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE|exists:exam_chapters,id',
                 'question_text' => 'required|string',
                 'text_explanation' => 'required|string',
                 'video_explanation_url' => 'nullable|url',

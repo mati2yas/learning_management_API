@@ -30,9 +30,10 @@ class FileContentController extends Controller
     public function store(Request $request)
     {
         $attrs = $request->validate([
+            'file_number' => 'required|integer|min:1',
             'content_id' => 'required',
             'title' => 'required',
-            'file_url' => 'required|mimes:pdf|max:40000',
+            'file_url' => 'required|mimes:pdf|max:1073152',
         ]);
 
 
@@ -69,6 +70,7 @@ class FileContentController extends Controller
     public function update(Request $request, FileContent $fileContent)
     {
         $attrs = $request->validate([
+            'file_number' => 'required|integer|min:1',
             'content_id' => 'required',
             'title' => 'required',
             'file_url' => 'nullable|mimes:pdf,docx,doc|max:40000',

@@ -121,7 +121,7 @@ const Index: React.FC<IndexProps> = ({
                 {examCourses?.map((course) => (
                   <TableRow key={course.id}>
                     <TableCell>{course.course_name}</TableCell>
-                    <TableCell>{course.exam_grade.grade}</TableCell>
+                    <TableCell>{course.exam_grade?.grade}</TableCell>
                     <TableCell>{course.exam_type.name}</TableCell>
                     <TableCell>{dayjs(course.created_at).fromNow()}</TableCell>
                     <TableCell>{dayjs(course.updated_at).fromNow()}</TableCell>

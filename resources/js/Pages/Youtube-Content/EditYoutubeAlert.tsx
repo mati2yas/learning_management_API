@@ -9,6 +9,8 @@ import { Edit2 } from "lucide-react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
 
 interface EditYoutubeAlertProps {
   youtube_content: YoutubeContent
@@ -19,6 +21,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
   const [isOpen, setIsOpen] = useState(false);
 
   const { data, setData, put, processing, errors, reset } = useForm({
+    youtube_number: youtube_content.youtube_number,
     title: youtube_content.title,
     url: youtube_content.url,
     content_id: youtube_content.content_id,
@@ -67,6 +70,20 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
                 required
               />
               <InputError message={errors.title} className="mt-2" />
+            </div>
+
+            <div>
+              <Label htmlFor="order" className="text-right">
+                Order
+              </Label>
+              <Input
+                id="order"
+                value={data.youtube_number}
+                onChange={(e) => setData("youtube_number", Number(e.target.value))}
+                className="col-span-3 w-full"
+                type="number"
+              />
+              <InputError message={errors.youtube_number} className="mt-2" />
             </div>
 
 

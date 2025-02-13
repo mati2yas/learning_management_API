@@ -22,6 +22,7 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
 
   const { data, setData, post, processing, errors, reset, progress } = useForm({
     _method: "PATCH",
+    file_number: file_content.file_number,
     title: file_content.title,
     file_url: null as File | null,
     content_id: file_content.content_id,
@@ -43,8 +44,8 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      if (file.size > 50 * 1024 * 1024) {
-        setFileSizeError("File size must not exceed 50MB")
+      if (file.size > 1000 * 1024 * 1024) {
+        setFileSizeError("File size must not exceed 1GB")
         setData("file_url", null)
        
       } else {
@@ -83,10 +84,24 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
                 id="title"
                 name="title"
                 value={data.title}
+                className="w-full"
                 onChange={(e) => setData('title', e.target.value)}
                 required
               />
               <InputError message={errors.title} className="mt-2" />
+            </div>
+
+            <div className="mb-4">
+              <InputLabel htmlFor="order" value="Order" />
+              <TextInput
+                id="order"
+                name="file_number"
+                className="w-full"
+                value={data.file_number}
+                onChange={(e) => setData('file_number', Number(e.target.value))}
+                required
+              />
+              <InputError message={errors.file_number} className="mt-2" />
             </div>
 
 
@@ -97,7 +112,8 @@ export default function EditFileContentAlert({ file_content }: EditFileContentAl
                 name="file_url"
                 type="file"
                 onChange={handleFileChange}
-                required
+                className={'w-full'}
+                
               />
 
               {fileSizeError && <p className="text-red-500 text-sm">{fileSizeError}</p>}

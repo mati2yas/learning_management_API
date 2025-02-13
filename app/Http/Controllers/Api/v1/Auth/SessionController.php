@@ -204,7 +204,7 @@ class SessionController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $user->password, // Hash new password if provided
+            // 'password' => $request->password ? Hash::make($request->password) : $user->password, // Hash new password if provided
             'avatar' => $avatarPath
         ]);
     

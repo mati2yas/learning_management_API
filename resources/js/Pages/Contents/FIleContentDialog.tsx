@@ -17,6 +17,7 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
   const [fileTypeError, setFileTypeError] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset, progress } = useForm({
+    file_number: 0,
     title: "",
     file_url: null as File | null,
     content_id: contentId,
@@ -47,8 +48,8 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
       }
 
       // Check file size
-      if (file.size > 50 * 1024 * 1024) {
-        setFileSizeError("File size must not exceed 50MB")
+      if (file.size > 1000 * 1024 * 1024) {
+        setFileSizeError("File size must not exceed 1GB")
         setData("file_url", null)
         return
       }
@@ -83,6 +84,20 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
               />
               <InputError message={errors.title} className="mt-2" />
             </div>
+
+            <div>
+              <Label htmlFor="file_number" className="text-right">
+                Order
+              </Label>
+              <Input
+                id="file_number"
+                value={data.file_number}
+                onChange={(e) => setData("file_number", Number(e.target.value))}
+                className="col-span-3"
+              />
+              <InputError message={errors.file_number} className="mt-2" />
+            </div>
+
             <div>
               <Label htmlFor="file_url" className="text-right">
                 PDF File

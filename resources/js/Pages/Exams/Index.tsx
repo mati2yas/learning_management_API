@@ -161,6 +161,22 @@ const Index: React.FC<ExamIndexProps> = ({
     return selectedExamType && !["NGAT", "EXIT",'SAT','UAT','EXAM'].includes(selectedExamType.name.toUpperCase())
   }
 
+  const getFilteredExamGrades = () => {
+    const selectedExamType = exam_types?.find((type) => type.id.toString() === data.examType)
+    if (!selectedExamType) return []
+
+    switch (selectedExamType.name) {
+      case "6th Grade Ministry":
+        return exam_grades.filter((grade) => [5, 6].includes(grade.grade))
+      case "8th Grade Ministry":
+        return exam_grades.filter((grade) => [7, 8].includes(grade.grade))
+      case "ESSLCE":
+        return exam_grades.filter((grade) => grade.grade >= 10 && grade.grade <= 12)
+      default:
+        return []
+    }
+  }
+
   const getExamTypeName = (id: number) => exam_types.find((c) => c.id === id)?.name || ""
   const getExamCourseName = (id: number) => exam_courses.find((c) => c.id === id)?.course_name || ""
   const getChapterTitle = (id: number) => exam_chapters?.find((g) => g.id === id)?.title || ""
@@ -216,9 +232,9 @@ const Index: React.FC<ExamIndexProps> = ({
                     <SelectValue placeholder="Select Grade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {exam_grades.map((grade) => (
+                  {getFilteredExamGrades().map((grade) => (
                       <SelectItem key={grade.id} value={grade.id.toString()}>
-                        Grade - {grade.grade} {grade.stream? grade.stream : ''}
+                        Grade - {grade.grade} {grade.stream ? ` - ${grade.stream}` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>

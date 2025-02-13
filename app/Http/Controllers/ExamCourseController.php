@@ -81,7 +81,7 @@ class ExamCourseController extends Controller
             ]);
         }
 
-        return redirect()->route('exams-courses.index')->with('success', 'Exam Course/Chapter add successfully.');
+        return redirect()->route('exam-courses.index')->with('success', 'Exam Course/Chapter add successfully.');
     }
 
     /**

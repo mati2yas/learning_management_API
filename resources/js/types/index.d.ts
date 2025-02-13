@@ -149,6 +149,7 @@ export interface YoutubeContent{
     content_id: number;
     title: string;
     url: string;
+    youtube_number: number
     created_at?: string;
     updated_at?: string;
 }
@@ -167,6 +168,7 @@ export interface FileContent{
     content_id: number;
     title: string;
     file_url: string;
+    file_number: number
     created_at?: string;
     updated_at?: string;
 }

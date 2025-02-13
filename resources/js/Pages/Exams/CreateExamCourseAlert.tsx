@@ -1,3 +1,5 @@
+
+
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -57,9 +59,9 @@ const CreateExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
-  const fetchExamCourses = useCallback(async (examTypeId: string) => {
+  const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string) => {
     try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}`)
+      const response = await axios.get(`/api/exam-courses/${examTypeId}/${examGradeId}`)
       setExamCourses(response.data)
     } catch (error) {
       console.error("Error fetching exam courses:", error)
@@ -68,16 +70,32 @@ const CreateExamCourseAlert = ({
 
   const showExamGrade = useMemo(() => {
     const selectedExamType = examTypes.find((type) => type.id.toString() === data.exam_type_id)
-    return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
+    return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
   }, [data.exam_type_id, examTypes])
 
+  const getFilteredExamGrades = useMemo(() => {
+    const selectedExamType = examTypes.find((type) => type.id.toString() === data.exam_type_id)
+    if (!selectedExamType) return []
+
+    switch (selectedExamType.name) {
+      case "6th Grade Ministry":
+        return examGrades.filter((grade) => [5, 6].includes(grade.grade))
+      case "8th Grade Ministry":
+        return examGrades.filter((grade) => [7, 8].includes(grade.grade))
+      case "ESSLCE":
+        return examGrades.filter((grade) => grade.grade >= 10 && grade.grade <= 12)
+      default:
+        return []
+    }
+  }, [data.exam_type_id, examTypes, examGrades])
+
   useEffect(() => {
-    if (data.exam_type_id && showExamGrade) {
-      fetchExamCourses(data.exam_type_id)
+    if (data.exam_type_id && data.exam_grade_id) {
+      fetchExamCourses(data.exam_type_id, data.exam_grade_id)
     } else {
       setExamCourses([])
     }
-  }, [data.exam_type_id, fetchExamCourses, showExamGrade])
+  }, [data.exam_type_id, data.exam_grade_id, fetchExamCourses])
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -118,9 +136,7 @@ const CreateExamCourseAlert = ({
               value={data.exam_type_id}
               onValueChange={(value) => {
                 setData("exam_type_id", value)
-                if (!showExamGrade) {
-                  setData("exam_grade_id", "")
-                }
+                setData("exam_grade_id", "")
                 setData("exam_course_id", "")
                 setIsNewCourse(false)
               }}
@@ -146,13 +162,15 @@ const CreateExamCourseAlert = ({
                 value={data.exam_grade_id}
                 onValueChange={(value) => {
                   setData("exam_grade_id", value)
+                  setData("exam_course_id", "")
+                  setIsNewCourse(false)
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Exam Grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {examGrades.map((grade) => (
+                  {getFilteredExamGrades.map((grade) => (
                     <SelectItem key={grade.id} value={grade.id.toString()}>
                       Grade - {grade.grade}
                       {grade.stream ? ` - ${grade.stream}` : ""}

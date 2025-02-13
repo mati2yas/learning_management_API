@@ -23,7 +23,6 @@ const Index: React.FC<IndexProps> = ({
   session,
 }) => {
 
-  // console.log(courses);
 
   const { data, setData } = useForm({
     category: filters.category || '',
@@ -57,7 +56,6 @@ const Index: React.FC<IndexProps> = ({
 
 
   const getDepartmentName = (id: number) => departments.find((d: { id: number }) => d.id === id)?.department_name || '';
-
 
   const getBatchName = (id: number) => batches.find((b: { id: number }) => b.id === id)?.batch_name || '';
 

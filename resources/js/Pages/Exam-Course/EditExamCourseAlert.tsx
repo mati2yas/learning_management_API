@@ -18,7 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
-
+import { usePage } from "@inertiajs/react"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -33,7 +33,7 @@ const EditExamCourseAlert = ({
   const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>(examCourse.exam_chapters || [])
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
- 
+
 
   const { data, setData, put, processing, errors, reset } = useForm({
     exam_type_id: examCourse.exam_type_id,
@@ -72,19 +72,6 @@ const EditExamCourseAlert = ({
     }
   }, [])
 
-  const showExamGrade = useMemo(() => {
-    const selectedExamType = examTypes.find((type) => type.id === Number(data.exam_type_id))
-    return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
-  }, [data.exam_type_id, examTypes])
-
-  useEffect(() => {
-    if (data.exam_type_id && showExamGrade) {
-      fetchExamCourses(data.exam_type_id.toString())
-    } else {
-      setExamCourses([])
-    }
-  }, [data.exam_type_id, fetchExamCourses, showExamGrade])
-
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
@@ -101,6 +88,27 @@ const EditExamCourseAlert = ({
     })
   }
 
+  const showExamGrade = useMemo(() => {
+    const selectedExamType = examTypes.find((type) => type.id === Number(data.exam_type_id))
+    return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
+  }, [data.exam_type_id, examTypes])
+
+  const getFilteredExamGrades = useMemo(() => {
+    const selectedExamType = examTypes.find((type) => type.id === Number(data.exam_type_id))
+    if (!selectedExamType) return []
+
+    switch (selectedExamType.name) {
+      case "6th Grade Ministry":
+        return examGrades.filter((grade) => [5, 6].includes(grade.grade))
+      case "8th Grade Ministry":
+        return examGrades.filter((grade) => [7, 8].includes(grade.grade))
+      case "ESSLCE":
+        return examGrades.filter((grade) => grade.grade >= 9 && grade.grade <= 12)
+      default:
+        return []
+    }
+  }, [data.exam_type_id, examTypes, examGrades])
+
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
@@ -116,7 +124,7 @@ const EditExamCourseAlert = ({
 
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle>Edit ExamCourse</AlertDialogTitle>
+          <AlertDialogTitle>Edit Exam Course</AlertDialogTitle>
           <AlertDialogDescription>Edit exam course details and chapters</AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -161,7 +169,7 @@ const EditExamCourseAlert = ({
                   <SelectValue placeholder="Select Exam Grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {examGrades.map((grade) => (
+                  {getFilteredExamGrades.map((grade) => (
                     <SelectItem key={grade.id} value={grade.id.toString()}>
                       Grade - {grade.grade}
                       {grade.stream ? ` - ${grade.stream}` : ""}

@@ -1,19 +1,22 @@
+"use client"
+
 import { useState } from "react"
-import { Head, Link } from "@inertiajs/react"
+import { Head, Link, usePage } from "@inertiajs/react"
 import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { ArrowLeft, PlusCircle } from "lucide-react"
-import YouTubeContentDialog from "./YoutTubeContentDialog"
-import FileContentDialog from "./FIleContentDialog"
+
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import type { Content, FileContent, YoutubeContent } from "@/types"
 import EditYoutubeAlert from "../Youtube-Content/EditYoutubeAlert"
 import DeleteYoutubeAlert from "../Youtube-Content/DeleteYoutubeAlert"
 import EditFileContentAlert from "../File-Content/EditFileContentAlert"
-import DeleteFileContentAlert from "../File-Content/DeleteFIleContentAlert"
+
 import { SessionToast } from "@/Components/SessionToast"
-// import { SessionToast } from '../../Components/SessionToast';
+import DeleteFileContentAlert from "../File-Content/DeleteFIleContentAlert"
+import FileContentDialog from "./FIleContentDialog"
+import YouTubeContentDialog from "./YoutTubeContentDialog"
 
 interface ContentDetailProps {
   content: Content
@@ -23,11 +26,16 @@ interface ContentDetailProps {
   session: string
 }
 
-export default function ContentDetail({ content, youtube_contents, file_contents, chapter_id, session }: ContentDetailProps) {
-
-  // console.log()
+export default function ContentDetail({
+  content,
+  youtube_contents,
+  file_contents,
+  chapter_id,
+  session,
+}: ContentDetailProps) {
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false)
   const [isFileDialogOpen, setIsFileDialogOpen] = useState(false)
+
 
   const handleFileDownload = (fileUrl: string, fileName: string) => {
     fetch(fileUrl)
@@ -45,7 +53,11 @@ export default function ContentDetail({ content, youtube_contents, file_contents
       .catch(() => alert("An error occurred while downloading the file."))
   }
 
-  console.log(session)
+  const extractVideoId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return match && match[2].length === 11 ? match[2] : null
+  }
 
   return (
     <Authenticated
@@ -62,10 +74,8 @@ export default function ContentDetail({ content, youtube_contents, file_contents
     >
       <Head title={`Content -  ${content.name}`} />
 
-      {
-        session ? <SessionToast message={session}/> : null
-      }
-      
+      {session ? <SessionToast message={session} /> : null}
+
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="container mx-auto py-8">
@@ -86,33 +96,57 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                       <PlusCircle className="mr-2 h-4 w-4" /> Add Video Content
                     </Button>
 
-                    { (youtube_contents ?? []).length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16">
-                          <img src={'/images/Video tutorial-bro.svg'} alt="No data available" className="w-[27rem] h-48" />
-                          <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
-                        </div>
+                    {(youtube_contents ?? []).length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16">
+                        <img
+                          src={"/images/Video tutorial-bro.svg"}
+                          alt="No data available"
+                          className="w-[27rem] h-48"
+                        />
+                        <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
+                      </div>
                     ) : (
-                    youtube_contents &&
-                      Array.isArray(youtube_contents) &&
-                      youtube_contents.map((content) => (
-                        <div key={content.id} className="mb-4 p-4 border rounded flex justify-between">
-                          <div>
-                            <h3 className="text-lg font-semibold">{content.title}</h3>
-                            <a
-                              href={content.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline"
-                            >
-                              {content.url}
-                            </a>
-                          </div>
-                          <div>
-                            <EditYoutubeAlert youtube_content={content} />
-                            <DeleteYoutubeAlert title={content.title} id={content.id} />
-                          </div>
-                        </div>
-                      )))}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {youtube_contents &&
+                          Array.isArray(youtube_contents) &&
+                          youtube_contents.map((content) => {
+                            const videoId = extractVideoId(content.url)
+                            return (
+                              <Card key={content.id} className="overflow-hidden">
+                                <CardHeader className="p-4">
+                                  <CardTitle className="text-base font-medium truncate">{content.title}</CardTitle>
+                                </CardHeader>
+                                {videoId && (
+                                  <div className="aspect-video">
+                                    <iframe
+                                      className="w-full h-full"
+                                      src={`https://www.youtube.com/embed/${videoId}`}
+                                      title={content.title}
+                                      frameBorder="0"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      allowFullScreen
+                                    ></iframe>
+                                  </div>
+                                )}
+                                <CardContent className="p-4">
+                                  <a
+                                    href={content.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:underline text-sm block truncate"
+                                  >
+                                    {content.url}
+                                  </a>
+                                  <div className="flex justify-end space-x-2 mt-2">
+                                    <EditYoutubeAlert youtube_content={content} />
+                                    <DeleteYoutubeAlert title={content.title} id={content.id} />
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            )
+                          })}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -128,37 +162,37 @@ export default function ContentDetail({ content, youtube_contents, file_contents
                       <PlusCircle className="mr-2 h-4 w-4" /> Add File Content
                     </Button>
 
-                    { (file_contents ?? []).length === 0 ? (
+                    {(file_contents ?? []).length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-16">
-                      <img src={'/images/Files sent-rafiki.svg'} alt="No data available" className="w-[50rem] h-48" />
-                      <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
-                    </div>
-                    ):(
-                      file_contents &&
-                        Array.isArray(file_contents) &&
-                        file_contents.map((content) => (
-                          <div key={content.id} className="mb-4 p-4 border rounded flex justify-between">
-                            <div>
-                              <h3 className="text-lg font-semibold">{content.title}</h3>
-                              <Button
-                                variant="link"
-                                className="text-blue-500 hover:underline p-0"
-                                onClick={() => {
-                                  console.log(content.file_url)
-                                  return handleFileDownload('/'+'storage/'+content.file_url, content.title)}}
-                              >
-                                Download File
-                              </Button>
-                            </div>
-                            <div>
-                              <EditFileContentAlert file_content={content} />
-                              <DeleteFileContentAlert id={content.id} title={content.title} />
-                            </div>
-                          </div>
-                      ))
+                        <img src={"/images/Files sent-rafiki.svg"} alt="No data available" className="w-[50rem] h-48" />
+                        <p className="text-gray-500 mt-4 text-lg">No Contents available. Start creating one!</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {file_contents &&
+                          Array.isArray(file_contents) &&
+                          file_contents.map((content) => (
+                            <Card key={content.id}>
+                              <CardHeader className="p-4">
+                                <CardTitle className="text-base font-medium truncate">{content.title}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="p-4">
+                                <Button
+                                  variant="outline"
+                                  className="w-full mb-2"
+                                  onClick={() => handleFileDownload("/" + "storage/" + content.file_url, content.title)}
+                                >
+                                  Download File
+                                </Button>
+                                <div className="flex justify-end space-x-2">
+                                  <EditFileContentAlert file_content={content} />
+                                  <DeleteFileContentAlert id={content.id} title={content.title} />
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
                     )}
-                    
- 
                   </CardContent>
                 </Card>
               </TabsContent>

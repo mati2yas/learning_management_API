@@ -14,6 +14,7 @@ import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime';
 import PermissionAlert from "@/Components/PermissionAlert"
 import { SessionToast } from "@/Components/SessionToast"
+import { useEffect, useState } from "react"
 
 dayjs.extend(relativeTime);
 
@@ -38,7 +39,20 @@ const Show = ({
   canUpdateChapters,
 }: ShowCourseProps) => {
 
-  console.log(course)
+  const [showToast, setShowToast] = useState(false)
+
+  useEffect(() => {
+    if (session) {
+      setShowToast(true)
+      console.log(session)
+      const timer = setTimeout(() => {
+        setShowToast(false)
+      }, 5000) // Hide toast after 5 seconds
+      return () => clearTimeout(timer)
+    }
+  }, [session])
+
+
   const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A"
 
   return (
@@ -50,7 +64,7 @@ const Show = ({
       }
     >
       <Head title={course.course_name} />
-      {session && <SessionToast message={session} />}
+      {showToast && session && <SessionToast message={session} />}
       <div className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1,4 +1,6 @@
-import { useState } from "react"
+"use client"
+
+import { useState, useEffect } from "react"
 import { useForm } from "@inertiajs/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
@@ -13,12 +15,25 @@ interface YouTubeContentDialogProps {
 }
 
 export default function YouTubeContentDialog({ isOpen, onClose, contentId }: YouTubeContentDialogProps) {
-
   const { data, setData, post, processing, errors, reset } = useForm({
     title: "",
     url: "",
     content_id: contentId,
   })
+
+  const [videoId, setVideoId] = useState("")
+
+  useEffect(() => {
+    // Extract video ID from URL
+    const extractVideoId = (url: string) => {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+      const match = url.match(regExp)
+      return match && match[2].length === 11 ? match[2] : null
+    }
+
+    const id = extractVideoId(data.url)
+    setVideoId(id || "")
+  }, [data.url])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,13 +47,12 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Add Video Content</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 ">
-
+          <div className="grid gap-4">
             <div>
               <Label htmlFor="title" className="text-right">
                 Title
@@ -52,11 +66,10 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
               <InputError message={errors.title} className="mt-2" />
             </div>
 
-            <div className="">
+            <div>
               <Label htmlFor="url" className="text-right">
                 URL
               </Label>
-
               <Input
                 id="url"
                 value={data.url}
@@ -66,8 +79,20 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
               <InputError message={errors.url} className="mt-2" />
             </div>
 
+            {videoId && (
+              <div className="aspect-video">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button type="submit" disabled={processing}>
               Add Content
             </Button>

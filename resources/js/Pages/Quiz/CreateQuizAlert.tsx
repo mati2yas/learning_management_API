@@ -1,4 +1,6 @@
-import { type FormEventHandler, useState, useEffect, useCallback } from "react"
+"use client"
+
+import { useState, type FormEventHandler, useEffect } from "react"
 import { useForm } from "@inertiajs/react"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
@@ -13,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { PlusCircle, X } from "lucide-react"
+// Assuming you are using vue-router, adjust if different
 
 interface CreateMultipleQuizzesAlertProps {
   id: number
@@ -24,6 +27,7 @@ const MAX_QUIZZES = 10
 const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzesAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [quizTitles, setQuizTitles] = useState<string[]>([""])
+ // Assuming you are using vue-router, adjust if different
 
   const { data, setData, post, processing, errors, reset } = useForm({
     chapter_id: id,
@@ -32,49 +36,41 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
 
   useEffect(() => {
     setData("chapter_id", id)
-  }, [id, setData])
+    updateFormData()
+  }, [id, setData]) // Removed quizTitles from dependencies
 
-  const updateFormData = useCallback(() => {
+  const updateFormData = () => {
     const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
     setData("quizzes", quizzes)
-  }, [setData])
+  }
 
-  const addQuizTitle = useCallback(() => {
+  const addQuizTitle = () => {
+    if (quizTitles.length < MAX_QUIZZES) {
+      setQuizTitles((prev) => [...prev, ""])
+    }
+  }
+
+  const removeQuizTitle = (index: number) => {
+    setQuizTitles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const updateQuizTitle = (index: number, value: string) => {
     setQuizTitles((prev) => {
-      const newTitles = prev.length < MAX_QUIZZES ? [...prev, ""] : prev
-      updateFormData()
+      const newTitles = [...prev]
+      newTitles[index] = value
       return newTitles
     })
-  }, [updateFormData])
-
-  const removeQuizTitle = useCallback(
-    (index: number) => {
-      setQuizTitles((prev) => {
-        const newTitles = prev.filter((_, i) => i !== index)
-        updateFormData()
-        return newTitles
-      })
-    },
-    [updateFormData],
-  )
-
-  const updateQuizTitle = useCallback(
-    (index: number, value: string) => {
-      setQuizTitles((prev) => {
-        const newTitles = [...prev]
-        newTitles[index] = value
-        updateFormData()
-        return newTitles
-      })
-    },
-    [updateFormData],
-  )
-
+  }
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
-    post(route("quizzes.store"), {
+    // Ensure form data is up-to-date before submission
+    const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
+    setData("quizzes", quizzes)
+
+    post(route("quizzes.store", id.toString()), {
+      // Replace with your actual route logic.  This assumes a route like /quizzes/:id
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {

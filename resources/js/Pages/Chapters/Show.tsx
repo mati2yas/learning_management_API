@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Head, Link } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { BookOpen, List, Grid, ArrowLeft, Clapperboard, PlusCircle } from 'lucide-react'
@@ -55,6 +55,19 @@ const Show: React.FC<ChapterDetailProps> = ({
   session,
 }) => {
 
+  const [showToast, setShowToast] = useState(false)
+
+  useEffect(() => {
+    if (session) {
+      setShowToast(true)
+      console.log(session)
+      const timer = setTimeout(() => {
+        setShowToast(false)
+      }, 5000) // Hide toast after 5 seconds
+      return () => clearTimeout(timer)
+    }
+  }, [session])
+
   return (
     <AuthenticatedLayout
       header={
@@ -70,9 +83,7 @@ const Show: React.FC<ChapterDetailProps> = ({
       }
     >
       <Head title={`Chapter - ${chapter.title}`} />
-      {
-        session ? <SessionToast message={session}/> : null
-      }
+      {showToast && session && <SessionToast message={session} />}
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8">

@@ -19,7 +19,7 @@ class ExamCourseSeeder extends Seeder
         // $faker = app(\Faker\Generator::class);
 
         
-        // ExamCourse::query()->delete();
+        ExamCourse::query()->delete();
         if(DB::table('exam_courses')->count() === 0) {
             // Get all exam types and exam grades
             $exam_types = ExamType::all();

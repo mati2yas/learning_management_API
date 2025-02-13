@@ -16,7 +16,7 @@ class ExamGradeSeeder extends Seeder
      */
     public function run(): void
     {
-        // ExamGrade::query()->delete();
+        ExamGrade::query()->delete();
 
         if(DB::table('exam_grades')->count() === 0){
             

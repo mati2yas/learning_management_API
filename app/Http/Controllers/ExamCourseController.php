@@ -151,6 +151,11 @@ class ExamCourseController extends Controller
      */
     public function destroy(ExamCourse $examCourse)
     {
-        //
+        $examCourseDeleted = $examCourse->course_name;
+
+        $examCourse->delete();
+
+        return redirect()->route('exam-courses.index')->with('success', 'Exam Course '.$examCourseDeleted.'Chapter updated successfully.');
+
     }
 }

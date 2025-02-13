@@ -136,10 +136,10 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
         setError("questions", `Question text is required for question ${index + 1}`)
         isValid = false
       }
-      if (question.text_explanation.trim() === "") {
-        setError("questions", `Explanation is required for question ${index + 1}`)
-        isValid = false
-      }
+      // if (question.text_explanation.trim() === "") {
+      //   setError("questions", `Explanation is required for question ${index + 1}`)
+      //   isValid = false
+      // }
       if (question.video_explanation_url && !isValidUrl(question.video_explanation_url)) {
         setError("questions", `Invalid URL format at question ${index + 1}`)
         isValid = false

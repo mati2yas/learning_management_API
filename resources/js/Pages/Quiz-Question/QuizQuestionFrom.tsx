@@ -71,6 +71,11 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
     (event: React.ChangeEvent<HTMLInputElement>, field: "question_image_url" | "image_explanation_url") => {
       const file = event.target.files?.[0]
       if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert("File size should not exceed 5 MB")
+          event.target.value = ""
+          return
+        }
         const reader = new FileReader()
         reader.onloadend = () => {
           const base64String = reader.result as string
@@ -115,6 +120,7 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
           id={`question_text_${index}`}
           value={question.text}
           onChange={(e) => updateQuestion(index, "text", e.target.value)}
+          required
         />
         <InputError>{errors[`questions.${index}.text`]}</InputError>
       </div>
@@ -134,7 +140,7 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`text_explanation_${index}`}>Explanation</Label>
+        <Label htmlFor={`text_explanation_${index}`}>Explanation(optional)</Label>
         <Textarea
           id={`text_explanation_${index}`}
           value={question.text_explanation}

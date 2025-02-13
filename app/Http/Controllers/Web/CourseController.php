@@ -73,25 +73,25 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        $attrs = $request->validate([
-            'course_name' => 'required|max:100',
-            'category_id' => 'required',
-            'grade_id' => '',
-            'department_id' => '',
-            'batch_id'=> [""],
-            // 'number_of_chapters'=> ['required'],
-            'price_one_month' => 'required',
-            'on_sale_one_month' => '',
-            'price_three_month' => 'required',
-            'on_sale_three_month' => '',
-            'price_six_month' => 'required',
-            'on_sale_six_month' => '',
-            'price_one_year' => 'required',
-            'on_sale_one_year' => '',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
 
+    $attrs = $request->validate([
+        'course_name' => 'required|max:100',
+        'category_id' => 'required',
+        'grade_id' => 'nullable',
+        'department_id' => 'nullable',
+        'batch_id' => 'nullable',
+        'price_one_month' => 'required|numeric|max:100000',
+        'on_sale_one_month' => 'nullable|numeric|max:100000',
+        'price_three_month' => 'required|numeric|max:100000',
+        'on_sale_three_month' => 'nullable|numeric|max:100000',
+        'price_six_month' => 'required|numeric|max:100000',
+        'on_sale_six_month' => 'nullable|numeric|max:100000',
+        'price_one_year' => 'required|numeric|max:100000',
+        'on_sale_one_year' => 'nullable|numeric|max:100000',
+        'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
         
+
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('thumbnail', 'public'); // Store in "storage/app/public/thumbnail"
             $attrs['thumbnail'] = $path; // Add the path to attributes to save in the database
@@ -175,14 +175,14 @@ class CourseController extends Controller
             'grade_id' => 'nullable',
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
-            'price_one_month' => 'required',
-            'on_sale_one_month' => 'nullable',
-            'price_three_month' => 'required',
-            'on_sale_three_month' => 'nullable',
-            'price_six_month' => 'required',
-            'on_sale_six_month' => 'nullable',
-            'price_one_year' => 'required',
-            'on_sale_one_year' => 'nullable',
+            'price_one_month' => 'required|numeric|max:100000',
+            'on_sale_one_month' => 'nullable|numeric|max:100000',
+            'price_three_month' => 'required|numeric|max:100000',
+            'on_sale_three_month' => 'nullable|numeric|max:100000',
+            'price_six_month' => 'required|numeric|max:100000',
+            'on_sale_six_month' => 'nullable|numeric|max:100000',
+            'price_one_year' => 'required|numeric|max:100000',
+            'on_sale_one_year' => 'nullable|numeric|max:100000',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ], $messages);
 

@@ -15,7 +15,7 @@ export const SessionToast: React.FC<SessionToastProps> = ({ message }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false)
-    }, 8000)
+    }, 10000)
 
     return () => clearTimeout(timer)
   }, [])

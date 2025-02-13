@@ -27,6 +27,9 @@ const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestion
   canUpdateQuizQuestions,
   canDeleteQuizQuestions,
    session}: ShowProps) => {
+
+
+  const sortedQuestions = [...quiz_questions].sort((a, b) => a.question_number - b.question_number)
  
   return (
     <Authenticated
@@ -62,14 +65,14 @@ const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestion
             }
             
           </div>
-          {quiz_questions.length === 0 ? (
+          {sortedQuestions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
             <img src={'/images/Seminar-amico.svg'} alt="No data available" className="w-48 h-48" />
             <p className="text-gray-500 mt-4 text-lg">No Quizes available. Start creating one!</p>
           </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {quiz_questions.map((question) => (
+              {sortedQuestions.map((question) => (
                 <QuizQuestionCard key={question.id} question={question}   canUpdateQuizQuestions={canUpdateQuizQuestions}
                 canDeleteQuizQuestions={canDeleteQuizQuestions}  />
               ))}
@@ -88,6 +91,7 @@ interface QuizQuestionCardProps {
 }
 
 const QuizQuestionCard = ({ question, canDeleteQuizQuestions, canUpdateQuizQuestions }: QuizQuestionCardProps) => {
+  
   const options = JSON.parse(question.options as unknown as string)
 
   return (

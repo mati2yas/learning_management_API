@@ -64,6 +64,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 id="title"
                 name="title"
                 value={data.title}
+                className="w-full"
                 onChange={(e) => setData('title', e.target.value)}
                 required
               />
@@ -78,6 +79,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 name="order"
                 type="number"
                 value={data.order}
+                className="w-full"
                 onChange={(e) => setData('order', Number(e.target.value))}
                 required
               />
@@ -90,6 +92,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 id="description"
                 name="description"
                 value={data.description}
+                className="w-full"
                 onChange={(e) => setData('description', e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />

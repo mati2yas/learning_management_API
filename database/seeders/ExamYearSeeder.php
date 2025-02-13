@@ -14,7 +14,7 @@ class ExamYearSeeder extends Seeder
     public function run(): void
     {
         // Delete existing records to avoid duplication
-        // ExamYear::query()->delete();
+        ExamYear::query()->delete();
 
         if (DB::table('exam_years')->count() === 0) {
             $years = range(2001, 2050); // Generate years from 2001 to 2050

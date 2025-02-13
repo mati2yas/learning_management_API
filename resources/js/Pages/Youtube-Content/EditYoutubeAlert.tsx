@@ -62,6 +62,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
                 id="title"
                 name="title"
                 value={data.title}
+                className="w-full"
                 onChange={(e) => setData('title', e.target.value)}
                 required
               />
@@ -75,6 +76,7 @@ export default function EditYoutubeAlert({ youtube_content }: EditYoutubeAlertPr
                 id="url"
                 name="url"
                 type="url"
+                className="w-full"
                 value={data.url}
                 onChange={(e) => setData('url', e.target.value)}
                 required

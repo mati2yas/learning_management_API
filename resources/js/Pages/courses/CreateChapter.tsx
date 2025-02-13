@@ -66,6 +66,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 id="title"
                 name="title"
                 value={data.title}
+                className="w-full"
                 onChange={(e) => setData('title', e.target.value)}
                 required
               />
@@ -79,6 +80,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 id="order"
                 name="order"
                 type="number"
+                className="w-full"
                 value={data.order}
                 onChange={(e) => setData('order', e.target.value)}
                 required

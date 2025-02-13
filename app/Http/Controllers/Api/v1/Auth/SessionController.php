@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as RulesPassword;
@@ -61,6 +62,7 @@ class SessionController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => ['required', RulesPassword::min(4), 'confirmed'],
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Ensuring proper image validation
         ]);
     
         if ($attrs->fails()) {
@@ -71,23 +73,29 @@ class SessionController extends Controller
             ], 401);
         }
     
+        // Handle avatar upload
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public'); // Store in storage/app/public/avatars
+        }
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'avatar' => $avatarPath ?? null // Set default avatar if none uploaded
         ]);
     
         $studentApi = Role::where('name', 'student')->where('guard_name', 'api')->first();
 
         $studentWeb = Role::where('name', 'student')->where('guard_name', 'web')->first();
-        
+    
         $user->assignRole($studentApi);
         $user->assignRole($studentWeb);
     
         // Dispatch the custom email job
         SendCustomVerificationEmail::dispatch($user);
     
-
         return response()->json([
             'status' => true,
             'message' => 'Student User Created Successfully. Email verification link sent.',
@@ -152,41 +160,59 @@ class SessionController extends Controller
 
     public function update(Request $request)
     {
-        $attrs = Validator::make($request->all(),[
-            'name'=> 'required',
-            'email'=> [
+        $user = $request->user();
+
+        // dd($request->all());
+    
+        $attrs = Validator::make($request->all(), [
+            'name' => 'required|string|max:50',
+            'email' => [
                 'required',
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($request->user()->id),
+                Rule::unique(User::class)->ignore($user->id),
             ],
-            'password'=> ['required', RulesPassword::min(4), 'confirmed'],
+            'password' => ['required', RulesPassword::min(4), 'confirmed'],
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
-
-        if($attrs->fails()){
+    
+        if ($attrs->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Validation Error',
                 'errors' => $attrs->errors()
             ], 401);
         }
-
-        $request->user()->update([
-            'name'=> $request->name,
+    
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+    
+            // Store new avatar
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        } else {
+            $avatarPath = $user->avatar; // Keep the existing avatar if no new one is uploaded
+        }
+    
+        // Update user details
+        $user->update([
+            'name' => $request->name,
             'email' => $request->email,
-            'password'=> $request->password,
+            'password' => $request->password ? Hash::make($request->password) : $user->password, // Hash new password if provided
+            'avatar' => $avatarPath
         ]);
-
-        // EmailVerificationSend::dispatch($request->user());
-
+    
         return response()->json([
             'status' => true,
-            'message' => 'User Credintials Updated Successfully',
-            'token' => $request->user()->createToken("API TOKEN")->plainTextToken,
-            'data'=>[
-                'user'=> $request->user(),
+            'message' => 'User Credentials Updated Successfully',
+            'token' => $user->createToken("API TOKEN")->plainTextToken,
+            'data' => [
+                'user' => $user,
             ]
         ]);
     }

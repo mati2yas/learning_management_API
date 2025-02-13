@@ -37,6 +37,8 @@ class QuizController extends Controller
             'quizzes' => 'required|array|min:1',
             'quizzes.*.title' => 'required|string|max:255',
         ]);
+
+        // dd($validated);
     
         $chapter = Chapter::findOrFail($validated['chapter_id']);
     

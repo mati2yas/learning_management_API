@@ -175,7 +175,7 @@ class SessionController extends Controller
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id),
             ],
-            'password' => ['required', RulesPassword::min(4), 'confirmed'],
+            // 'password' => ['required', RulesPassword::min(4), 'confirmed'],
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
     

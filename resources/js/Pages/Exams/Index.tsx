@@ -158,7 +158,7 @@ const Index: React.FC<ExamIndexProps> = ({
 
   const showExamGrade = () => {
     const selectedExamType = exam_types?.find((type) => type.id.toString() === data.examType)
-    return selectedExamType && !["NGAT", "EXIT"].includes(selectedExamType.name.toUpperCase())
+    return selectedExamType && !["NGAT", "EXIT",'SAT','UAT','EXAM'].includes(selectedExamType.name.toUpperCase())
   }
 
   const getExamTypeName = (id: number) => exam_types.find((c) => c.id === id)?.name || ""

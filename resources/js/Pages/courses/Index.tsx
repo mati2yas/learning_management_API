@@ -92,7 +92,15 @@ const Index: React.FC<IndexProps> = ({
                   <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category: { id: React.Key | null | undefined; name: string }) => (
                     <SelectItem key={category.id ?? ''} value={(category.id ?? '').toString()}>
-                      {category.name.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                      {(() => {
+                        const categoryNameMap: Record<string, string> = {
+                          higher_grades: "High School",
+                          random_courses: "Courses",
+                        };
+
+                        return categoryNameMap[category.name] || 
+                              category.name.replace(/_/g, " ").replace(/\b\w/g, (char: string) => char.toUpperCase());
+                      })()}
                     </SelectItem>
                   ))}
                 </SelectContent>

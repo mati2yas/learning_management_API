@@ -18,7 +18,7 @@ class ExamTypeSeeder extends Seeder
         ExamType::query()->delete();
 
         if(DB::table('exam_types')->count() === 0){
-            $exam_types = ['6th grade ministry','8th grade ministry', 'ESSLCE', 'ngat','sat','uat','exit','exam'];
+            $exam_types = ['6th Grade Ministry','8th Grade Ministry', 'ESSLCE', 'NGAT','SAT','UAT','EXIT','EXAM'];
             foreach($exam_types as $exam_type){
                 ExamType::factory()->create([
                     'name'=> $exam_type

@@ -20,7 +20,7 @@ class ExamGradeSeeder extends Seeder
 
         if(DB::table('exam_grades')->count() === 0){
             
-            for ($grade = 6; $grade <= 8; $grade++) {
+            for ($grade = 5; $grade <= 8; $grade++) {
                 ExamGrade::firstOrCreate([
                     'grade' => $grade,
                 ]);

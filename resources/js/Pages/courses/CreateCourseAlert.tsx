@@ -228,11 +228,22 @@ export function CreateCourseAlert() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
+                  {categories.map((category) => {
+                    const categoryNameMap: Record<string, string> = {
+                      higher_grades: "High School",
+                      random_courses: "Courses",
+                    };
+
+                    const formattedName =
+                      categoryNameMap[category.name] ||
+                      category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+                    return (
                       <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}
+                        {formattedName}
                       </SelectItem>
-                    ))}
+                    );
+                  })}
                   </SelectContent>
                 </Select>
                 <InputError message={errors.category_id} className="mt-2" />

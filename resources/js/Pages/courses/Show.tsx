@@ -86,8 +86,17 @@ const Show = ({
                     <div className="p-6 text-white">
                       <h2 className="text-3xl font-bold mb-2">{course.course_name}</h2>
                       <Badge variant="secondary" className="text-sm">
-                        {category_name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}
+                        {(() => {
+                          const categoryNameMap: Record<string, string> = {
+                            higher_grades: "High School",
+                            random_courses: "Courses",
+                          };
+
+                          return categoryNameMap[category_name] || 
+                                category_name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+                        })()}
                       </Badge>
+
                     </div>
                   </div>
                 </div>

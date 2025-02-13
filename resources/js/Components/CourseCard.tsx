@@ -73,8 +73,17 @@ export function CourseCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
         <div className="absolute top-4 right-4">
           <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
-            {category.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}
+            {(() => {
+              const categoryNameMap: Record<string, string> = {
+                higher_grades: "High School",
+                random_courses: "Courses",
+              };
+
+              return categoryNameMap[category] || 
+                    category.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+            })()}
           </Badge>
+
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <h3 className="text-xl font-bold text-white mb-2 capitalize">{name}</h3>
@@ -105,7 +114,7 @@ export function CourseCard({
         <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-300 mx-2.5">
           <span className="flex items-center">
             <BookOpen className="w-4 h-4 mr-1" />
-            {topicsCount} topics
+            {topicsCount} lessons
           </span>
           <span className="flex items-center">
             <ThumbsUp className="w-4 h-4 mr-1" />

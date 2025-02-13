@@ -147,6 +147,7 @@ class SessionController extends Controller
                 'status' => true,
                 'message' => 'Student logged in successfully',
                 'token' => $user->createToken("API TOKEN")->plainTextToken,
+                'data' => ['user' => $user],
             ]);
     
         } catch (\Throwable $th) {

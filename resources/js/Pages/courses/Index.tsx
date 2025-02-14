@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head, Link, useForm, router } from '@inertiajs/react'
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { CreateCourseAlert } from './CreateCourseAlert'
 import { CourseCard } from '@/Components/CourseCard'
@@ -9,6 +9,7 @@ import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
 import PermissionAlert from '@/Components/PermissionAlert'
 import { SessionToast } from '@/Components/SessionToast'
+import { Session } from 'inspector'
 
 const Index: React.FC<IndexProps> = ({
   courses,
@@ -20,6 +21,8 @@ const Index: React.FC<IndexProps> = ({
   canAdd,
   session,
 }) => {
+
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
 
   const { data, setData } = useForm({
     category: filters.category || '',
@@ -72,9 +75,7 @@ const Index: React.FC<IndexProps> = ({
       }
     >
       <Head title='Courses' />
-      {
-        session ? <SessionToast message={session}/> : null
-      }
+      {flash.success && (<SessionToast message={flash.success }  />)}
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">

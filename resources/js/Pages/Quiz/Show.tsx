@@ -15,11 +15,9 @@ interface ShowProps {
   quiz: Quiz
   quiz_questions: QuizQuestion[]
   chapter_id: number
-
   canAddQuizQuestions: boolean,
   canUpdateQuizQuestions: boolean,
   canDeleteQuizQuestions: boolean,
-
   session: string
 }
   
@@ -30,6 +28,8 @@ const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestion
 
 
   const sortedQuestions = [...quiz_questions].sort((a, b) => a.question_number - b.question_number)
+
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
  
   return (
     <Authenticated
@@ -46,9 +46,7 @@ const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestion
     >
       <Head title="Quiz Detail" />
 
-      {
-        session ? <SessionToast message={session}/> : null
-      }
+      {flash.success && (<SessionToast message={flash.success }  />)}
 
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Head, Link } from "@inertiajs/react"
+import { Head, Link, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { BookOpen, List, Grid, ArrowLeft, Clapperboard, PlusCircle } from 'lucide-react'
 import { Button } from "@/Components/ui/button"
@@ -68,6 +68,8 @@ const Show: React.FC<ChapterDetailProps> = ({
     }
   }, [session])
 
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+
   return (
     <AuthenticatedLayout
       header={
@@ -83,7 +85,9 @@ const Show: React.FC<ChapterDetailProps> = ({
       }
     >
       <Head title={`Chapter - ${chapter.title}`} />
-      {showToast && session && <SessionToast message={session} />}
+
+      {flash.success && (<SessionToast message={flash.success }  />)}
+      
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8">

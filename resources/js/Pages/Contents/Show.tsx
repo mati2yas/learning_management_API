@@ -59,6 +59,8 @@ export default function ContentDetail({
     return match && match[2].length === 11 ? match[2] : null
   }
 
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+
   return (
     <Authenticated
       header={
@@ -74,7 +76,7 @@ export default function ContentDetail({
     >
       <Head title={`Content -  ${content.name}`} />
 
-      {session ? <SessionToast message={session} /> : null}
+      {flash.success && (<SessionToast message={flash.success }  />)}
 
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">

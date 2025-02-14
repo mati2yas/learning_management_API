@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react"
+import { Head, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
 import { BookOpen, Users, GraduationCap, Building, Clock, UserCheck, Pencil, Trash2, Building2 } from "lucide-react"
 import { EnhancedTableDemo } from "@/Components/TableDemo"
@@ -38,25 +38,13 @@ const Show = ({
   canDeleteChapters,
   canUpdateChapters,
 }: ShowCourseProps) => {
-  const [showToast, setShowToast] = useState(false)
 
-  useEffect(() => {
-    if (session) {
-      setShowToast(true)
-      console.log(session)
-      const timer = setTimeout(() => {
-        setShowToast(false)
-      }, 5000) // Hide toast after 5 seconds
-      return () => clearTimeout(timer)
-    }
-  }, [session])
-
-
-  console.log('grades', grades, 'course', course)
 
   const gradeName = grades.find((grade) => grade.id === Number(course.grade_id))?.grade_name || "N/A"
 
-  console.log(gradeName)
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+
+  console.log(flash.success)
 
   return (
     <AuthenticatedLayout
@@ -67,7 +55,9 @@ const Show = ({
       }
     >
       <Head title={course.course_name} />
-      {showToast && session && <SessionToast message={session} />}
+
+      {flash.success && (<SessionToast message={flash.success }  />)}
+
       <div className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-8">

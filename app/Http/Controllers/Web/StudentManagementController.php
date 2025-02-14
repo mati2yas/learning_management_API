@@ -20,10 +20,6 @@ class StudentManagementController extends Controller
             $query->where('name', 'student')->where('guard_name', 'api');
         });
 
-        // $query = $query->whereHas('roles', function($query){
-        //     $query->where('name', 'student')->where('guard_name', 'web');
-        // });
-
         if(request('name')) {
             $query->where('name','like','%'. request('name') .'%');
         }

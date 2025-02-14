@@ -23,11 +23,21 @@ class SubscriptionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // dd(Subscription::with('subscriptionRequest')->get());
 
         // dd(SubscriptionRequest::with(['user', 'courses'])->get());
+
+        $query = SubscriptionRequest::with(['user', 'courses']);
+
+
+        if ($request->filled('status')){
+            $query->where('status', $request->input('status'));
+        }
+
+        $subscriptionRequests = $query->latest()->paginate(16);
+
 
         return Inertia::render('Subscriptions/Index', [
 
@@ -36,7 +46,7 @@ class SubscriptionController extends Controller
                 'subscriptionRequest.courses',
                 // 'subscriptionRequest.examCourse',
             ])->get()),
-            'subscriptionRequests' => SubscriptionRequestResource::collection(SubscriptionRequest::with(['user', 'courses'])->get()),
+            'subscriptionRequests' => SubscriptionRequestResource::collection($subscriptionRequests),
         ]);
     }
 

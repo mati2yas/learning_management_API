@@ -1,12 +1,14 @@
 
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head } from '@inertiajs/react'
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
 import { useState } from 'react'
 import { SubscriptionRequestsTable } from './SubscriptionRequestsTable'
 import { SubscriptionsTable } from './SubscriptionTable'
 import { Subscription } from '@/types'
 import { SubscriptionRequest } from '../../types/index';
+import { SessionToast } from '@/Components/SessionToast'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select'
 
 interface SubscriptionIndexProps {
   subscriptions: {
@@ -15,13 +17,41 @@ interface SubscriptionIndexProps {
 
   subscriptionRequests: {
     data: SubscriptionRequest[]
+    links: Array<{
+      url: string | null;
+      active: boolean;
+      label: string;
+    }>;
+    meta: any;
   }
+
+  filters: {
+    status: string;
+  };
 }
 
-const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => {
+const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexProps) => {
+
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+
+  const {data, setData} = useForm({
+    status: filters.status || '',
+  });
   
-  console.log('sub', subscriptionRequests)
+  // console.log('sub', subscriptionRequests)
   const [activeTab, setActiveTab] = useState("requests")
+
+  const handleStatusChange = (value: string) =>{
+    setData('status', value)
+    updateFilters({ status: value });
+  }
+
+  const updateFilters = (newFilters: Partial<typeof data>) => {
+    router.get(route('subscriptions.index'), { ...data, ...newFilters }, {
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
 
   return (
     <Authenticated
@@ -33,9 +63,28 @@ const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => 
       >
       <Head title='user management' />
       
+      {flash.success && (<SessionToast message={flash.success }  />)}
+
       <div className="py-12">
         <div className="max-w-[1300px] mx-auto sm:px-6 lg:px-8">
           <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-900">
+
+            <div className='w-full sm:w-auto'>
+                <Select value={data.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value='all'>
+
+                    </SelectItem>
+                  </SelectContent>
+
+                </Select>
+            </div>
+
+
             <div className="p-6 text-gray-900 dark:text-gray-100">
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -57,6 +106,26 @@ const Index = ({subscriptions,subscriptionRequests }:SubscriptionIndexProps) => 
 
             </div>
           </div>
+
+
+
+
+          <div className="mt-6 flex justify-center items-center space-x-2">
+            {subscriptionRequests.meta.links?.map((link: { url: any; active: any; label: any }, index: React.Key | null | undefined) => (
+              <Link
+                key={index}
+                href={link.url || '#'}
+                className={`px-4 py-2 border rounded ${
+                  link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'
+                } ${!link.url ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
+                preserveScroll
+                preserveState
+              >
+                <span dangerouslySetInnerHTML={{ __html: link.label }}></span>
+              </Link>
+            ))}
+          </div>
+
         </div>
       </div>
     </Authenticated>

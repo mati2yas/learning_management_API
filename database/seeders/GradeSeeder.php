@@ -34,26 +34,14 @@ class GradeSeeder extends Seeder
                 ]);
             }
 
-            // Create grades 9-12 for 'higher_grades'
             for ($grade = 9; $grade <= 12; $grade++) {
-
-                if($grade == 11 || $grade == 12){
-                    foreach (['natural', 'social'] as $stream) {
-                        Grade::firstOrCreate([
-                            'grade_name' => "Grade $grade ",
-                            'category_id' => $higherGradesCategory->id,
-                            'stream' => $stream, // Assuming there's a 'stream' column in your Grade model
-                        ]);
-
-                    }
-                } else {
-                    Grade::firstOrCreate([
-                        'grade_name' => "Grade $grade",
-                        'category_id' => $higherGradesCategory->id,
-                    ]);
-                }
-         
+                Grade::firstOrCreate([
+                    'grade_name' => "Grade $grade",
+                    'category_id' => $higherGradesCategory->id,
+                ]);
             }
+
+            // Create grades 9-12 for 'higher_grades'
         }
     }
 }

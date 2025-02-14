@@ -1,4 +1,4 @@
-"use client"
+
 
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
@@ -18,7 +18,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
-import { usePage } from "@inertiajs/react"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -34,13 +33,13 @@ const EditExamCourseAlert = ({
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
 
-
   const { data, setData, put, processing, errors, reset } = useForm({
     exam_type_id: examCourse.exam_type_id,
     exam_grade_id: examCourse.exam_grade_id,
     course_name: examCourse.course_name,
     exam_chapters: chapters,
     exam_course_id: examCourse.id.toString(),
+    stream: examCourse.stream || null,
   })
 
   const addChapter = useCallback(() => {
@@ -63,14 +62,24 @@ const EditExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
-  const fetchExamCourses = useCallback(async (examTypeId: string) => {
+  const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
     try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}`)
+      const response = await axios.get(`/api/exam-courses/${examTypeId}/${examGradeId}`, {
+        params: { stream },
+      })
       setExamCourses(response.data)
     } catch (error) {
       console.error("Error fetching exam courses:", error)
     }
   }, [])
+
+  useEffect(() => {
+    if (data.exam_type_id && data.exam_grade_id) {
+      fetchExamCourses(data.exam_type_id.toString(), data.exam_grade_id.toString(), data.stream)
+    } else {
+      setExamCourses([])
+    }
+  }, [data.exam_type_id, data.exam_grade_id, data.stream, fetchExamCourses])
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -92,6 +101,11 @@ const EditExamCourseAlert = ({
     const selectedExamType = examTypes.find((type) => type.id === Number(data.exam_type_id))
     return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
   }, [data.exam_type_id, examTypes])
+
+  const showStreamDropdown = useMemo(() => {
+    const selectedGrade = examGrades.find((grade) => grade.id === Number(data.exam_grade_id))
+    return selectedGrade && (selectedGrade.grade === 11 || selectedGrade.grade === 12)
+  }, [data.exam_grade_id, examGrades])
 
   const getFilteredExamGrades = useMemo(() => {
     const selectedExamType = examTypes.find((type) => type.id === Number(data.exam_type_id))
@@ -157,28 +171,52 @@ const EditExamCourseAlert = ({
           </div>
 
           {showExamGrade && (
-            <div className="space-y-2">
-              <Label htmlFor="exam_grade_id">Exam Grade</Label>
-              <Select
-                value={data.exam_grade_id.toString()}
-                onValueChange={(value) => {
-                  setData("exam_grade_id", Number(value))
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Exam Grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getFilteredExamGrades.map((grade) => (
-                    <SelectItem key={grade.id} value={grade.id.toString()}>
-                      Grade - {grade.grade}
-                      {grade.stream ? ` - ${grade.stream}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="exam_grade_id">Exam Grade</Label>
+                <Select
+                  value={data.exam_grade_id.toString()}
+                  onValueChange={(value) => {
+                    setData("exam_grade_id", Number(value))
+                    if (!showStreamDropdown) {
+                      setData("stream", null)
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Exam Grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getFilteredExamGrades.map((grade) => (
+                      <SelectItem key={grade.id} value={grade.id.toString()}>
+                        Grade - {grade.grade}
+                        {grade.stream ? ` - ${grade.stream}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
+              </div>
+              {showStreamDropdown && (
+                <div className="space-y-2">
+                  <Label htmlFor="stream">Stream</Label>
+                  <Select
+                    value={data.stream || ""}
+                    onValueChange={(value) => setData("stream", value === "null" ? null : value as "natural" | "social" | null)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="null">None</SelectItem>
+                      <SelectItem value="natural">Natural</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
+                </div>
+              )}
+            </>
           )}
 
           <div className="space-y-2">

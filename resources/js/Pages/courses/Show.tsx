@@ -1,6 +1,6 @@
 import { Head } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
-import { BookOpen, Users, GraduationCap, Building, Clock, Star, UserCheck, ThumbsUp, Pencil, Trash2 } from "lucide-react"
+import { BookOpen, Users, GraduationCap, Building, Clock, UserCheck, Pencil, Trash2, Building2 } from "lucide-react"
 import { EnhancedTableDemo } from "@/Components/TableDemo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
@@ -11,12 +11,12 @@ import { UpdateCourseAlert } from "./UpdateCourseAlert"
 import ChapterCard from "@/Components/ChapterCard"
 import type { ShowCourseProps } from "@/types/show"
 import dayjs from "dayjs"
-import relativeTime from 'dayjs/plugin/relativeTime';
+import relativeTime from "dayjs/plugin/relativeTime"
 import PermissionAlert from "@/Components/PermissionAlert"
 import { SessionToast } from "@/Components/SessionToast"
 import { useEffect, useState } from "react"
 
-dayjs.extend(relativeTime);
+dayjs.extend(relativeTime)
 
 const Show = ({
   course,
@@ -38,7 +38,6 @@ const Show = ({
   canDeleteChapters,
   canUpdateChapters,
 }: ShowCourseProps) => {
-
   const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
@@ -53,7 +52,11 @@ const Show = ({
   }, [session])
 
 
-  const gradeName = grades.find((grade) => grade.id === course.grade_id)?.grade_name || "N/A"
+  console.log('grades', grades, 'course', course)
+
+  const gradeName = grades.find((grade) => grade.id === Number(course.grade_id))?.grade_name || "N/A"
+
+  console.log(gradeName)
 
   return (
     <AuthenticatedLayout
@@ -90,23 +93,20 @@ const Show = ({
                           const categoryNameMap: Record<string, string> = {
                             higher_grades: "High School",
                             random_courses: "Courses",
-                          };
+                          }
 
-                          return categoryNameMap[category_name] || 
-                                category_name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+                          return (
+                            categoryNameMap[category_name] ||
+                            category_name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+                          )
                         })()}
                       </Badge>
-
                     </div>
                   </div>
                 </div>
                 <CardContent className="p-6">
                   <div className="flex sm:flex-row flex-col justify-between">
-                    <InfoItem
-                      icon={<BookOpen className="w-5 h-5" />}
-                      label="Chapters:"
-                      value={chaptersCount}
-                    />
+                    <InfoItem icon={<BookOpen className="w-5 h-5" />} label="Chapters:" value={chaptersCount} />
                     {course.grade_id && (
                       <InfoItem icon={<GraduationCap className="w-5 h-5" />} label="Grade:" value={gradeName} />
                     )}
@@ -114,7 +114,14 @@ const Show = ({
                       <InfoItem icon={<Building className="w-5 h-5" />} label="Department:" value={department_name} />
                     )}
                     {course.batch_id && (
-                      <InfoItem  icon={<Users className="w-5 h-5 text-nowrap" />} label="Batch:" value={batch_name} />
+                      <InfoItem icon={<Users className="w-5 h-5 text-nowrap" />} label="Batch:" value={batch_name} />
+                    )}
+                    {course.stream && (
+                      <InfoItem
+                        icon={<Building2 className="w-5 h-5 text-nowrap" />}
+                        label="Stream:"
+                        value={course.stream}
+                      />
                     )}
                   </div>
                 </CardContent>
@@ -160,31 +167,35 @@ const Show = ({
                   <CardTitle>Admin Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {
-                    canUpdate ? <UpdateCourseAlert
-                    course={course}
-                    categories={categories}
-                    grades={grades}
-                    departments={departments}
-                    batches={batches}
-                    thumbnail={thumbnail}
-                  /> : <PermissionAlert
-                        children="Update Course"
-                        permission="update a course" 
-                        icon={<Pencil className="w-5 h-5 mr-2" />}
-                        className="w-full bg-blue-600 hover:bg-blue-700 capitalize"
-                        />
-                  }
-
-                  {
-                    canDelete ?  <DeleteCourseAlert id={course.id} />: <PermissionAlert
-                    children="Delete Course"
-                    permission="update a course" 
-                    icon={<Trash2 className="w-5 h-5 mr-2" />}
-                    className="w-full bg-red-500 hover:bg-red-700 capitalize" buttonVariant={'destructive'}
+                  {canUpdate ? (
+                    <UpdateCourseAlert
+                      course={course}
+                      categories={categories}
+                      grades={grades}
+                      departments={departments}
+                      batches={batches}
+                      thumbnail={thumbnail}
                     />
-                  }
-                
+                  ) : (
+                    <PermissionAlert
+                      children="Update Course"
+                      permission="update a course"
+                      icon={<Pencil className="w-5 h-5 mr-2" />}
+                      className="w-full bg-blue-600 hover:bg-blue-700 capitalize"
+                    />
+                  )}
+
+                  {canDelete ? (
+                    <DeleteCourseAlert id={course.id} />
+                  ) : (
+                    <PermissionAlert
+                      children="Delete Course"
+                      permission="update a course"
+                      icon={<Trash2 className="w-5 h-5 mr-2" />}
+                      className="w-full bg-red-500 hover:bg-red-700 capitalize"
+                      buttonVariant={"destructive"}
+                    />
+                  )}
                 </CardContent>
               </Card>
 
@@ -204,7 +215,6 @@ const Show = ({
                   <CardTitle>Course Info</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-
                   <UserActionInfo
                     icon={<Clock className="w-5 h-5" />}
                     label="Created"
@@ -237,32 +247,25 @@ const Show = ({
                   <TabsTrigger value="grid">Grid View</TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <EnhancedTableDemo 
-                    chapters={chapters} 
+                  <EnhancedTableDemo
+                    chapters={chapters}
                     canEditChapter={canUpdateChapters}
-                    canDeleteChapter={canDeleteChapters}  
+                    canDeleteChapter={canDeleteChapters}
                   />
-
                 </TabsContent>
                 <TabsContent value="grid">
- 
-                    {chapters.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {chapters.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                       {chapters.map((chapter, index) => (
-                        <ChapterCard 
-                          key={index} 
-                          chapter={chapter} 
-                        />
+                        <ChapterCard key={index} chapter={chapter} />
                       ))}
-                      </div>
-                    ):(
-                      <div className="flex flex-col items-center justify-center py-16">
-                      <img src={'/images/Course app-rafiki.svg'} alt="No data available" className="w-48 h-48" />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16">
+                      <img src={"/images/Course app-rafiki.svg"} alt="No data available" className="w-48 h-48" />
                       <p className="text-gray-500 mt-4 text-lg">No chapters available. Start creating one!</p>
                     </div>
-                    )}
-
-                
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>

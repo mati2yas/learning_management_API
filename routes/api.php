@@ -32,6 +32,7 @@ use App\Models\Grade;
 use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 
@@ -246,6 +247,8 @@ Route::get('/exam-years/{examTypeId}', function($examTypeId){
 
 Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_type_id', $examYearId)->get());
 
+Route::get('/exam-courses-create/{examTypeId}/{examGradeId}', fn($examTypeId, $examGradeId)=>ExamCourse::where('exam_type_id', $examTypeId)->where('exam_grade_id', $examGradeId)->get());
+
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
 
 
@@ -263,6 +266,8 @@ Route::get('/categories', function(){
 });
 
 Route::get('/grades', function(Request $request){
+    // dd($request->all()) ;
+    Log::info($request->all());
     return Grade::where('category_id', $request->category_id)->get();
 });
 

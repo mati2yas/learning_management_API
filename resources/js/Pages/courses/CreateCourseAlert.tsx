@@ -1,5 +1,7 @@
+"use client"
+
 import type React from "react"
-import { type FormEventHandler, useEffect, useState } from "react"
+import { type FormEventHandler, useEffect, useState, useMemo } from "react"
 import { Button } from "@/Components/ui/button"
 import { useForm } from "@inertiajs/react"
 import PrimaryButton from "@/Components/PrimaryButton"
@@ -23,7 +25,6 @@ import { fetchCategories, fetchGrades, fetchDepartments, fetchBatches } from "@/
 
 
 export function CreateCourseAlert() {
-  // const { route } = usePage()
   const [isOpen, setIsOpen] = useState(false)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [onSaleChecked, setOnSaleChecked] = useState({
@@ -37,6 +38,7 @@ export function CreateCourseAlert() {
   const [grades, setGrades] = useState<Grade[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [batches, setBatches] = useState<Batch[]>([])
+  const [stream, setStream] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset, progress, setError, clearErrors } = useForm({
     course_name: "",
@@ -53,6 +55,7 @@ export function CreateCourseAlert() {
     price_one_year: "",
     on_sale_one_year: "",
     thumbnail: null as File | null,
+    stream: null as string | null,
   })
 
   useEffect(() => {
@@ -73,6 +76,8 @@ export function CreateCourseAlert() {
     setData("grade_id", "")
     setData("department_id", "")
     setData("batch_id", "")
+    setData("stream", null)
+    setStream(null)
 
     const selectedCategory = categories.find((category) => category.id.toString() === value)
     if (!selectedCategory) return
@@ -80,6 +85,7 @@ export function CreateCourseAlert() {
     try {
       if (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") {
         const fetchedGrades = await fetchGrades(value)
+        console.log("Fetched grades:", fetchedGrades)
         setGrades(fetchedGrades)
       } else if (selectedCategory.name === "university") {
         const fetchedDepartments = await fetchDepartments(value)
@@ -122,6 +128,17 @@ export function CreateCourseAlert() {
     }
   }
 
+  const handleStreamChange = (value: string) => {
+    const streamValue = value === "none" ? null : value
+    setData("stream", streamValue)
+    setStream(streamValue)
+  }
+
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id.toString() === data.category_id),
+    [categories, data.category_id],
+  )
+
   const validateForm = () => {
     let isValid = true
     const newErrors: Partial<typeof errors> = {}
@@ -136,21 +153,33 @@ export function CreateCourseAlert() {
       isValid = false
     }
 
-    if (data.category_id === "3") {
-      // Assuming 3 is the ID for university
-      if (!data.department_id) {
-        newErrors.department_id = "Department is required for university courses"
-        isValid = false
-      }
-      if (!data.batch_id) {
-        newErrors.batch_id = "Batch is required for university courses"
-        isValid = false
-      }
-    } else if (["1", "2"].includes(data.category_id)) {
-      // Assuming 1 and 2 are IDs for lower and higher grades
-      if (!data.grade_id) {
-        newErrors.grade_id = "Grade is required for this category"
-        isValid = false
+    const selectedCategory = categories.find((category) => category.id.toString() === data.category_id)
+    if (selectedCategory) {
+      if (selectedCategory.name === "university") {
+        if (!data.department_id) {
+          newErrors.department_id = "Department is required for university courses"
+          isValid = false
+        }
+        if (!data.batch_id) {
+          newErrors.batch_id = "Batch is required for university courses"
+          isValid = false
+        }
+      } else if (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") {
+        if (!data.grade_id) {
+          newErrors.grade_id = "Grade is required for this category"
+          isValid = false
+        }
+        if (
+          grades.some(
+            (grade) =>
+              grade.id.toString() === data.grade_id &&
+              (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
+          ) &&
+          data.stream === null
+        ) {
+          newErrors.stream = "Stream is required for Grade 11 and 12"
+          isValid = false
+        }
       }
     }
 
@@ -189,7 +218,7 @@ export function CreateCourseAlert() {
     })
   }
 
-  const selectedCategory = categories.find((category) => category.id.toString() === data.category_id)
+  // console.log('gardes', grades)
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -228,22 +257,24 @@ export function CreateCourseAlert() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                  {categories.map((category) => {
-                    const categoryNameMap: Record<string, string> = {
-                      higher_grades: "High School",
-                      random_courses: "Courses",
-                    };
+                    {categories.map((category) => {
+                      const categoryNameMap: Record<string, string> = {
+                        higher_grades: "High School",
+                        lower_grades: "Elementary School",
+                        random_courses: "Courses",
+                        university: "University",
+                      }
 
-                    const formattedName =
-                      categoryNameMap[category.name] ||
-                      category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+                      const formattedName =
+                        categoryNameMap[category.name] ||
+                        category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
 
-                    return (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {formattedName}
-                      </SelectItem>
-                    );
-                  })}
+                      return (
+                        <SelectItem key={category.id} value={category.id.toString()}>
+                          {formattedName}
+                        </SelectItem>
+                      )
+                    })}
                   </SelectContent>
                 </Select>
                 <InputError message={errors.category_id} className="mt-2" />
@@ -287,23 +318,56 @@ export function CreateCourseAlert() {
               )}
 
               {(selectedCategory?.name === "lower_grades" || selectedCategory?.name === "higher_grades") && (
-                <div>
-                  <InputLabel htmlFor="grade_id" value="Grade" />
-                  <Select value={data.grade_id} onValueChange={(e) => setData("grade_id", e)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {grades.map((grade) => (
-                        <SelectItem key={grade.id} value={grade.id.toString()}>
-                          {grade.grade_name}
-                          {grade.stream && ` - ${grade.stream}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <InputError message={errors.grade_id} className="mt-2" />
-                </div>
+                <>
+                  <div>
+                    <InputLabel htmlFor="grade_id" value="Grade" />
+                    <Select
+                      value={data.grade_id}
+                      onValueChange={(e) => {
+                        setData("grade_id", e)
+                        setData("stream", null)
+                        setStream(null)
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {grades.map((grade) => (
+                          <SelectItem key={grade.id} value={grade.id.toString()}>
+                            {grade.grade_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <InputError message={errors.grade_id} className="mt-2" />
+                  </div>
+                  {grades.some(
+                    (grade) =>
+                      grade.id.toString() === data.grade_id &&
+                      (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
+                  ) && (
+                    <div>
+                      <InputLabel htmlFor="stream" value="Stream" />
+                      <Select
+                        value={data.stream || "none"}
+                        onValueChange={(e) => {
+                          handleStreamChange(e)
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Stream" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="natural">Natural</SelectItem>
+                          <SelectItem value="social">Social</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <InputError message={errors.stream} className="mt-2" />
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

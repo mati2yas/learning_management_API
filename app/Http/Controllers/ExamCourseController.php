@@ -59,8 +59,11 @@ class ExamCourseController extends Controller
      */
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $attrs = $request->validate([
-            'course_name' => 'required|string',
+            'course_name' => 'required|string|max:100',
+            'stream' => 'nullable|in:natural,social',
             'exam_type_id' => 'nullable|exists:exam_types,id',
             'exam_grade_id' => 'nullable|exists:exam_grades,id',
             'exam_chapters' => 'nullable|array',
@@ -72,6 +75,7 @@ class ExamCourseController extends Controller
             'course_name' => $request->course_name,
             'exam_type_id' => $request->exam_type_id,
             'exam_grade_id' => $request->exam_grade_id,
+            'stream' => $request->stream ? $request->stream : null
         ]);
 
         foreach($attrs['exam_chapters'] as $chapter){
@@ -106,7 +110,8 @@ class ExamCourseController extends Controller
     public function update(Request $request, ExamCourse $examCourse)
     {
         $attrs = $request->validate([
-            'course_name' => 'required|string',
+            'course_name' => 'required|string|max:100',
+            'stream' => 'nullable|in:natural,social',
             'exam_type_id' => 'nullable|exists:exam_types,id',
             'exam_grade_id' => 'nullable|exists:exam_grades,id',
             'exam_chapters' => 'nullable|array',
@@ -119,6 +124,7 @@ class ExamCourseController extends Controller
             'course_name' => $request->course_name,
             'exam_type_id' => $request->exam_type_id,
             'exam_grade_id' => $request->exam_grade_id,
+            'stream' => $request->stream ? $request->stream : null
         ]);
     
         // Get the IDs of chapters sent in the request

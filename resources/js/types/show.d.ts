@@ -1,3 +1,5 @@
+import { Course } from "./course";
+
 export interface ShowCourseProps {
   course: Course;
   thumbnail: string;

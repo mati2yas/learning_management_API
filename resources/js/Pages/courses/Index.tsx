@@ -10,8 +10,6 @@ import { IndexProps } from '@/types/index.d'
 import PermissionAlert from '@/Components/PermissionAlert'
 import { SessionToast } from '@/Components/SessionToast'
 
-
-
 const Index: React.FC<IndexProps> = ({
   courses,
   categories,
@@ -22,7 +20,6 @@ const Index: React.FC<IndexProps> = ({
   canAdd,
   session,
 }) => {
-
 
   const { data, setData } = useForm({
     category: filters.category || '',

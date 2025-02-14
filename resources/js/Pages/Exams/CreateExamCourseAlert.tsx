@@ -1,4 +1,4 @@
-
+"use client"
 
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
@@ -18,6 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { PlusCircle, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
+import { usePage } from "@inertiajs/react"
 
 const CreateExamCourseAlert = ({
   examTypes,
@@ -31,12 +32,14 @@ const CreateExamCourseAlert = ({
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
 
+
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
     exam_grade_id: "",
     course_name: "",
     exam_course_id: "",
     exam_chapters: chapters,
+    stream: null as string | null,
   })
 
   const addChapter = useCallback(() => {
@@ -59,9 +62,11 @@ const CreateExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
-  const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string) => {
+  const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
     try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}/${examGradeId}`)
+      const response = await axios.get(`/api/exam-courses-create/${examTypeId}/${examGradeId}`, {
+        params: { stream },
+      })
       setExamCourses(response.data)
     } catch (error) {
       console.error("Error fetching exam courses:", error)
@@ -83,7 +88,7 @@ const CreateExamCourseAlert = ({
       case "8th Grade Ministry":
         return examGrades.filter((grade) => [7, 8].includes(grade.grade))
       case "ESSLCE":
-        return examGrades.filter((grade) => grade.grade >= 10 && grade.grade <= 12)
+        return examGrades.filter((grade) => grade.grade >= 9 && grade.grade <= 12)
       default:
         return []
     }
@@ -91,11 +96,16 @@ const CreateExamCourseAlert = ({
 
   useEffect(() => {
     if (data.exam_type_id && data.exam_grade_id) {
-      fetchExamCourses(data.exam_type_id, data.exam_grade_id)
+      const selectedGrade = getFilteredExamGrades.find((grade) => grade.id.toString() === data.exam_grade_id)
+      fetchExamCourses(
+        data.exam_type_id,
+        data.exam_grade_id,
+        selectedGrade && (selectedGrade.grade === 11 || selectedGrade.grade === 12) ? data.stream : null,
+      )
     } else {
       setExamCourses([])
     }
-  }, [data.exam_type_id, data.exam_grade_id, fetchExamCourses])
+  }, [data.exam_type_id, data.exam_grade_id, data.stream, fetchExamCourses, getFilteredExamGrades])
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -138,6 +148,7 @@ const CreateExamCourseAlert = ({
                 setData("exam_type_id", value)
                 setData("exam_grade_id", "")
                 setData("exam_course_id", "")
+                setData("stream", null)
                 setIsNewCourse(false)
               }}
             >
@@ -156,30 +167,58 @@ const CreateExamCourseAlert = ({
           </div>
 
           {showExamGrade && (
-            <div className="space-y-2">
-              <Label htmlFor="exam_grade_id">Exam Grade</Label>
-              <Select
-                value={data.exam_grade_id}
-                onValueChange={(value) => {
-                  setData("exam_grade_id", value)
-                  setData("exam_course_id", "")
-                  setIsNewCourse(false)
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Exam Grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getFilteredExamGrades.map((grade) => (
-                    <SelectItem key={grade.id} value={grade.id.toString()}>
-                      Grade - {grade.grade}
-                      {grade.stream ? ` - ${grade.stream}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
-            </div>
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="exam_grade_id">Exam Grade</Label>
+                <Select
+                  value={data.exam_grade_id}
+                  onValueChange={(value) => {
+                    setData("exam_grade_id", value)
+                    setData("exam_course_id", "")
+                    const selectedGrade = getFilteredExamGrades.find((grade) => grade.id.toString() === value)
+                    setData(
+                      "stream",
+                      selectedGrade && (selectedGrade.grade === 11 || selectedGrade.grade === 12) ? null : null,
+                    )
+                    setIsNewCourse(false)
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Exam Grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getFilteredExamGrades.map((grade) => (
+                      <SelectItem key={grade.id} value={grade.id.toString()}>
+                        Grade - {grade.grade}
+                        {grade.stream ? ` - ${grade.stream}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
+              </div>
+              {getFilteredExamGrades.some(
+                (grade) => grade.id.toString() === data.exam_grade_id && (grade.grade === 11 || grade.grade === 12),
+              ) && (
+                <div className="space-y-2">
+                  <Label htmlFor="stream">Stream</Label>
+                  <Select
+                    value={data.stream || ""}
+                    onValueChange={(value) => setData("stream", value === "null" ? null : value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Stream" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="null">None</SelectItem>
+                      <SelectItem value="natural">Natural</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
+                </div>
+              )}
+            </>
           )}
 
           <div className="space-y-2">

@@ -20,7 +20,7 @@ class YoutubeContentSeeder extends Seeder
         if(DB::table('youtube_contents')->count() === 0){
             $contents = Content::all();
 
-            $contents->each(function($content){
+            $contents->each(function($content, $index){
                 foreach([
                     'https://youtu.be/bhMjn3coMcE?si=RKFJ7aENSAK0uttx',
                     'https://youtu.be/SAb4zRyxrD4?si=3QqxDrMvlwvhix7D',
@@ -28,6 +28,7 @@ class YoutubeContentSeeder extends Seeder
                 ] as $url){
                     YoutubeContent::factory()->create(
                         [
+                            'youtube_number' => $index,
                             'content_id' => $content->id,
                             'title' => fake()->name,
                             'url' => $url

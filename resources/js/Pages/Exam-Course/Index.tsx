@@ -2,7 +2,7 @@ import type React from "react"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import EditExamCourseAlert from "./EditExamCourseAlert"
-import type { ExamGrade, ExamType } from "@/types"
+import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import DeleteExamCourseAlert from "./DeleteExamCourseAlert"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -37,6 +37,8 @@ const Index: React.FC<IndexProps> = ({
   session,
   filters,
 }) => {
+
+  console.log(examCourses)
   const { data, setData } = useForm({
     examType: filters?.examType || "",
     search: filters?.search || "",
@@ -110,6 +112,7 @@ const Index: React.FC<IndexProps> = ({
                 <TableRow>
                   <TableHead>Course Name</TableHead>
                   <TableHead>Grade</TableHead>
+                  <TableHead>Stream</TableHead>
                   <TableHead>Exam Type</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Updated At</TableHead>
@@ -122,6 +125,7 @@ const Index: React.FC<IndexProps> = ({
                   <TableRow key={course.id}>
                     <TableCell>{course.course_name}</TableCell>
                     <TableCell>{course.exam_grade?.grade}</TableCell>
+                    <TableCell className=" capitalize">{course.stream}</TableCell>
                     <TableCell>{course.exam_type.name}</TableCell>
                     <TableCell>{dayjs(course.created_at).fromNow()}</TableCell>
                     <TableCell>{dayjs(course.updated_at).fromNow()}</TableCell>

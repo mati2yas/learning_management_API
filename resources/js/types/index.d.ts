@@ -175,7 +175,7 @@ export interface FileContent{
 
 export interface ExamCourse{
     id: number;
-
+    stream: null | 'natural' | 'social',
     exam_year_id: number;
     exam_type_id: number;
     exam_grade_id: number;

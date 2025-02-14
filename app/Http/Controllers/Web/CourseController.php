@@ -80,6 +80,7 @@ class CourseController extends Controller
         'grade_id' => 'nullable',
         'department_id' => 'nullable',
         'batch_id' => 'nullable',
+        'stream' => 'nullable|in:natural,social',
         'price_one_month' => 'required|numeric|max:100000',
         'on_sale_one_month' => 'nullable|numeric|max:100000',
         'price_three_month' => 'required|numeric|max:100000',
@@ -110,8 +111,6 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
-
-        // dd($course);
 
         $thumbnail = Storage::url($course->thumbnail);
 
@@ -169,12 +168,15 @@ class CourseController extends Controller
             'thumbnail.max' => 'The thumbnail must not be larger than 5MB.',
         ];
 
+        // dd($request->all());
+
         $attrs = $request->validate([
             'course_name' => 'required|max:100',
             'category_id' => 'required',
             'grade_id' => 'nullable',
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
+            'stream' => 'nullable|in:natural,social',
             'price_one_month' => 'required|numeric|max:100000',
             'on_sale_one_month' => 'nullable|numeric|max:100000',
             'price_three_month' => 'required|numeric|max:100000',

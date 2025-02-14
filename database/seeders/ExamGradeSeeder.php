@@ -28,21 +28,11 @@ class ExamGradeSeeder extends Seeder
 
 
             for ($grade = 9; $grade <= 12; $grade++) {
-
-                    if($grade == 11 || $grade == 12){
-                        foreach (['natural', 'social'] as $stream) {
-                            ExamGrade::firstOrCreate([
-                                'grade' => $grade,
-                                'stream' => $stream, // Assuming there's a 'stream' column in your Grade model
-                            ]);
-
-                        }
-                    } else {
-                        ExamGrade::firstOrCreate([
-                            'grade' => $grade,
-                        ]);
-                    }
-            
+        
+                ExamGrade::firstOrCreate([
+                    'grade' => $grade,
+                ]);
+                   
             }
         }
     }

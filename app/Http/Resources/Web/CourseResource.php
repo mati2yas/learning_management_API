@@ -13,6 +13,7 @@ class CourseResource extends JsonResource
             'name' => $this->course_name,
             'thumbnail' => $this->thumbnail,
             'category_id' => optional($this->category)->id,
+            'stream' => $this->stream ? $this->stream : null,
             'category' => optional($this->category)->name,
             'grade_id' => optional($this->grade)->id,
             'grade' => optional($this->grade)->grade_name,

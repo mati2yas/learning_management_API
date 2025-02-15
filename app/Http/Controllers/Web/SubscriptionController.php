@@ -47,6 +47,7 @@ class SubscriptionController extends Controller
                 // 'subscriptionRequest.examCourse',
             ])->get()),
             'subscriptionRequests' => SubscriptionRequestResource::collection($subscriptionRequests),
+            'filters' => $request->only(['status']),
         ]);
     }
 

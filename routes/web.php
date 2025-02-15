@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\StudentManagementController;
 use App\Http\Controllers\Web\SubscriptionController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
+use App\Models\CarouselContent;
 use App\Models\Category;
 use App\Models\Chapter;
 use App\Models\Course;
@@ -62,6 +63,7 @@ Route::get('/dashboard', function () {
         'chapters' => Chapter::count(),
         'examQuestions' => ExamQuestion::count(),
         'users' => User::role('student')->count(),
+        'carouselContents' => CarouselContent::all(),
         'pendingSubscriptions' => SubscriptionRequest::where('status', 'Pending')->count(),
         'canAdd' => Auth::user()->hasDirectPermission('add courses'),
     ]);

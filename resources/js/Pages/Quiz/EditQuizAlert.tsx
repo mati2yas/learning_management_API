@@ -67,19 +67,6 @@ const EditQuizAlert = ({quiz}:EditQuizAlertProps) => {
             </div>
 
 
-            {/* <div className="mb-4">
-              <InputLabel htmlFor="order" value="Chapter Order" />
-              <input
-                id="order"
-                name="order"
-                type="number"
-                value={data.order}
-                onChange={(e) => setData('order', e.target.value)}
-                required
-              />
-              <InputError message={errors.order} className="mt-2" />
-            </div> */}
-
             <div className="mt-6 flex gap-x-2">
               <AlertDialogCancel onClick={() => {
               setIsOpen(false);

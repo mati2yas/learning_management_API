@@ -13,7 +13,6 @@ import { ScrollArea } from "@/Components/ui/scroll-area"
 import { PlusCircle } from "lucide-react"
 import QuizQuestionForm from "./QuizQuestionFrom"
 import { toast } from "@/hooks/use-toast"
-// import { toast } from "@/Components/ui/use-toast"
 
 interface CreateQuizQuestionAlertProps {
   quizId: number

@@ -27,7 +27,7 @@ interface SubscriptionIndexProps {
 
   filters: {
     status: string;
-  };
+  }
 }
 
 const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexProps) => {
@@ -38,12 +38,12 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
     status: filters.status || '',
   });
   
-  // console.log('sub', subscriptionRequests)
   const [activeTab, setActiveTab] = useState("requests")
 
   const handleStatusChange = (value: string) =>{
-    setData('status', value)
-    updateFilters({ status: value });
+    const statusValue = value === 'all' ? '' : value;
+    setData('status', statusValue)
+    updateFilters({ status: statusValue });
   }
 
   const updateFilters = (newFilters: Partial<typeof data>) => {
@@ -77,7 +77,16 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
 
                   <SelectContent>
                     <SelectItem value='all'>
-
+                      All Status
+                    </SelectItem>
+                    <SelectItem value='approved'>
+                      Approved
+                    </SelectItem>
+                    <SelectItem value='rejected'>
+                      Rejected
+                    </SelectItem>
+                    <SelectItem value='pending'>
+                      Pending
                     </SelectItem>
                   </SelectContent>
 

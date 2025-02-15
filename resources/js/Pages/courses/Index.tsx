@@ -9,7 +9,7 @@ import { Search } from 'lucide-react'
 import { IndexProps } from '@/types/index.d'
 import PermissionAlert from '@/Components/PermissionAlert'
 import { SessionToast } from '@/Components/SessionToast'
-import { Session } from 'inspector'
+
 
 const Index: React.FC<IndexProps> = ({
   courses,
@@ -19,7 +19,6 @@ const Index: React.FC<IndexProps> = ({
   batches,
   filters,
   canAdd,
-  session,
 }) => {
 
   const { flash } = usePage().props as unknown as { flash: { success?: string } };

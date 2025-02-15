@@ -7,12 +7,15 @@ import { Head } from '@inertiajs/react';
 import { ArrowRight, Book, EqualApproximately } from 'lucide-react';
 import CreateCourseAlert from './courses/CreateCourseAlert';
 import PermissionAlert from '@/Components/PermissionAlert';
+import { CarouselContent } from '@/types';
+import { CarouselContentList } from './carousel-content/CarouselContentList';
 
 interface CourseData {
     browser: string;
     visitors: number;
     fill: string;
   }
+
 interface DashboardProps {
     chapters: number
     examQuestions: number
@@ -20,10 +23,10 @@ interface DashboardProps {
     pendingSubscriptions: number
     users: number
     canAdd: boolean
-
+    carouselContents: CarouselContent[]
 }
 
-export default function Dashboard({ chapters, examQuestions, courseData, pendingSubscriptions, users, canAdd }: DashboardProps) {
+export default function Dashboard({ chapters, examQuestions, courseData, pendingSubscriptions, users, canAdd, carouselContents }: DashboardProps) {
 
     const isPendingPayments = true;
 
@@ -43,7 +46,6 @@ export default function Dashboard({ chapters, examQuestions, courseData, pending
             }
         >
             <Head title="Dashboard" />
-
             <div className="py-12">
                 <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -69,14 +71,19 @@ export default function Dashboard({ chapters, examQuestions, courseData, pending
                         </div>
 
                         <div className='p-6'>
-                                <DashboardCards
-                                    totalUsers={users}
-                                    pendingItems={pendingSubscriptions}
-                                    isPendingPayments={isPendingPayments}
-                                    onViewPendingItems={() => {}}
-                                />
-                            </div>
+                            <DashboardCards
+                                totalUsers={users}
+                                pendingItems={pendingSubscriptions}
+                                isPendingPayments={isPendingPayments}
+                                onViewPendingItems={() => {}}
+                            />
+                        </div>
 
+                        <div className="p-6">
+                        <CarouselContentList
+                            carouselContents={carouselContents}
+                        />
+                        </div>
 
                     </div>
                 </div>

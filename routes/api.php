@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\SubscriptionController;
+use App\Http\Controllers\Api\CarouselContentController;
 use App\Http\Controllers\Api\v1\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
@@ -150,14 +151,10 @@ Route::delete('/user-delete', [SessionController::class, 'destroy'])->middleware
 
 Route::post('/user-update', [SessionController::class, 'update'])->middleware('auth:sanctum');
 
-// Route::get('/verified-middleware', function () {
-//     return response()->json([
-//         'message' => 'The email account is already confirmed now you are able to see this message...',
-//     ], 201);
-// })->middleware('auth:sanctum');
-
 
 Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])->middleware('auth:sanctum');
+
+Route::resource('carousel-contents', CarouselContentController::class);
 
 
 Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword']);
@@ -170,9 +167,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
-
-
-
 
 
 Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
@@ -234,11 +228,11 @@ Route::get('exams/exam-courses/{examType}', function($examType){
     return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
 });
 
+// Route::get('ca')
+
 
 // Route::get()
-
 //for the web
-
 Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_course_id', $gradeId)->get());
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){

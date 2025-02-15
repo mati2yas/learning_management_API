@@ -64,11 +64,14 @@ class ExamCourseController extends Controller
         $attrs = $request->validate([
             'course_name' => 'required|string|max:100',
             'stream' => 'nullable|in:natural,social',
-            'exam_type_id' => 'nullable|exists:exam_types,id',
+            'exam_type_id' => 'required|exists:exam_types,id',
             'exam_grade_id' => 'nullable|exists:exam_grades,id',
             'exam_chapters' => 'nullable|array',
-            'exam_chapters.*.title' => 'nullable|string',
+            'exam_chapters.*.title' => 'required|string',
             'exam_chapters.*.sequence_order' => 'nullable|numeric',
+        ],[
+            'exam_type_id.required' => 'The exam type field is mandatory',
+            'exam_chapters.*.title.required' => 'The chapter title is a required field.'
         ]);
 
         $examCourse = ExamCourse::create([

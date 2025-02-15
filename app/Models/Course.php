@@ -13,7 +13,6 @@ class Course extends Model
     protected $fillable = [
         'course_name',
         'category_id',
-        'number_of_chapters',
     ];
 
     public function chapters()

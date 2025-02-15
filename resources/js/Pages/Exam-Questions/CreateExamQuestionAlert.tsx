@@ -18,7 +18,7 @@ import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
 import QuestionForm from "./QuestionForm"
-
+import { usePage } from "@inertiajs/react"
 
 interface CreateExamQuestionAlertProps {
   exam_types?: ExamType[]
@@ -169,7 +169,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
         video_explanation_url: "",
         options: [],
         answer: [],
-        image_explanation_url: null
+        image_explanation_url: null,
       },
     ])
   }
@@ -276,7 +276,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
           <AlertDialogDescription>Fill in the details for the new exam questions.</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <ScrollArea className="flex-grow px-6 overflow-y-auto">
+        <ScrollArea className="flex-grow px-6 overflow-y-auto overflow-x-auto">
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -413,4 +413,3 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
 }
 
 export default CreateExamQuestionAlert
-

@@ -1,4 +1,4 @@
-
+"use client"
 
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
@@ -18,6 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
+import { ScrollArea } from "@/Components/ui/scroll-area"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -43,7 +44,12 @@ const EditExamCourseAlert = ({
   })
 
   const addChapter = useCallback(() => {
-    setChapters((prev) => [...prev, { title: "", sequence_order: prev.length + 1 }])
+    setChapters((prev) => {
+      if (prev.length < 5) {
+        return [...prev, { title: "", sequence_order: prev.length + 1 }]
+      }
+      return prev
+    })
   }, [])
 
   const removeChapter = useCallback((index: number) => {
@@ -136,133 +142,146 @@ const EditExamCourseAlert = ({
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader>
+      <AlertDialogContent className="max-w-[95vw] w-full sm:max-w-[500px] max-h-[90vh] flex flex-col p-0">
+        <AlertDialogHeader className="p-6 pb-0">
           <AlertDialogTitle>Edit Exam Course</AlertDialogTitle>
           <AlertDialogDescription>Edit exam course details and chapters</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="exam_type_id">Exam Type</Label>
-            <Select
-              value={data.exam_type_id.toString()}
-              onValueChange={(value) => {
-                setData("exam_type_id", Number(value))
-                if (!showExamGrade) {
-                  setData("exam_grade_id", Number(""))
-                }
-                setData("exam_course_id", "")
-                setIsNewCourse(false)
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Exam Type" />
-              </SelectTrigger>
-              <SelectContent>
-                {examTypes.map((type) => (
-                  <SelectItem key={type.id} value={type.id.toString()}>
-                    {type.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.exam_type_id && <p className="text-red-500 text-sm">{errors.exam_type_id}</p>}
-          </div>
+        <ScrollArea className="flex-grow px-6 overflow-y-auto">
+          <form onSubmit={submit} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="exam_type_id">Exam Type</Label>
+              <Select
+                value={data.exam_type_id.toString()}
+                onValueChange={(value) => {
+                  setData("exam_type_id", Number(value))
+                  if (!showExamGrade) {
+                    setData("exam_grade_id", Number(""))
+                  }
+                  setData("exam_course_id", "")
+                  setIsNewCourse(false)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Exam Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {examTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.exam_type_id && <p className="text-red-500 text-sm">{errors.exam_type_id}</p>}
+            </div>
 
-          {showExamGrade && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="exam_grade_id">Exam Grade</Label>
-                <Select
-                  value={data.exam_grade_id.toString()}
-                  onValueChange={(value) => {
-                    setData("exam_grade_id", Number(value))
-                    if (!showStreamDropdown) {
-                      setData("stream", null)
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Exam Grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredExamGrades.map((grade) => (
-                      <SelectItem key={grade.id} value={grade.id.toString()}>
-                        Grade - {grade.grade}
-                        {grade.stream ? ` - ${grade.stream}` : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
-              </div>
-              {showStreamDropdown && (
+            {showExamGrade && (
+              <>
                 <div className="space-y-2">
-                  <Label htmlFor="stream">Stream</Label>
+                  <Label htmlFor="exam_grade_id">Exam Grade</Label>
                   <Select
-                    value={data.stream || ""}
-                    onValueChange={(value) => setData("stream", value === "null" ? null : value as "natural" | "social" | null)}
+                    value={data.exam_grade_id.toString()}
+                    onValueChange={(value) => {
+                      setData("exam_grade_id", Number(value))
+                      if (!showStreamDropdown) {
+                        setData("stream", null)
+                      }
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Stream" />
+                      <SelectValue placeholder="Select Exam Grade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="null">None</SelectItem>
-                      <SelectItem value="natural">Natural</SelectItem>
-                      <SelectItem value="social">Social</SelectItem>
+                      {getFilteredExamGrades.map((grade) => (
+                        <SelectItem key={grade.id} value={grade.id.toString()}>
+                          Grade - {grade.grade}
+                          {grade.stream ? ` - ${grade.stream}` : ""}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
+                  {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
                 </div>
+                {showStreamDropdown && (
+                  <div className="space-y-2">
+                    <Label htmlFor="stream">Stream</Label>
+                    <Select
+                      value={data.stream || ""}
+                      onValueChange={(value) =>
+                        setData("stream", value === "null" ? null : (value as "natural" | "social" | null))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Stream" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="null">None</SelectItem>
+                        <SelectItem value="natural">Natural</SelectItem>
+                        <SelectItem value="social">Social</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="course_name">Course Name</Label>
+              <Input
+                id="course_name"
+                value={data.course_name}
+                onChange={(e) => setData("course_name", e.target.value)}
+                placeholder="Enter course name"
+              />
+              {errors.course_name && <p className="text-red-500 text-sm">{errors.course_name}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Chapters</Label>
+              {chapters.map((chapter, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Input
+                    value={chapter.title}
+                    onChange={(e) => updateChapter(index, "title", e.target.value)}
+                    placeholder={`Chapter ${index + 1}`}
+                  />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addChapter}
+                disabled={chapters.length >= 5}
+                className="w-full"
+              >
+                Add Chapter
+              </Button>
+              {chapters.length >= 5 && (
+                <p className="text-sm text-muted-foreground mt-2">Maximum of 5 chapters allowed.</p>
               )}
-            </>
-          )}
+            </div>
+          </form>
+        </ScrollArea>
 
-          <div className="space-y-2">
-            <Label htmlFor="course_name">Course Name</Label>
-            <Input
-              id="course_name"
-              value={data.course_name}
-              onChange={(e) => setData("course_name", e.target.value)}
-              placeholder="Enter course name"
-            />
-            {errors.course_name && <p className="text-red-500 text-sm">{errors.course_name}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Chapters</Label>
-            {chapters.map((chapter, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Input
-                  value={chapter.title}
-                  onChange={(e) => updateChapter(index, "title", e.target.value)}
-                  placeholder={`Chapter ${index + 1}`}
-                />
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button type="button" variant="outline" onClick={addChapter}>
-              Add Chapter
-            </Button>
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <AlertDialogCancel
-              onClick={() => {
-                setIsOpen(false)
-                reset()
-              }}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <Button type="submit" disabled={processing}>
-              Update
-            </Button>
-          </div>
-        </form>
+        <div className="flex justify-end space-x-2 p-6 pt-2 border-t">
+          <AlertDialogCancel
+            onClick={() => {
+              setIsOpen(false)
+              reset()
+            }}
+          >
+            Cancel
+          </AlertDialogCancel>
+          <Button type="submit" disabled={processing} onClick={submit}>
+            Update
+          </Button>
+        </div>
       </AlertDialogContent>
     </AlertDialog>
   )

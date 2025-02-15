@@ -180,10 +180,10 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="single" id={`single_${index}`} />
-              <Label htmlFor={`single_${index}`}>Single Choice</Label>
+              <Label className=" max-w-[650px]" htmlFor={`single_${index}`}>Single Choice</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="multiple" id={`multiple_${index}`} />
+              <RadioGroupItem className=" max-w-[650px]" value="multiple" id={`multiple_${index}`} />
               <Label htmlFor={`multiple_${index}`}>Multiple Choice</Label>
             </div>
           </div>
@@ -197,7 +197,8 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
             <div className="space-y-2">
               {question.options.map((option, optionIndex) => (
                 <div key={optionIndex} className="flex items-center space-x-2">
-                  <Input
+                  <Textarea 
+                    className=" max-w-[580px]"
                     value={option}
                     onChange={(e) => updateOption(optionIndex, e.target.value)}
                     placeholder={`Option ${optionIndex + 1}`}

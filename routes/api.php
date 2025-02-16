@@ -142,7 +142,6 @@ Route::post('/admin-register', [SessionController::class, 'adminRegister']);
 
 Route::post('/student-register', [SessionController::class, 'studentRegister']);
 
-
 Route::post('/login', [SessionController::class, 'login']);
 
 Route::post('/logout', [SessionController::class, 'logout'])->middleware('auth:sanctum');
@@ -164,69 +163,70 @@ Route::post('reset-password', [NewPasswordController::class, 'reset']);
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('homepage/courses', HomepageCourseController::class);
     Route::resource('courses', CourseController::class);
-});
 
-Route::post('subscription-request', [SubscriptionController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
 
-
-Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
-
-    $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)
-    ->with([ 'examChapter.examCourse'])
-    ->get();
-
-    return ExamQuestionChapterResource::collection($questions);
-});
-
-
-Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
-    $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
-    ->get();
-
-    return ExamQuestionChapterResource::collection($questions);
-});
-
-
-Route::get('exams/exam-years/{examTypeName}', function($examTypeName){
-
-    $types = ['matric','ministry', 'ngat','exit'];
-
-    $examTypeRecord = ExamType::where('name',$examTypeName)->first();
-
-    if (!$examTypeRecord) {
-        return response()->json(['error' => 'Invalid exam type'], 404);
-    }
-
-    // Fetch exam years with question counts using Eloquent
-    $examYears = ExamQuestion::with('examYear')
-        ->select('exam_year_id')
-        ->where('exam_type_id', $examTypeRecord->id)
-        ->groupBy('exam_year_id')
-        ->selectRaw('exam_year_id, COUNT(id) as question_count')
+        $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)
+        ->with([ 'examChapter.examCourse'])
         ->get();
+    
+        return ExamQuestionChapterResource::collection($questions);
+    });
 
-    // Return the data as a resource collection
-    return ExamYearResource::collection($examYears);
 
+    Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
+        $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
+        ->get();
+    
+        return ExamQuestionChapterResource::collection($questions);
+    });
+
+    Route::post('subscription-request', [SubscriptionController::class, 'store']);
+
+
+    Route::get('exams/exam-years/{examTypeName}', function($examTypeName){
+
+        $types = ['matric','ministry', 'ngat','exit'];
+    
+        $examTypeRecord = ExamType::where('name',$examTypeName)->first();
+    
+        if (!$examTypeRecord) {
+            return response()->json(['error' => 'Invalid exam type'], 404);
+        }
+    
+        // Fetch exam years with question counts using Eloquent
+        $examYears = ExamQuestion::with('examYear')
+            ->select('exam_year_id')
+            ->where('exam_type_id', $examTypeRecord->id)
+            ->groupBy('exam_year_id')
+            ->selectRaw('exam_year_id, COUNT(id) as question_count')
+            ->get();
+    
+        // Return the data as a resource collection
+        return ExamYearResource::collection($examYears);
+    
+    });
+    
+    Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
+    
+        $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
+                        ->with('examGrade.examCourses.examChapters')  // 
+                        ->get()
+                        ->pluck('examGrade') 
+                        ->unique();          //
+        return ExamGradeResource::collection($examGrades);
+    });
+    
+    Route::get('exams/exam-courses/{examType}', function($examType){
+    
+        $examType = ExamType::where('name',$examType)->first();
+    
+        return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
+    });
 });
 
 
-Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
 
-    $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
-                    ->with('examGrade.examCourses.examChapters')  // 
-                    ->get()
-                    ->pluck('examGrade') 
-                    ->unique();          //
-    return ExamGradeResource::collection($examGrades);
-});
-
-Route::get('exams/exam-courses/{examType}', function($examType){
-
-    $examType = ExamType::where('name',$examType)->first();
-
-    return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
-});
 
 // Route::get('ca')
 

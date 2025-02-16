@@ -1,6 +1,6 @@
 import type React from "react"
 import { useEffect, useState, useCallback } from "react"
-import { Head, Link, router, useForm } from "@inertiajs/react"
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
 import type { ExamChapter, ExamCourse, ExamGrade, ExamQuestion, ExamType, ExamYear } from "@/types"
 import CreateExamQuestionAlert from "../Exam-Questions/CreateExamQuestionAlert"
@@ -11,7 +11,7 @@ import QuestionCard from "./QuestionCard"
 import axios from "axios"
 import { SessionToast } from "@/Components/SessionToast"
 import PermissionAlert from "@/Components/PermissionAlert"
-// import { Inertia } from "@inertiajs/react"
+
 
 interface ExamIndexProps {
   exam_courses: ExamCourse[]
@@ -53,8 +53,9 @@ const Index: React.FC<ExamIndexProps> = ({
   canAddExamQuestions,
   canUpdateExamQuestions,
   canDeleteExamQuestions,
-  session
 }) => {
+
+  const { flash } = usePage().props as unknown as { flash: { success?: string } };
   
   const { data, setData } = useForm({
     examType: filters?.examType || "",
@@ -204,9 +205,7 @@ const Index: React.FC<ExamIndexProps> = ({
       }
     >
       <Head title="Exams" />
-      {
-        session ? <SessionToast message={session} /> : null
-      }
+      {flash.success && (<SessionToast message={flash.success }  />)}
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
 

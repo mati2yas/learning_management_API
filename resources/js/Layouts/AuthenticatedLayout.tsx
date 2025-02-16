@@ -28,6 +28,7 @@ export default function Authenticated({
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
+                                    prefetch
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
@@ -35,6 +36,7 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
+                                    prefetch
                                     href={route('courses.index')}  
                                     active={route().current('courses.index')} 
                                 >
@@ -42,6 +44,7 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
+                                    prefetch
                                     href={route('exams.index')}  
                                     active={route().current('exams.index')} 
                                 >
@@ -49,6 +52,7 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
+                                    prefetch
                                     href={route('exam-courses.index')}  
                                     active={route().current('exam-courses.index')} 
                                 >
@@ -57,6 +61,7 @@ export default function Authenticated({
 
                                 
                                 <NavLink
+                                    prefetch
                                     href={route('subscriptions.index')}  
                                     active={route().current('subscriptions.index')} 
                                 >
@@ -64,6 +69,7 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
+                                    prefetch
                                     href={route('student-managements.index')}  
                                     active={route().current('student-managements.index')} 
                                 >
@@ -72,6 +78,7 @@ export default function Authenticated({
 
 
                                 <NavLink
+                                    prefetch
                                     href={route('user-managements.index')}  
                                     active={route().current('user-managements.index')} 
                                 >
@@ -176,6 +183,7 @@ export default function Authenticated({
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
+                            prefetch
                             href={route('dashboard')}
                             active={route().current('dashboard')}
                         >
@@ -183,6 +191,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('courses.index')}
                             active={route().current('courses.index')}
                         >
@@ -190,6 +199,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('exams.index')}
                             active={route().current('exams.index')}
                         >
@@ -197,6 +207,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('exam-courses.index')}
                             active={route().current('exam-courses.index')}
                         >
@@ -204,6 +215,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('subscriptions.index')}
                             active={route().current('subscriptions.index')}
                         >
@@ -212,6 +224,7 @@ export default function Authenticated({
 
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('user-managements.index')}
                             active={route().current('user-managements.index')}
                         >
@@ -219,6 +232,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            prefetch
                             href={route('student-managements.index')}
                             active={route().current('student-managements.index')}
                         >

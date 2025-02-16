@@ -133,7 +133,7 @@ export function CourseCard({
             {grade && <Badge variant="outline">{grade}</Badge>}
             {department && <Badge variant="outline">{department}</Badge>}
           </div>
-          <Link href={route("courses.show", id)}>
+          <Link prefetch href={route("courses.show", id)}>
             <Button variant="default" className="rounded-full px-6">
               View Course
             </Button>

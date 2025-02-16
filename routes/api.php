@@ -153,7 +153,7 @@ Route::post('/user-update', [SessionController::class, 'update'])->middleware('a
 
 Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])->middleware('auth:sanctum');
 
-Route::resource('carousel-contents', CarouselContentController::class);
+Route::resource('carousel-contents-api', CarouselContentController::class);
 
 
 Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword']);

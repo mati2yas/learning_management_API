@@ -245,7 +245,7 @@ export interface CarouselContent{
     id: number
     tag: string,
     image_url: string
-    status: "active" | "non-active"
+    status: "active" | "not-active"
     order: number
     created_by: number
     updated_by: number

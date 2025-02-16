@@ -77,7 +77,7 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
           <div className='flex justify-between'>
             <h1 className=' font-bold'>User Management</h1>
             {
-              canAdd ?   <Link href={route('user-managements.create')}>Add User</Link> : <PermissionAlert children={'Add Worker'} permission={'can add a worker'} buttonVariant={'outline'} />
+              canAdd ?   <Link prefetch href={route('user-managements.create')}>Add User</Link> : <PermissionAlert children={'Add Worker'} permission={'can add a worker'} buttonVariant={'outline'} />
             }
           
         </div>
@@ -208,6 +208,7 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
                           </Dropdown.Trigger>
                               <Dropdown.Content >
                               <Dropdown.Link
+                                prefetch
                                 as='button'
                                 href={route('user-managements.edit', user.id)} 
                                 method='get'

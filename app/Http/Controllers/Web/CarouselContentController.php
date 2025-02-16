@@ -31,10 +31,13 @@ class CarouselContentController extends Controller
      */
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $attrs = $request->validate([
             'tag' => 'required|string|max:400',
             'image_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'active',
+            'status' => 'required|in:active,not-active',
+            'order' => 'required',
         ]);
 
         if ($request->hasFile('image_url')){
@@ -46,7 +49,7 @@ class CarouselContentController extends Controller
         $attrs['created_by'] = Auth::user()->id;
         $attrs['updated_by'] = Auth::user()->id;
 
-         CarouselContent::create($attrs);
+        CarouselContent::create($attrs);
 
         return redirect()->route('dashboard')->with('success', 'A carousel content has created successfully.');
 
@@ -75,26 +78,27 @@ class CarouselContentController extends Controller
     {
         $attrs = $request->validate([
             'tag' => 'required|string|max:400',
-            'image_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:active,non-active',
+            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:active,not-active',
+            'order' => 'required'
         ]);
-
+    
         if($request->hasFile('image_url')){
             $path = $request->file('image_url')->store('carousel-image', 'public');
-
             $attrs['image_url'] = $path;
-
+    
             if($carouselContent->image_url && Storage::disk('public')->exists($carouselContent->image_url)){
                 Storage::disk('public')->delete($carouselContent->image_url);
             }
-        }else {
-            unset($attrs['image_eurl']);
+        } else {
+            // If no new image is uploaded, keep the existing image
+            unset($attrs['image_url']);
         }
-
+    
         $attrs['updated_by'] = Auth::user()->id;
         $carouselContent->update($attrs);
-
-        return redirect()->route('dashboard')->with('success', 'A carousel content has updated successfully.');
+    
+        return redirect()->route('dashboard')->with('success', 'A carousel content has been updated successfully.');
     }
 
     /**

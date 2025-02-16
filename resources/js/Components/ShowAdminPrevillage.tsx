@@ -109,7 +109,7 @@ function ShowAdminPrivilege({ user }: ShowPrivilegeProps) {
 
         <div className="mt-4 flex justify-end">
           <Button asChild>
-            <Link href={`/user-managements/${user.id}/edit`}>Edit Privileges</Link>
+            <Link prefetch href={`/user-managements/${user.id}/edit`}>Edit Privileges</Link>
           </Button>
         </div>
       </DialogContent>

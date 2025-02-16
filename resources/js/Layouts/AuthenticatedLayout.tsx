@@ -183,6 +183,7 @@ export default function Authenticated({
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
+                            cacheFor={'10s'}
                             prefetch
                             href={route('dashboard')}
                             active={route().current('dashboard')}
@@ -192,6 +193,7 @@ export default function Authenticated({
 
                         <ResponsiveNavLink
                             prefetch
+                            cacheFor={'20s'}
                             href={route('courses.index')}
                             active={route().current('courses.index')}
                         >
@@ -199,6 +201,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            cacheFor={'20s'}
                             prefetch
                             href={route('exams.index')}
                             active={route().current('exams.index')}
@@ -207,6 +210,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
+                            cacheFor={'20s'}
                             prefetch
                             href={route('exam-courses.index')}
                             active={route().current('exam-courses.index')}
@@ -216,6 +220,7 @@ export default function Authenticated({
 
                         <ResponsiveNavLink
                             prefetch
+                            cacheFor={'10s'}
                             href={route('subscriptions.index')}
                             active={route().current('subscriptions.index')}
                         >
@@ -225,6 +230,7 @@ export default function Authenticated({
 
                         <ResponsiveNavLink
                             prefetch
+                            cacheFor={'30s'}
                             href={route('user-managements.index')}
                             active={route().current('user-managements.index')}
                         >
@@ -232,7 +238,7 @@ export default function Authenticated({
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink
-                            prefetch
+                            prefetch cacheFor={'10s'}
                             href={route('student-managements.index')}
                             active={route().current('student-managements.index')}
                         >

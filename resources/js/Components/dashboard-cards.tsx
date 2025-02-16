@@ -25,7 +25,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, description, ac
     </CardContent>
     {actionLabel && (
       <CardFooter>
-        <Link href={route('subscriptions.index')} className="text-sm text-black">
+        <Link prefetch href={route('subscriptions.index')} className="text-sm text-black">
                   <Button variant="outline" size="sm" className="w-full" onClick={onAction}>
           {actionLabel}
           <ArrowRight className="ml-2 h-4 w-4" />

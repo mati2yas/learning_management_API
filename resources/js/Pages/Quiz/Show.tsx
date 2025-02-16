@@ -21,11 +21,10 @@ interface ShowProps {
   session: string
 }
   
-const Show = ({ quiz, quiz_questions, chapter_id,             canAddQuizQuestions,
+const Show = ({ quiz, quiz_questions, chapter_id,canAddQuizQuestions,
   canUpdateQuizQuestions,
   canDeleteQuizQuestions,
-   session}: ShowProps) => {
-
+   }: ShowProps) => {
 
   const sortedQuestions = [...quiz_questions].sort((a, b) => a.question_number - b.question_number)
 

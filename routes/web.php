@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ExamCourseController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\CarouselContentController;
 use App\Http\Controllers\Web\ChapterController;
 use App\Http\Controllers\Web\ContentController;
 use App\Http\Controllers\Web\CourseController;
@@ -111,9 +112,13 @@ Route::middleware(['auth', 'verified'])->resource('subscriptions', SubscriptionC
 
 Route::middleware(['auth', 'verified'])->resource('exam-courses', ExamCourseController::class);
 
+Route::middleware(['auth', 'verified'])->resource('carousel-contents', CarouselContentController::class);
+
 Route::middleware(['auth', 'verified'])->post('/subscription-rejection/{subscriptionId}', [SubscriptionController::class, 'rejection'])->name('subscriptions.reject');
 
 Route::middleware(['auth', 'verified'])->post('/subscription-approve/{subscriptionId}', [SubscriptionController::class, 'approve'])->name('subscriptions.approve');
+
+
 
 Route::get('/random', fn() => Course::paginate(10));
 

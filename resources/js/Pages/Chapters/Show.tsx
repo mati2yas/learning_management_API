@@ -76,7 +76,7 @@ const Show: React.FC<ChapterDetailProps> = ({
         <div className='flex justify-between items-center'>
           <h1 className="text-2xl font-semibold">Chapter: {chapter.title}</h1>
 
-        <Link href={route('courses.show', course_id)}>
+        <Link prefetch href={route('courses.show', course_id)}>
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course
           </Button>

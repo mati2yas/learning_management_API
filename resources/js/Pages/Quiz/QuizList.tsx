@@ -27,7 +27,7 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
             </div>
             <div className="flex space-x-2">
 
-            <Link href={route('quizzes.show', quiz.id)}>
+            <Link prefetch href={route('quizzes.show', quiz.id)}>
                 <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                   <Eye className="h-4 w-4 mr-1" />
                   View

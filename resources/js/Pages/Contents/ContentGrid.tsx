@@ -39,9 +39,6 @@ const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit,
 
                 />
               }
-                {/* <EditContentAlert 
-                  content={content}
-                /> */}
 
                 {
                   canDelete ? <DeleteContentAlert id={content.id} name={content.name} /> : <PermissionAlert
@@ -54,10 +51,7 @@ const ContentGrid: React.FC<ContentGridProps> = ({ contents, canDelete, canEdit,
                   />
                 }
 
-                {/* <DeleteContentAlert 
-                  id={content.id}
-                  name={content.name}
-                /> */}
+
               </div>
             </CardContent>
           </Card>

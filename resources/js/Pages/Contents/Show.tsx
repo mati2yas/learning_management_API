@@ -66,7 +66,7 @@ export default function ContentDetail({
       header={
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold">Content: {content.name}</h1>
-          <Link href={route("chapters.show", chapter_id)}>
+          <Link prefetch href={route("chapters.show", chapter_id)}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Chapters
             </Button>

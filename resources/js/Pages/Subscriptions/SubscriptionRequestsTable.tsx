@@ -63,7 +63,7 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
               <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
             </TableCell>
             <TableCell>
-              <Link href={route('subscriptions.show', request.id)}>
+              <Link prefetch href={route('subscriptions.show', request.id)}>
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>

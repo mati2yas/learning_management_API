@@ -125,6 +125,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         <div className="flex gap-2 mt-4">
           {canEdit ? (
             <Link
+              prefetch
               className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 w-9 flex items-center justify-center rounded-md"
               href={route("exams.edit", question.id)}
             >

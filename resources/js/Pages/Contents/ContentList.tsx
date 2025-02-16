@@ -65,7 +65,7 @@ const ContentList: React.FC<ContentListProps> = ({ contents, canEdit, canDelete,
                         <div className="flex justify-end space-x-2">
 
                           {
-                          canView ?                           <Link href={route('contents.show', content.id)}>
+                          canView ?            <Link prefetch href={route('contents.show', content.id)}>
                                 <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                                   <Eye className="h-4 w-4 mr-1" />
                                   View

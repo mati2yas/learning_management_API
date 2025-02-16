@@ -62,7 +62,7 @@ export function EnhancedTableDemo({
                     <TableCell className=' text-nowrap' >{dayjs(chapter.updated_at).fromNow()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Link href={route('chapters.show', chapter.id)}>
+                        <Link prefetch href={route('chapters.show', chapter.id)}>
                           <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                             <Eye className="h-4 w-4 mr-1" />
                             View

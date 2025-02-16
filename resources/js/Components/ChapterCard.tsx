@@ -17,7 +17,7 @@ const ChapterCard = ({
         <p className="text-sm text-gray-600 mb-4">{chapter.description}</p>
         <div className="flex justify-between items-center">
           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{chapter.contents_count} lessons</span>
-          <Link href={route('chapters.show', chapter.id)}>
+          <Link prefetch href={route('chapters.show', chapter.id)}>
             <Button variant="outline" size="sm">View</Button>
           </Link>
         </div>

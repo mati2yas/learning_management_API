@@ -17,7 +17,6 @@ import {
 import { Pencil } from "lucide-react"
 import type { CarouselContent } from "@/types"
 import { Textarea } from "@/Components/ui/textarea"
-import { usePage } from "@inertiajs/react"
 
 interface EditCarouselContentAlertProps {
   content: CarouselContent

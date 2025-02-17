@@ -62,7 +62,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <Card className="w-full mb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">{question.question_text}</CardTitle>
+        <CardTitle className="text-lg font-semibold capitalize w-full  break-words">{question.question_text}</CardTitle>
 
         <div className="flex flex-wrap gap-2 mt-2">
           <Badge variant="outline">{getExamCourseName(question.exam_course_id)}</Badge>
@@ -112,7 +112,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           {options.map((option, index) => (
             <div
               key={index}
-              className={`p-4 rounded-lg border transition-colors ${
+              className={`p-4 rounded-lg border transition-colors  break-words ${
                 answers.includes(option)
                   ? "bg-green-100 border-green-200 dark:bg-green-900/30 dark:border-green-800 text-green-900 dark:text-green-100"
                   : "bg-gray-50 border-gray-100 dark:bg-gray-800/50 dark:border-gray-700"

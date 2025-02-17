@@ -14,7 +14,7 @@ class CarouselContentController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => CarouselContent::all(), 
+            'data' => CarouselContent::where('status', 'active')->get(), 
         ]);
     }
 

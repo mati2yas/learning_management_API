@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Head, useForm } from "@inertiajs/react"
+import { Head, useForm, usePage } from "@inertiajs/react"
 import axios from "axios"
 import { Button } from "@/Components/ui/button"
 import { Textarea } from "@/Components/ui/textarea"
@@ -18,7 +18,6 @@ import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 
-
 interface EditExamQuestionAlertProps {
   exam_types: ExamType[]
   exam_grades: ExamGrade[]
@@ -31,21 +30,24 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>(JSON.parse(question.answer))
   const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(question.question_image_url)
+  const [imageExplanationPreview, setImageExplanationPreview] = useState<string | null>(question.image_explanation_url)
+
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
     _method: string
-    exam_type_id: string
-    exam_year_id: string
-    exam_course_id: string
-    exam_grade_id: string
-    exam_chapter_id: string
-    question_text: string
-    video_explanation_url: string
-    question_image_url: File | null | string
-    text_explanation: string
-    options: string[]
+    exam_type_id: string,
+    exam_year_id: string,
+    exam_course_id: string,
+    exam_grade_id: string,
+    exam_chapter_id: string,
+    question_text: string,
+    video_explanation_url: string,
+    question_image_url: string | null | File,
+    image_explanation_url: string | null | File,
+    text_explanation: string,
+    options: string[],
     answer: string[]
   }>({
     _method: "PATCH",
@@ -56,7 +58,8 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     exam_chapter_id: question.exam_chapter_id?.toString() || "",
     question_text: question.question_text,
     video_explanation_url: question.video_explanation_url || "",
-    question_image_url: question.question_image_url || null,
+    question_image_url: null as File | null,
+    image_explanation_url: null as File | null,
     text_explanation: question.text_explanation,
     options: JSON.parse(question.options),
     answer: JSON.parse(question.answer),
@@ -171,14 +174,20 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
   )
 
   const handleImageChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement>, field: "question_image_url" | "image_explanation_url") => {
       if (e.target.files && e.target.files[0]) {
-        setData("question_image_url", e.target.files[0])
+        const file = e.target.files[0]
+        setData(field, file)
         const reader = new FileReader()
-        reader.onload = () => {
-          setQuestionImagePreview(reader.result as string)
+        reader.onload = (event) => {
+          const base64String = event.target?.result as string
+          if (field === "question_image_url") {
+            setQuestionImagePreview(base64String)
+          } else {
+            setImageExplanationPreview(base64String)
+          }
         }
-        reader.readAsDataURL(e.target.files[0])
+        reader.readAsDataURL(file)
       }
     },
     [setData],
@@ -188,10 +197,10 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     let isValid = true
     clearErrors()
 
-    if (data.text_explanation.trim() === "") {
-      setError("text_explanation", "Explanation is required")
-      isValid = false
-    }
+    // if (data.text_explanation.trim() === "") {
+    //   setError("text_explanation", "Explanation is required")
+    //   isValid = false
+    // }
 
     if (options.length < 2) {
       setError("options", "At least two options are required")
@@ -224,17 +233,6 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
         return
       }
 
-      const validOptions = options.filter((option) => option.trim() !== "")
-      const formattedAnswer = isMultipleChoice
-        ? (correctAnswer as string[]).filter((answer) => answer.trim() !== "")
-        : [correctAnswer as string].filter((answer) => answer.trim() !== "")
-
-      setData((prevData) => ({
-        ...prevData,
-        options: validOptions,
-        answer: formattedAnswer,
-      }))
-
       post(route("exam-questions.update", question.id), {
         preserveScroll: true,
         preserveState: false,
@@ -246,12 +244,13 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
         },
       })
     },
-    [validateForm, options, isMultipleChoice, correctAnswer, setData, post, question.id],
+    [validateForm, post, question.id],
   )
 
   const memoizedExamTypes = useMemo(() => exam_types, [exam_types])
   const memoizedExamYears = useMemo(() => exam_years, [exam_years])
   const memoizedExamGrades = useMemo(() => exam_grades, [exam_grades])
+
 
   return (
     <Authenticated
@@ -378,8 +377,13 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
                     </div>
 
                     <div>
-                      <Label htmlFor="question_image_url">Image (optional)</Label>
-                      <Input id="question_image_url" type="file" onChange={handleImageChange} />
+                      <Label htmlFor="question_image_url">Question Image (optional)</Label>
+                      <Input
+                        id="question_image_url"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, "question_image_url")}
+                      />
                       {questionImagePreview && (
                         <div className="mt-2">
                           <img
@@ -392,8 +396,27 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
                       <InputError message={errors.question_image_url} />
                     </div>
 
+                    <div className="space-y-2">
+                      <Label htmlFor="image_explanation_url">Image Explanation (optional)</Label>
+                      <Input
+                        id="image_explanation_url"
+                        name="image_explanation_url"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, "image_explanation_url")}
+                      />
+                      {imageExplanationPreview && (
+                        <img
+                          src={imageExplanationPreview || "/placeholder.svg"}
+                          alt="Explanation Preview"
+                          className="mt-2 max-w-xs"
+                        />
+                      )}
+                      <InputError message={errors.image_explanation_url} />
+                    </div>
+
                     <div>
-                      <Label htmlFor="text_explanation">Explanation</Label>
+                      <Label htmlFor="text_explanation">Explanation (optional)</Label>
                       <Textarea
                         id="text_explanation"
                         value={data.text_explanation}
@@ -421,8 +444,9 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
                   <div className="space-y-2">
                     {options.map((option, index) => (
                       <div key={index} className="flex items-center space-x-2">
-                        <Input
+                        <Textarea
                           value={option}
+                          className=" break-words"
                           onChange={(e) => updateOption(index, e.target.value)}
                           placeholder={`Option ${index + 1}`}
                           required

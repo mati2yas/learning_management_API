@@ -48,7 +48,7 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Add Video Content</DialogTitle>
         </DialogHeader>
@@ -97,8 +97,8 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
             {videoId && (
               <div className="aspect-video">
                 <iframe
-                  width="100%"
-                  height="100%"
+                  width="90%"
+                  height="90%"
                   src={`https://www.youtube.com/embed/${videoId}`}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

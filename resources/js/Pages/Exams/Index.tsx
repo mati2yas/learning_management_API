@@ -172,7 +172,7 @@ const Index: React.FC<ExamIndexProps> = ({
       case "8th Grade Ministry":
         return exam_grades.filter((grade) => [7, 8].includes(grade.grade))
       case "ESSLCE":
-        return exam_grades.filter((grade) => grade.grade >= 10 && grade.grade <= 12)
+        return exam_grades.filter((grade) => grade.grade >= 9 && grade.grade <= 12)
       default:
         return []
     }

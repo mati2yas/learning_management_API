@@ -18,7 +18,6 @@ import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import axios from "axios"
 import QuestionForm from "./QuestionForm"
-import { usePage } from "@inertiajs/react"
 
 interface CreateExamQuestionAlertProps {
   exam_types?: ExamType[]
@@ -221,10 +220,10 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
         setError(`questions.${index}.question_text`, "Question text is required")
         isValid = false
       }
-      if (!question.text_explanation) {
-        setError(`questions.${index}.text_explanation`, "Explanation is required")
-        isValid = false
-      }
+      // if (!question.text_explanation) {
+      //   setError(`questions.${index}.text_explanation`, "Explanation is required")
+      //   isValid = false
+      // }
       if (question.options.length < 2) {
         setError(`questions.${index}.options`, "At least two options are required")
         isValid = false

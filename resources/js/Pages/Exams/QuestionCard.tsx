@@ -1,5 +1,3 @@
-
-
 import type React from "react"
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
@@ -122,6 +120,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             </div>
           ))}
         </div>
+
+        {
+          question.video_explanation_url ?         <div className="mt-4 ml-2 underline text-xs"><a href={question.video_explanation_url} target="_blank">Watch Video</a></div>: null
+        }
+
         <div className="flex gap-2 mt-4">
           {canEdit ? (
             <Link
@@ -150,6 +153,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             />
           )}
         </div>
+
       </CardContent>
     </Card>
   )

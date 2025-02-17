@@ -50,7 +50,7 @@ class ExamQuestionController extends Controller
                 'questions.*.question_image_url' => 'nullable',
                 'questions.*.image_explanation_url' => 'nullable',
                 
-                'questions.*.text_explanation' => 'required|string',
+                'questions.*.text_explanation' => 'nullable|string',
                 'questions.*.video_explanation_url' => 'nullable|url',
                 'questions.*.options' => 'required|array|min:2',
                 'questions.*.options.*' => 'required|string',
@@ -129,7 +129,6 @@ class ExamQuestionController extends Controller
         if (Storage::disk('public')->put($file, $image_base64)) {
             return $file;
         }
-    
         return null;
     }
 
@@ -152,8 +151,6 @@ class ExamQuestionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    
-
     public function update(Request $request, ExamQuestion $examQuestion)
     {
         try {
@@ -165,7 +162,9 @@ class ExamQuestionController extends Controller
                 'exists:exam_grades,id',
                 'exam_chapter_id' =>  'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE|exists:exam_chapters,id',
                 'question_text' => 'required|string',
-                'text_explanation' => 'required|string',
+                'image_explanation_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'question_image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'text_explanation' => 'nullable|string',
                 'video_explanation_url' => 'nullable|url',
                 'options' => 'required|array|min:2',
                 'options.*' => 'required|string',
@@ -173,8 +172,10 @@ class ExamQuestionController extends Controller
                 'answer.*' => 'required|string',
                 'question_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-    
+
             $questionImagePath = $examQuestion->question_image_url;
+            $imageExplanationPath = $examQuestion->image_explanation_url;
+    
             if ($request->hasFile('question_image_url')) {
                 // File upload handling for question image
                 $file = $request->file('question_image_url');
@@ -185,22 +186,22 @@ class ExamQuestionController extends Controller
                 $image = $this->saveBase64Image($request->question_image_url, 'question_images');
                 if ($image) {
                     $questionImagePath = Storage::url($image);
+                }
+            }
+          
+            if ($request->hasFile('image_explanation_url')) {
+                // File upload handling for image explanation
+                $file = $request->file('image_explanation_url');
+                $path = $file->store('explanation_images', 'public');
+                $imageExplanationPath = Storage::url($path);
+            } elseif ($request->image_explanation_url && is_string($request->image_explanation_url)) {
+                // Handle base64 image string for image explanation
+                $image = $this->saveBase64Image($request->image_explanation_url, 'explanation_images');
+                if ($image) {
+                    $imageExplanationPath = Storage::url($image);
                 }
             }
 
-            $questionImagePath = $examQuestion->question_image_url;
-            if ($request->hasFile('question_image_url')) {
-                // File upload handling for question image
-                $file = $request->file('question_image_url');
-                $path = $file->store('question_images', 'public');
-                $questionImagePath = Storage::url($path);
-            } elseif ($request->question_image_url && is_string($request->question_image_url)) {
-                // Handle base64 image string for question image
-                $image = $this->saveBase64Image($request->question_image_url, 'question_images');
-                if ($image) {
-                    $questionImagePath = Storage::url($image);
-                }
-            }
     
             $attrs = [
                 'exam_type_id' => $validatedData['exam_type_id'],
@@ -210,6 +211,7 @@ class ExamQuestionController extends Controller
                 'exam_chapter_id' => $validatedData['exam_chapter_id'] ?? null,
                 'question_text' => $validatedData['question_text'],
                 'question_image_url' => $questionImagePath,
+                'image_explanation_url' => $imageExplanationPath,
                 'text_explanation' => $validatedData['text_explanation'],
                 'video_explanation_url' => $validatedData['video_explanation_url'] ?? null,
                 'options' => json_encode($validatedData['options']),

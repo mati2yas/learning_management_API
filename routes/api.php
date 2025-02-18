@@ -210,8 +210,16 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         );
     });
 
-   
-
+    Route::get('/paid-courses', function (Request $request) {
+        $user = $request->user(); // Get authenticated user
+    
+        // Fetch paid courses for the user with course details
+        $paidCourses = Course::whereIn('id', function ($query) use ($user) {
+            $query->select('course_id')->from('paid_courses')->where('user_id', $user->id);
+        })->get();
+    
+        return CourseResource::collection($paidCourses);
+    });
 
     Route::get('homepage/courses', HomepageCourseController::class);
     Route::resource('courses', CourseController::class);

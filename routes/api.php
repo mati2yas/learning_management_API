@@ -30,7 +30,9 @@ use App\Models\ExamQuestion;
 use App\Models\ExamType;
 use App\Models\ExamYear;
 use App\Models\Grade;
+use App\Models\Like;
 use App\Models\Quiz;
+use App\Models\Save;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -161,6 +163,41 @@ Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword'])
 Route::post('reset-password', [NewPasswordController::class, 'reset']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+    
+    Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
+
+        $user = $request->user();
+        $course = Course::findOrFail($course_id);
+    
+        // Check if the course is already saved
+        $save = Save::where('user_id', $user->id)->where('course_id', $course->id)->first();
+    
+        if ($save) {
+            $save->delete(); // Unsave
+            return response()->json(['message' => 'Course unsaved successfully.']);
+        } else {
+            Save::create(['user_id' => $user->id, 'course_id' => $course->id]); // Save
+            return response()->json(['message' => 'Course saved successfully.']);
+        }
+    });
+    
+    Route::post('toggle-like/{course_id}', function (string $course_id, Request $request) {
+        $user = $request->user();
+        $course = Course::findOrFail($course_id);
+    
+        // Check if the course is already liked
+        $like = Like::where('user_id', $user->id)->where('course_id', $course->id)->first();
+    
+        if ($like) {
+            $like->delete(); // Unlike
+            return response()->json(['message' => 'Course unliked successfully.']);
+        } else {
+            Like::create(['user_id' => $user->id, 'course_id' => $course->id]); // Like
+            return response()->json(['message' => 'Course liked successfully.']);
+        }
+    });
+
+
     Route::get('homepage/courses', HomepageCourseController::class);
     Route::resource('courses', CourseController::class);
 

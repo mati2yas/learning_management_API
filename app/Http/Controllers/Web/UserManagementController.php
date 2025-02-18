@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 
@@ -37,8 +36,6 @@ class UserManagementController extends Controller
 
         $users = $query->orderBy($sortField, $sortDirection)->with('creator','updater', 'permissions')->paginate(10);
 
-        // dd($users);
-
         return Inertia::render("User-Management/Index", [
             'users' => UserManagementIndexResource::collection( $users ),
             'queryParams' => request()->query() ?: null,
@@ -48,7 +45,6 @@ class UserManagementController extends Controller
             'canDelete' => Auth::user()->hasDirectPermission('delete worker'),
         ]);
 
-        
     }
 
     /**
@@ -82,10 +78,6 @@ class UserManagementController extends Controller
                 'created_by' => Auth::id(),
                 'email_verified_at' => Carbon::now(),
             ]);
-
-            // Log::info($user);
-
-            // dd($user);
     
             // Assign worker roles (Ensure they exist)
             $workerRoleApi = Role::where('name', 'worker')->where('guard_name', 'api')->first();
@@ -132,9 +124,7 @@ class UserManagementController extends Controller
      */
     public function edit(string $id){
         $user = User::findOrFail(intval($id));
-        // dd($user);
 
-        // dd(new UserManagementIndexResource($user));
         return Inertia::render('User-Management/Edit',[
             'user'=>new UserEditResource($user) ,
         ]);

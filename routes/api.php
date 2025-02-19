@@ -167,7 +167,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
 
         $user = $request->user();
-        $course = Course::findOrFail($course_id);
+        $course = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+                ->findOrFail($course_id);
+
     
         // Check if the course is already saved
         $save = Save::where('user_id', $user->id)->where('course_id', $course->id)->first();
@@ -183,7 +185,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
     Route::post('toggle-like/{course_id}', function (string $course_id, Request $request) {
         $user = $request->user();
-        $course = Course::findOrFail($course_id);
+        $course = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+                ->findOrFail($course_id);
+
     
         // Check if the course is already liked
         $like = Like::where('user_id', $user->id)->where('course_id', $course->id)->first();
@@ -201,9 +205,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user = $request->user(); // Get the authenticated user
     
         // Fetch saved courses for the user with course details
-        $savedCourses = Course::whereIn('id', function ($query) use ($user) {
+        $savedCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+        ->whereIn('id', function ($query) use ($user) {
             $query->select('course_id')->from('saves')->where('user_id', $user->id);
         })->get();
+
     
         return CourseResource::collection(
              $savedCourses
@@ -214,9 +220,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user = $request->user(); // Get authenticated user
     
         // Fetch paid courses for the user with course details
-        $paidCourses = Course::whereIn('id', function ($query) use ($user) {
-            $query->select('course_id')->from('paid_courses')->where('user_id', $user->id);
-        })->get();
+        $paidCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+        ->whereIn('id', function ($query) use ($user) {
+            $query->select('course_id')
+                  ->from('paid_courses')
+                  ->where('user_id', $user->id);
+        })
+        ->get();
+    
     
         return CourseResource::collection($paidCourses);
     });

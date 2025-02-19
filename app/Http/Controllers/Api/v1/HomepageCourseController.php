@@ -24,7 +24,7 @@ class HomepageCourseController extends Controller
                 ->whereHas('category', function ($query) use ($category) {
                     $query->where('name', $category);
                 })
-                ->with(['batch', 'grade', 'department', 'category']) // Eager load relationships
+                ->with(['batch', 'grade', 'department', 'category','chapters']) // Eager load relationships
                 ->withCount(['likes', 'saves'])
                 ->leftJoin('paid_courses', function ($join) use ($userId) {
                     $join->on('courses.id', '=', 'paid_courses.course_id')

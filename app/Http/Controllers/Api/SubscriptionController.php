@@ -39,9 +39,36 @@ class SubscriptionController extends Controller
          }
      
          $validatedData = $attrs->validated();
+         $user = $request->user();
      
          try {
              DB::beginTransaction();
+     
+             // Check if user already owns any of the courses
+             $alreadyBought = PaidCourse::where('user_id', $user->id)
+                 ->whereIn('course_id', $validatedData['courses'])
+                 ->exists();
+     
+             if ($alreadyBought) {
+                 return response()->json([
+                     'status' => false,
+                     'message' => 'You have already purchased one or more of the selected courses.',
+                 ], 400);
+             }
+     
+             // Check for existing pending request
+             $existingRequest = SubscriptionRequest::where('user_id', $user->id)
+                 ->whereIn('status', ['Pending'])
+                 ->whereHas('courses', function ($query) use ($validatedData) {
+                     $query->whereIn('course_id', $validatedData['courses']);
+                 })->exists();
+     
+             if ($existingRequest) {
+                 return response()->json([
+                     'status' => false,
+                     'message' => 'You already have a pending subscription request for one or more selected courses.',
+                 ], 400);
+             }
      
              if ($request->hasFile('screenshot')) {
                  $file = $request->file('screenshot');
@@ -51,7 +78,6 @@ class SubscriptionController extends Controller
              }
      
              $totalPrice = 0;
-     
              foreach ($validatedData['courses'] as $courseId) {
                  $course = Course::findOrFail($courseId);
                  $priceColumn = $this->getPriceColumnBySubscriptionType($validatedData['subscription_type']);
@@ -62,7 +88,7 @@ class SubscriptionController extends Controller
                  }
              }
      
-             $subscriptionRequest = $request->user()->subscriptionRequests()->create([
+             $subscriptionRequest = $user->subscriptionRequests()->create([
                  'total_price' => $totalPrice,
                  'status' => 'Pending',
                  'proof_of_payment' => $validatedData['proof_of_payment'],
@@ -72,24 +98,16 @@ class SubscriptionController extends Controller
      
              $subscriptionRequest->courses()->attach($validatedData['courses']);
      
-             foreach ($validatedData['courses'] as $courseId) {
-                 PaidCourse::create([
-                     'user_id' => $request->user()->id,
-                     'course_id' => $courseId,
-                 ]);
-             }
-     
              $superAdmins = User::role('admin')->get();
              $workers = User::role('worker')->get();
-             
+     
              DB::commit();
      
-             // Dispatch job after successful commit
-             dispatch(new SendSubscriptionNotificationJob($subscriptionRequest, $superAdmins, $workers, $request->user()));
+             dispatch(new SendSubscriptionNotificationJob($subscriptionRequest, $superAdmins, $workers, $user));
      
              return response()->json([
                  'status' => true,
-                 'message' => 'Subscription request created successfully',
+                 'message' => 'Subscription request created successfully.',
                  'total_price' => $totalPrice,
              ], 201);
      
@@ -145,19 +163,25 @@ class SubscriptionController extends Controller
 
     public function approve(Request $request, SubscriptionRequest $subscriptionRequest)
     {
+        if ($subscriptionRequest->status === 'approved') {
+            return response()->json([
+                'message' => 'This subscription has already been approved.',
+            ], 400);
+        }
+    
         $subscriptionRequest->update([
             'status' => 'approved',
         ]);
-
-        $subscriptionRequest->subscription->create([
-            'user_id' => $subscriptionRequest->user_id,
-            'course_id' => $subscriptionRequest->course_id,
-            'exam_course_id' => $subscriptionRequest->exam_course_id,
-            'total_price' => $subscriptionRequest->total_price,
-        ]);
-
+    
+        foreach ($subscriptionRequest->courses as $course) {
+            PaidCourse::create([
+                'user_id' => $subscriptionRequest->user_id,
+                'course_id' => $course->id,
+            ]);
+        }
+    
         return response()->json([
-            'message' => 'Subscription request approved successfully',
+            'message' => 'Subscription request approved successfully.',
         ]);
     }
 

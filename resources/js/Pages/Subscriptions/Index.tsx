@@ -9,6 +9,7 @@ import { Subscription } from '@/types'
 import { SubscriptionRequest } from '../../types/index';
 import { SessionToast } from '@/Components/SessionToast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select'
+import { ErrorToast } from '@/Components/ErrorToast'
 
 interface SubscriptionIndexProps {
   subscriptions: {
@@ -32,7 +33,7 @@ interface SubscriptionIndexProps {
 
 const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexProps) => {
 
-  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+  const { flash } = usePage().props as unknown as { flash: { success?: string, error?: string } };
 
   const {data, setData} = useForm({
     status: filters.status || '',
@@ -64,6 +65,9 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
       <Head title='user management' />
       
       {flash.success && (<SessionToast message={flash.success }  />)}
+
+      {flash.error && (<ErrorToast message={flash.error} />)}
+
 
       <div className="py-12">
         <div className="max-w-[1300px] mx-auto sm:px-6 lg:px-8">

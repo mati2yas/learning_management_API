@@ -7,6 +7,7 @@ use App\Http\Resources\Web\SubscriptionRequestResource;
 use App\Http\Resources\Web\SubscriptionResource;
 use App\Jobs\SendSubscriptionApproveJob;
 use App\Jobs\SubscriptionRejectionJob;
+use App\Models\PaidCourse;
 use App\Models\Subscription;
 use App\Models\SubscriptionRequest;
 use App\Models\User;
@@ -104,39 +105,6 @@ class SubscriptionController extends Controller
         //
     }
 
-    public function rejection(string $id, Request $request)
-    {
-        try {
-            $attrs = $request->validate([
-                'message' => 'required|string'
-            ]);
-    
-            DB::beginTransaction();
-    
-            $subscriptionRequest = SubscriptionRequest::findOrFail($id);
-            $subscriptionRequest->update(['status' => "Rejected"]);
-    
-            $superAdmins = User::role('admin')->get();
-            $workers = User::role('worker')->get();
-            $user = $subscriptionRequest->user;
-    
-            DB::commit();
-    
-            // Dispatch job after successful commit
-            dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $user, $attrs['message']));
-    
-            return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return redirect()->route('subscriptions.index')->with('error', 'Subscription request not found.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            // Log the error
-            Log::error('Error in subscription rejection: ' . $e->getMessage());
-            return redirect()->route('subscriptions.index')->with('error', 'An error occurred while rejecting the subscription.');
-        }
-    }
-
     public function approve(string $id, Request $request)
     {
         DB::beginTransaction();
@@ -144,24 +112,43 @@ class SubscriptionController extends Controller
         try {
             $subscriptionRequest = SubscriptionRequest::findOrFail($id);
     
+            // Prevent duplicate approvals
+            if ($subscriptionRequest->status === 'Approved') {
+                return redirect()->route('subscriptions.index')->with('error', 'This subscription has already been approved.');
+            }
+    
             $subscription_start_date = Carbon::now();
-        
+    
             $durations = [
                 'oneMonth' => 1,
                 'threeMonths' => 3,
                 'sixMonths' => 6,
                 'yearly' => 12,
             ];
-        
+    
             $duration = $durations[$subscriptionRequest->subscription_type] ?? 1;
-            
+    
             $subscription_end_date = $subscription_start_date->copy()->addMonths($duration);
-        
+    
             $subscription = $subscriptionRequest->subscriptions()->create([
                 'subscription_start_date' => $subscription_start_date,
                 'subscription_end_date' => $subscription_end_date,
             ]);
-        
+    
+            // Create PaidCourse for approved courses
+            foreach ($subscriptionRequest->courses as $course) {
+                $alreadyBought = PaidCourse::where('user_id', $subscriptionRequest->user_id)
+                    ->where('course_id', $course->id)
+                    ->exists();
+    
+                if (!$alreadyBought) {
+                    PaidCourse::create([
+                        'user_id' => $subscriptionRequest->user_id,
+                        'course_id' => $course->id,
+                    ]);
+                }
+            }
+    
             $subscriptionRequest->update(['status' => "Approved"]);
     
             $superAdmins = User::role('admin')->get();

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('chapter_id')->constrained('chapters')->cascadeOnDelete();
             $table->string('name');
             $table->unsignedInteger('order');
-            $table->string('url');
             $table->timestamps();
         });
     }

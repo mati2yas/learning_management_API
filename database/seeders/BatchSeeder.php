@@ -14,6 +14,8 @@ class BatchSeeder extends Seeder
      */
     public function run(): void
     {
+        Batch::query()->delete();
+
         if (DB::table('batches')->count() == 0) {
             // Retrieve all departments
             $departments = Department::all();
@@ -22,12 +24,20 @@ class BatchSeeder extends Seeder
                 $years = [];
 
                 // Determine the years based on the department name
-                if ($department->department_name === 'Engineering') {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year', '5th Year'];
-                } elseif ($department->department_name === 'Medicine') {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
-                } else {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year'];
+                if (str_ends_with($department->department_name, 'Engineering')) {
+                    if ($department->department_name === 'Pre-Engineering') {
+                        $years = ['Freshman', '2nd Year'];
+                    } else {
+                        $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                    }
+                } elseif (str_starts_with($department->department_name, 'Medicine')) {
+                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
+                } elseif ($department->department_name === 'Pharmacy') {
+                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                } elseif($department->department_name === 'Freshman'){
+                    $years = ['Freshman'];
+                }else {
+                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year'];
                 }
 
                 // Create batches for the department

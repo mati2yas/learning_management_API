@@ -23,6 +23,7 @@ export default function Welcome({ auth }: PageProps<{}>) {
                             <div className="flex items-center gap-4">
                                 {auth.user ? (
                                     <Link
+                                        prefetch
                                         href={route('dashboard')}
                                         className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
                                     >
@@ -31,17 +32,18 @@ export default function Welcome({ auth }: PageProps<{}>) {
                                 ) : (
                                     <>
                                         <Link
+                                            prefetch
                                             href={route('login')}
                                             className="text-sm font-medium text-gray-700 transition-colors hover:text-gray-900"
                                         >
                                             Login
                                         </Link>
-                                        <Link
+                                        {/* <Link
                                             href={route('register')}
                                             className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
                                         >
                                             Sign up
-                                        </Link>
+                                        </Link> */}
                                     </>
                                 )}
                             </div>
@@ -61,7 +63,7 @@ export default function Welcome({ auth }: PageProps<{}>) {
                         </p>
                         <div className="mt-10">
                             <Link
-                                href={route('register')}
+                                href={route('login')}
                                 className="rounded-full bg-black px-8 py-3 text-base font-medium text-white transition-colors hover:bg-gray-800"
                             >
                                 Login

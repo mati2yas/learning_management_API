@@ -9,4 +9,8 @@ class ExamYear extends Model
 {
     /** @use HasFactory<\Database\Factories\ExamYearFactory> */
     use HasFactory;
+
+    public function examQuestions(){
+        return $this->hasMany(ExamQuestion::class);
+    }
 }

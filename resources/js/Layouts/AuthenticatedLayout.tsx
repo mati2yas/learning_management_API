@@ -9,8 +9,8 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
 
+    const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
@@ -28,6 +28,7 @@ export default function Authenticated({
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
+                                    prefetch
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
@@ -35,10 +36,53 @@ export default function Authenticated({
                                 </NavLink>
 
                                 <NavLink
+                                    prefetch
                                     href={route('courses.index')}  
                                     active={route().current('courses.index')} 
                                 >
                                     Courses
+                                </NavLink>
+
+                                <NavLink
+                                    prefetch
+                                    href={route('exams.index')}  
+                                    active={route().current('exams.index')} 
+                                >
+                                    Exams
+                                </NavLink>
+
+                                <NavLink
+                                    prefetch
+                                    href={route('exam-courses.index')}  
+                                    active={route().current('exam-courses.index')} 
+                                >
+                                    Exam Courses
+                                </NavLink>
+
+                                
+                                <NavLink
+                                    prefetch
+                                    href={route('subscriptions.index')}  
+                                    active={route().current('subscriptions.index')} 
+                                >
+                                    Subscriptions
+                                </NavLink>
+
+                                <NavLink
+                                    prefetch
+                                    href={route('student-managements.index')}  
+                                    active={route().current('student-managements.index')} 
+                                >
+                                    Students Management
+                                </NavLink>
+
+
+                                <NavLink
+                                    prefetch
+                                    href={route('user-managements.index')}  
+                                    active={route().current('user-managements.index')} 
+                                >
+                                    Workers Management
                                 </NavLink>
                             </div>
                         </div>
@@ -139,17 +183,68 @@ export default function Authenticated({
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
+                            cacheFor={'10s'}
+                            prefetch
                             href={route('dashboard')}
                             active={route().current('dashboard')}
                         >
                             Dashboard
                         </ResponsiveNavLink>
+
                         <ResponsiveNavLink
+                            prefetch
+                            cacheFor={'20s'}
                             href={route('courses.index')}
                             active={route().current('courses.index')}
                         >
-                            Dashboard
+                            Courses
                         </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            cacheFor={'20s'}
+                            prefetch
+                            href={route('exams.index')}
+                            active={route().current('exams.index')}
+                        >
+                            Exams
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            cacheFor={'20s'}
+                            prefetch
+                            href={route('exam-courses.index')}
+                            active={route().current('exam-courses.index')}
+                        >
+                            Exam Courses
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            prefetch
+                            cacheFor={'10s'}
+                            href={route('subscriptions.index')}
+                            active={route().current('subscriptions.index')}
+                        >
+                            Subscription
+                        </ResponsiveNavLink>
+
+
+                        <ResponsiveNavLink
+                            prefetch
+                            cacheFor={'30s'}
+                            href={route('user-managements.index')}
+                            active={route().current('user-managements.index')}
+                        >
+                            Workers Management
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            prefetch cacheFor={'10s'}
+                            href={route('student-managements.index')}
+                            active={route().current('student-managements.index')}
+                        >
+                            Students Management
+                        </ResponsiveNavLink>
+
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">
@@ -185,7 +280,6 @@ export default function Authenticated({
                     </div>
                 </header>
             )}
-
             <main>{children}</main>
         </div>
     );

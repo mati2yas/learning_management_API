@@ -13,6 +13,7 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        Category::query()->delete();
         if(FacadesDB::table('categories')->count() == 0){
             $categories = [
                 'lower_grades',

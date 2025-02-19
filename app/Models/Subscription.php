@@ -9,4 +9,9 @@ class Subscription extends Model
 {
     /** @use HasFactory<\Database\Factories\SubscriptionFactory> */
     use HasFactory;
+
+    public function subscriptionRequest()
+    {
+        return $this->belongsTo(SubscriptionRequest::class);
+    }
 }

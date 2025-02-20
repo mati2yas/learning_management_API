@@ -26,7 +26,7 @@ interface EditExamQuestionAlertProps {
 }
 
 const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
-  console.log(question)
+  // console.log(question)
   const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>(JSON.parse(question.answer))
   const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))
@@ -35,6 +35,7 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
 
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
+  const [selectedExamTypeName, setSelectedExamTypeName] = useState("")
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
     _method: string
@@ -84,6 +85,28 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     }
   }, [])
 
+  const showExamGrade = useMemo(() => {
+    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    console.log(selectedExamTypeName)
+    return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
+  }, [data.exam_type_id, exam_types])
+
+  const getFilteredExamGrades = useMemo(() => {
+    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    if (!selectedExamType) return []
+
+    switch (selectedExamType.name) {
+      case "6th Grade Ministry":
+        return exam_grades?.filter((grade) => [5, 6].includes(grade.grade)) || []
+      case "8th Grade Ministry":
+        return exam_grades?.filter((grade) => [7, 8].includes(grade.grade)) || []
+      case "ESSLCE":
+        return exam_grades?.filter((grade) => grade.grade >= 9 && grade.grade <= 12) || []
+      default:
+        return []
+    }
+  }, [data.exam_type_id, exam_types, exam_grades])
+
   useEffect(() => {
     if (data.exam_type_id) {
       fetchExamCourses(data.exam_type_id)
@@ -107,6 +130,8 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
       }))
       setExamCourses([])
       setExamChapters([])
+      const selectedType = exam_types.find((type) => type.id.toString() === value)
+      setSelectedExamTypeName(selectedType ? selectedType.name : "")
     },
     [setData],
   )
@@ -202,6 +227,32 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     //   setError("text_explanation", "Explanation is required")
     //   isValid = false
     // }
+
+    if (!data.exam_type_id) {
+      setError("exam_type_id", "Exam type is required")
+      isValid = false
+    }
+
+    if (!data.exam_year_id) {
+      setError("exam_year_id", "Exam year is required")
+      isValid = false
+    }
+
+    if (!data.exam_course_id) {
+      setError("exam_course_id", "Exam course is required")
+      isValid = false
+    }
+
+    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) && !data.exam_grade_id) {
+      setError("exam_grade_id", "Exam grade is required")
+      isValid = false
+    }
+
+    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) 
+     && !data.exam_chapter_id) {
+      setError("exam_chapter_id", "Exam chapter is required")
+      isValid = false
+    }
 
     if (options.length < 2) {
       setError("options", "At least two options are required")
@@ -323,7 +374,7 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
                       </div>
                     )}
 
-                    {data.exam_course_id && data.exam_type_id !== "ngat" && (
+                    {showExamGrade && data.exam_year_id &&(
                       <div>
                         <InputLabel htmlFor="exam-grade" value="Exam Grade" />
                         <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
@@ -422,7 +473,7 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
                         id="text_explanation"
                         value={data.text_explanation}
                         onChange={(e) => setData("text_explanation", e.target.value)}
-                        required
+                        
                       />
                       <InputError message={errors.text_explanation} />
                     </div>

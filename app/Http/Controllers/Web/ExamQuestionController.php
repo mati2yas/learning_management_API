@@ -257,10 +257,10 @@ class ExamQuestionController extends Controller
      */
     public function destroy(ExamQuestion $examQuestion)
     {
-        $examChapter = $examQuestion->examChapter->title;
+        // $examChapter = $examQuestion->examChapter->title;
 
         $examQuestion->delete();
 
-        return redirect()->route('exams.index')->with('success', 'Exam question of course '.$examChapter.'deleted successfully');
+        return redirect()->route('exams.index')->with('success', 'Exam question deleted successfully');
     }
 }

@@ -70,7 +70,7 @@ const EditExamCourseAlert = ({
 
   const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
     try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}/${examGradeId}`, {
+      const response = await axios.get(`/api/exam-courses/${examTypeId}`, {
         params: { stream },
       })
       setExamCourses(response.data)

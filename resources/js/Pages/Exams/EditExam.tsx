@@ -26,6 +26,7 @@ interface EditExamQuestionAlertProps {
 }
 
 const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
+  console.log(question)
   const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>(JSON.parse(question.answer))
   const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))

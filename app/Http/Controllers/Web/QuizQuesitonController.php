@@ -31,59 +31,72 @@ class QuizQuesitonController extends Controller
      */
     public function store(Request $request)
     {
-        $attrs = $request->validate([
-            'quiz_id' => 'required|exists:quizzes,id',
-            'questions' => 'required|array|min:1',
-            'questions.*.id' => 'required|string',
-            'questions.*.question_number' => 'required|integer',
-            'questions.*.text' => 'required|string',
-            'questions.*.question_image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'questions.*.text_explanation' => 'string',
-            'questions.*.video_explanation_url' => 'nullable|url',
-            'questions.*.image_explanation_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'questions.*.options' => 'nullable|array',
-            'questions.*.options.*' => 'nullable|string',
-            'questions.*.answer' => 'nullable|array',
-            'questions.*.answer.*' => 'nullable|string',
-        ]);
-    
-        foreach($attrs['questions'] as $questionData) {
-            $questionImagePath = null;
-            $imageExplanationPath = null;
-    
-            // Handle question image
-            if ($questionData['question_image_url'] && is_string($questionData['question_image_url'])) {
-                // If it's a base64 encoded string
-                $image = $this->saveBase64Image($questionData['question_image_url'], 'question_images');
-                $questionImagePath = $image ? Storage::url($image) : null;
-            }
-    
-            // Handle explanation image
-            if ($questionData['image_explanation_url'] && is_string($questionData['image_explanation_url'])) {
-                // If it's a base64 encoded string
-                $image = $this->saveBase64Image($questionData['image_explanation_url'], 'explanation_images');
-                $imageExplanationPath = $image ? Storage::url($image) : null;
-            }
-    
-            // Convert arrays to JSON before storing
-            $options = isset($questionData['options']) ? json_encode($questionData['options']) : null;
-            $answer = isset($questionData['answer']) ? json_encode($questionData['answer']) : null;
-    
-            $question = QuizQuestion::create([
-                'quiz_id' => $request->quiz_id,
-                'question_number' => $questionData['question_number'],
-                'text' => $questionData['text'],
-                'question_image_url' => $questionImagePath,
-                'text_explanation' => $questionData['text_explanation'],
-                'video_explanation_url' => $questionData['video_explanation_url'] ?? null,
-                'image_explanation_url' => $imageExplanationPath,
-                'options' => $options,
-                'answer' => $answer,
+        try{
+
+            $attrs = $request->validate([
+                'quiz_id' => 'required|exists:quizzes,id',
+                'questions' => 'required|array|min:1',
+                'questions.*.id' => 'required|string',
+                'questions.*.question_number' => 'required|integer',
+                'questions.*.text' => 'required|string',
+                'questions.*.question_image_url' => 'nullable',
+                'questions.*.text_explanation' => 'string',
+                'questions.*.video_explanation_url' => 'nullable|url',
+                'questions.*.image_explanation_url' => 'nullable',
+                'questions.*.options' => 'nullable|array',
+                'questions.*.options.*' => 'nullable|string',
+                'questions.*.answer' => 'nullable|array',
+                'questions.*.answer.*' => 'nullable|string',
             ]);
-        }
+        
+            foreach($attrs['questions'] as $questionData) {
+                $questionImagePath = null;
+                $imageExplanationPath = null;
+        
+                // Handle question image
+                if ($questionData['question_image_url'] && is_string($questionData['question_image_url'])) {
+                    // If it's a base64 encoded string
+                    $image = $this->saveBase64Image($questionData['question_image_url'], 'question_images');
+                    $questionImagePath = $image ? Storage::url($image) : null;
+                }
+        
+                // Handle explanation image
+                if ($questionData['image_explanation_url'] && is_string($questionData['image_explanation_url'])) {
+                    // If it's a base64 encoded string
+                    $image = $this->saveBase64Image($questionData['image_explanation_url'], 'explanation_images');
+                    $imageExplanationPath = $image ? Storage::url($image) : null;
+                }
+        
+                // Convert arrays to JSON before storing
+                $options = isset($questionData['options']) ? json_encode($questionData['options']) : null;
+                $answer = isset($questionData['answer']) ? json_encode($questionData['answer']) : null;
+        
+                $question = QuizQuestion::create([
+                    'quiz_id' => $request->quiz_id,
+                    'question_number' => $questionData['question_number'],
+                    'text' => $questionData['text'],
+                    'question_image_url' => $questionImagePath,
+                    'text_explanation' => $questionData['text_explanation'],
+                    'video_explanation_url' => $questionData['video_explanation_url'] ?? null,
+                    'image_explanation_url' => $imageExplanationPath,
+                    'options' => $options,
+                    'answer' => $answer,
+                ]);
+            }
     
-        return redirect()->route('quizzes.show', $request->quiz_id)
+            return redirect()->route('quizzes.show', $request->quiz_id)
             ->with('success', 'Quiz questions created successfully.');
+
+        } catch (\Exception $e){
+            Log::error('Error creating quiz questions:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'An error occurred while creating quiz questions')->withInput();
+        }
+
+    
+
     }
     
     private function saveBase64Image($base64Image, $folder)
@@ -134,8 +147,8 @@ class QuizQuesitonController extends Controller
             'quiz_id' => 'required|exists:quizzes,id',
             'question_number' => 'required|integer',
             'text' => 'required|string',
-            'image_explanation_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'question_image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB Max
+            'image_explanation_url' => 'nullable',
+            'question_image_url' => 'nullable', // 2MB Max
             'text_explanation' => 'string',
             'video_explanation_url' => 'nullable|url',
             'options' => 'required|array',

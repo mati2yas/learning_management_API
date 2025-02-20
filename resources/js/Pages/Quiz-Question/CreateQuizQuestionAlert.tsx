@@ -169,9 +169,10 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
       return
     }
 
-    // console.log("Submitting data:", data)
+    console.log("Submitting data:", data)
 
     post(route("quiz-questions.store"), {
+      
       preserveScroll: true,
       preserveState: false,
       onSuccess: () => {

@@ -61,16 +61,26 @@ class ExamQuestionController extends Controller
             // Log::info('Validated data:', $validatedData);
     
             // $createdQuestions = [];
+
+            // dd($validatedData);
     
             foreach ($validatedData['questions'] as $questionData) {
 
                 $questionImagePath = null;
+                $explanationImagePath = null;
 
                 // Handle question image
                 if ($questionData['question_image_url'] && is_string($questionData['question_image_url'])) {
                     // If it's a base64 encoded string
                     $image = $this->saveBase64Image($questionData['question_image_url'], 'question_images');
                     $questionImagePath = $image ? Storage::url($image) : null;
+                }
+
+                // Handle explanation image
+                if ($questionData['image_explanation_url'] && is_string($questionData['image_explanation_url'])) {
+                    // If it's a base64 encoded string
+                    $image = $this->saveBase64Image($questionData['image_explanation_url'], 'explanation_images');
+                    $explanationImagePath = $image ? Storage::url($image) : null;
                 }
 
                 $attrs = [
@@ -82,6 +92,7 @@ class ExamQuestionController extends Controller
                     'question_text' => $questionData['question_text'],
                     'text_explanation' => $questionData['text_explanation'],
                     'question_image_url' => $questionImagePath,
+                    'image_explanation_url' => $explanationImagePath,
                     'video_explanation_url' => $questionData['video_explanation_url'] ?? null,
                     'options' => json_encode($questionData['options']),
                     'answer' => json_encode($questionData['answer']),
@@ -99,9 +110,9 @@ class ExamQuestionController extends Controller
     
             return redirect()->route('exams.index')->with('success', 'Exam questions created successfully');
     
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation error:', $e->errors());
-            return back()->withErrors($e->errors())->withInput();
+        // } catch (\Illuminate\Validation\ValidationException $e) {
+        //     Log::error('Validation error:', $e->errors());
+        //     return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Error creating exam questions:', [
                 'error' => $e->getMessage(),

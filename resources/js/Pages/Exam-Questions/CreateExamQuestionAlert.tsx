@@ -241,6 +241,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
     return isValid
   }
 
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
@@ -248,6 +249,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       return
     }
 
+    console.log(data)
     post(route("exam-questions.store"), {
       preserveScroll: true,
       preserveState: false,

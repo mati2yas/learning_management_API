@@ -11,6 +11,7 @@ import QuestionCard from "./QuestionCard"
 import axios from "axios"
 import { SessionToast } from "@/Components/SessionToast"
 import PermissionAlert from "@/Components/PermissionAlert"
+import { ErrorToast } from "@/Components/ErrorToast"
 
 
 interface ExamIndexProps {
@@ -55,7 +56,7 @@ const Index: React.FC<ExamIndexProps> = ({
   canDeleteExamQuestions,
 }) => {
 
-  const { flash } = usePage().props as unknown as { flash: { success?: string } };
+  const { flash } = usePage().props as unknown as { flash: { success?: string, error?: string } };
   
   const { data, setData } = useForm({
     examType: filters?.examType || "",
@@ -205,7 +206,11 @@ const Index: React.FC<ExamIndexProps> = ({
       }
     >
       <Head title="Exams" />
+
       {flash.success && (<SessionToast message={flash.success }  />)}
+
+      {flash.error && (<ErrorToast message={flash.error} />)}
+
       <div className="py-12">
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
 

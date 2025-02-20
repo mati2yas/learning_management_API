@@ -93,6 +93,8 @@ class ExamController extends Controller
         $examQuestion = ExamQuestion::findOrFail($id);
 
         // dd($examQuestion);
+
+        // dd($examQuestion);
         return Inertia::render('Exams/EditExam', [
             'exam_years' => ExamYear::all(),
             'exam_grades' => ExamGrade::all(),

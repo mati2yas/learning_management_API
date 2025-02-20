@@ -10,6 +10,7 @@ import CreateQuizQuestionAlert from "../Quiz-Question/CreateQuizQuestionAlert"
 import type { Quiz, QuizQuestion } from "@/types"
 import { SessionToast } from "@/Components/SessionToast"
 import PermissionAlert from "@/Components/PermissionAlert"
+import { ErrorToast } from "@/Components/ErrorToast"
 
 interface ShowProps {
   quiz: Quiz
@@ -26,9 +27,10 @@ const Show = ({ quiz, quiz_questions, chapter_id,canAddQuizQuestions,
   canDeleteQuizQuestions,
    }: ShowProps) => {
 
+  const { flash } = usePage().props as unknown as { flash: { success?: string, error?: string } };
+
   const sortedQuestions = [...quiz_questions].sort((a, b) => a.question_number - b.question_number)
 
-  const { flash } = usePage().props as unknown as { flash: { success?: string } };
  
   return (
     <Authenticated
@@ -46,6 +48,8 @@ const Show = ({ quiz, quiz_questions, chapter_id,canAddQuizQuestions,
       <Head title="Quiz Detail" />
 
       {flash.success && (<SessionToast message={flash.success }  />)}
+
+      {flash.error && (<ErrorToast message={flash.error} />)}
 
       <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">

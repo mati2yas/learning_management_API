@@ -96,7 +96,7 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
         </div>
 
         <div className="space-y-2">
-        <Label htmlFor={`text_explanation_${index}`}>Explanation</Label>
+        <Label htmlFor={`text_explanation_${index}`}>Explanation (optional)</Label>
         <Textarea
         id={`text_explanation_${index}`}
         value={question.text_explanation}

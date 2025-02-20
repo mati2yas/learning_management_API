@@ -70,6 +70,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
 
   const showExamGrade = useMemo(() => {
     const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    console.log(selectedExamTypeName)
     return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
   }, [data.exam_type_id, exam_types])
 
@@ -205,12 +206,13 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       isValid = false
     }
 
-    if (["ministry", "matric"].includes(selectedExamTypeName.toLowerCase()) && !data.exam_grade_id) {
+    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) && !data.exam_grade_id) {
       setError("exam_grade_id", "Exam grade is required")
       isValid = false
     }
 
-    if (!data.exam_chapter_id) {
+    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) 
+     && !data.exam_chapter_id) {
       setError("exam_chapter_id", "Exam chapter is required")
       isValid = false
     }

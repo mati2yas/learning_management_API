@@ -39,9 +39,10 @@ class ExamQuestionController extends Controller
                 'exam_type_id' => 'required|exists:exam_types,id',
                 'exam_year_id' => 'required|exists:exam_years,id',
                 'exam_course_id' => 'required|exists:exam_courses,id',
-                'exam_grade_id' => 'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE',
-                'exists:exam_grades,id',
-                'exam_chapter_id' =>  'required_if:exam_type_id,6th Grade Ministry,8th Grade Ministry,ESSLCE|exists:exam_chapters,id',
+
+                'exam_grade_id' => 'nullable',
+
+                'exam_chapter_id' =>  'nullable',
 
                 'questions' => 'required|array|min:1',
 
@@ -118,7 +119,7 @@ class ExamQuestionController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return back()->with('error', 'An error occurred while creating exam questions')->withInput();
+            return back()->with('error', 'An error occurred while creating exam questions'. $e->getMessage())->withInput();
         }
     }
 

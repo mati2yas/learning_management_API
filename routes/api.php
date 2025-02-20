@@ -122,7 +122,7 @@ Route::get('/random-courses/{filterType}', function ($filterType) {
         return response()->json(['error' => 'Category not found'], 404);
     }
 
-    $courses = Course::with(['department', 'grade', 'batch', 'category'])
+    $courses = Course::with(['department', 'grade', 'batch', 'category', 'chapters'])
         ->where('category_id', $category->id)
         ->get();
     return CourseResource::collection($courses);

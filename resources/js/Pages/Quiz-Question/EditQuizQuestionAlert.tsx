@@ -28,7 +28,7 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
   const parsedOptions = JSON.parse(quiz_question.options as unknown as string)
   const parsedAnswer = JSON.parse(quiz_question.answer as unknown as string)
   const [answerType, setAnswerType] = useState<"no_options" | "single" | "multiple">(
-    parsedOptions.length === 0 ? "no_options" : parsedAnswer.length > 1 ? "multiple" : "single",
+    parsedOptions?.length === 0 ? "no_options" : parsedAnswer?.length > 1 ? "multiple" : "single",
   )
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(quiz_question.question_image_url)
   const [imageExplanationPreview, setImageExplanationPreview] = useState<string | null>(

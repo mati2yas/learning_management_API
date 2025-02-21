@@ -100,7 +100,7 @@ const QuizQuestionCard = ({ question, canDeleteQuizQuestions, canUpdateQuizQuest
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Question {question.question_number}</span>
-          <Badge variant="secondary">{options.length} Options</Badge>
+          <Badge variant="secondary">{options?.length} Options</Badge>
         </CardTitle>
         <CardDescription className="line-clamp-2">{question.text}</CardDescription>
       </CardHeader>

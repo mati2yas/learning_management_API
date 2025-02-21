@@ -25,7 +25,6 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
     course_id: id,
   });
 
-
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
     post(route('chapters.store'), {
@@ -39,7 +38,6 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
       },
     });
   };
-
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -80,8 +78,9 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 id="order"
                 name="order"
                 type="number"
+                min='1'
                 className="w-full"
-                value={data.order}
+                value={data.order }
                 onChange={(e) => setData('order', e.target.value)}
                 required
               />
@@ -110,7 +109,6 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
                 <PrimaryButton type="submit" disabled={processing}>
                   Add Chapter
                 </PrimaryButton>
-          
             </div>
           </form>
         </div>

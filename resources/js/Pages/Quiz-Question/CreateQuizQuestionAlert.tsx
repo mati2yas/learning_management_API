@@ -20,7 +20,7 @@ interface CreateQuizQuestionAlertProps {
 }
 
 interface QuestionData {
-  id: string
+  id: number
   question_number: number
   text: string
   text_explanation: string
@@ -32,7 +32,7 @@ interface QuestionData {
 }
 
 const generateUniqueId = () => {
-  return Math.random().toString(36).substr(2, 9)
+  return Math.floor(Math.random() * 1000000)
 }
 
 const MAX_QUESTIONS = 10
@@ -41,8 +41,18 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
   const [isOpen, setIsOpen] = useState(false)
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
     quiz_id: number
-    questions: QuestionData[]
-  }>({
+    questions: {
+      id: number,
+      question_number: number,
+      text: string,
+      text_explanation: string,
+      video_explanation_url: string
+      image_explanation_url: string | null,
+      question_image_url: string | null,
+      options: string[],
+      answer: string[],
+    }[]
+  }& Record<string,any> >({
     quiz_id: quizId,
     questions: [
       {
@@ -128,11 +138,11 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
 
     data.questions.forEach((question, index) => {
       if (question.question_number <= 0) {
-        setError("questions", `Question number must be greater than 0 for question ${index + 1}`)
+        setError(`questions.${index}`, `Question number must be greater than 0 for question ${index + 1}`)
         isValid = false
       }
       if (question.text.trim() === "") {
-        setError("questions", `Question text is required for question ${index + 1}`)
+        setError(`questions.${index}`, `Question text is required for question.`)
         isValid = false
       }
       // if (question.text_explanation.trim() === "") {
@@ -140,7 +150,7 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
       //   isValid = false
       // }
       if (question.video_explanation_url && !isValidUrl(question.video_explanation_url)) {
-        setError("questions", `Invalid URL format at question ${index + 1}`)
+        setError(`questions.${index}`, `Invalid URL format at question ${index + 1}`)
         isValid = false
       }
       if (question.options.length > 0) {
@@ -149,11 +159,11 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
           isValid = false
         }
         if (question.answer.length === 0) {
-          setError("questions", `Please select at least one answer when options are provided for question ${index + 1}`)
+          setError(`questions[${index}]`, `Please select at least one answer when options are provided for question ${index + 1}`)
           isValid = false
         }
         if (new Set(question.options).size !== question.options.length) {
-          setError("questions", `Options must be unique at question ${index + 1}`)
+          setError(`questions.${index}`, `Options must be unique at question ${index + 1}`)
           isValid = false
         }
       }
@@ -209,7 +219,10 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
                   question={question}
                   updateQuestion={updateQuestion}
                   removeQuestion={removeQuestion}
-                  errors={errors}
+                  errors={                    Object.fromEntries(Object.entries(errors).filter(([_, v]) => v !== undefined)) as Record<
+                    string,
+                    string
+                  >}
                 />
               ))}
             </div>

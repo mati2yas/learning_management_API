@@ -13,7 +13,7 @@ interface QuizQuestionFormProps {
   index: number
   question: {
     image_explanation_url: any
-    id: string
+    id: number
     question_number: number
     text: string
     question_image_url: string | null

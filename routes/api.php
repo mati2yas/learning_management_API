@@ -278,15 +278,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
     });
     
-    Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
-    
-        $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
-                        ->with('examGrade.examCourses.examChapters')  // 
-                        ->get()
-                        ->pluck('examGrade') 
-                        ->unique();          //
-        return ExamGradeResource::collection($examGrades);
-    });
+
     
     Route::get('exams/exam-courses/{examType}', function($examType){
     
@@ -297,6 +289,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
+Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
+
+    
+    $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
+                    ->with('examGrade.examCourses.examChapters')  // 
+                    ->get()
+                    ->pluck('examGrade') 
+                    ->unique()->filter();   
+                    
+    // return $examGrades;
+    return ExamGradeResource::collection(resource: $examGrades);
+});
 
 
 // Route::get('ca')

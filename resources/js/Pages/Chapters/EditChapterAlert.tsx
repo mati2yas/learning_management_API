@@ -78,6 +78,7 @@ const EditChapterAlert = ({chapter}:UpdateChapterAlertProps) => {
                 id="order"
                 name="order"
                 type="number"
+                min='1'
                 value={data.order}
                 className="w-full"
                 onChange={(e) => setData('order', Number(e.target.value))}

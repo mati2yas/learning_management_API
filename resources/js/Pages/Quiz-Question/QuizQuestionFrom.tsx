@@ -122,8 +122,8 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
           onChange={(e) => updateQuestion(index, "text", e.target.value)}
           required
         />
-        <InputError>{errors[`questions.${index}.text`]}</InputError>
-      </div>
+        <InputError message={errors[`questions.${index}.text_explanation`]} />
+        </div>
 
       <div className="space-y-2">
         <Label htmlFor={`question_image_url_${index}`}>Question Image</Label>
@@ -136,7 +136,7 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
         {question.question_image_url && (
           <img src={question.question_image_url || "/placeholder.svg"} alt="Question" className="mt-2 max-w-xs" />
         )}
-        <InputError>{errors[`questions.${index}.question_image`]}</InputError>
+        <InputError message={errors[`questions.${index}.question_image`]} />
       </div>
 
       <div className="space-y-2">

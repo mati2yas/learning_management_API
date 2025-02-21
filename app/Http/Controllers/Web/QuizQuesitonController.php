@@ -31,16 +31,16 @@ class QuizQuesitonController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        // try{
 
             $attrs = $request->validate([
                 'quiz_id' => 'required|exists:quizzes,id',
                 'questions' => 'required|array|min:1',
-                'questions.*.id' => 'required|string',
+                'questions.*.id' => 'required',
                 'questions.*.question_number' => 'required|integer',
                 'questions.*.text' => 'required|string',
                 'questions.*.question_image_url' => 'nullable',
-                'questions.*.text_explanation' => 'string',
+                'questions.*.text_explanation' => 'nullable',
                 'questions.*.video_explanation_url' => 'nullable|url',
                 'questions.*.image_explanation_url' => 'nullable',
                 'questions.*.options' => 'nullable|array',
@@ -87,13 +87,13 @@ class QuizQuesitonController extends Controller
             return redirect()->route('quizzes.show', $request->quiz_id)
             ->with('success', 'Quiz questions created successfully.');
 
-        } catch (\Exception $e){
-            Log::error('Error creating quiz questions:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return back()->with('error', 'An error occurred while creating quiz questions')->withInput();
-        }
+        // } catch (\Exception $e){
+        //     Log::error('Error creating quiz questions:', [
+        //         'error' => $e->getMessage(),
+        //         'trace' => $e->getTraceAsString()
+        //     ]);
+        //     return back()->with('error', 'An error occurred while creating quiz questions'.$e->getMessage())->withInput();
+        // }
 
     
 
@@ -149,12 +149,12 @@ class QuizQuesitonController extends Controller
             'text' => 'required|string',
             'image_explanation_url' => 'nullable',
             'question_image_url' => 'nullable', // 2MB Max
-            'text_explanation' => 'string',
+            'text_explanation' => 'nullable',
             'video_explanation_url' => 'nullable|url',
-            'options' => 'required|array',
-            'options.*' => 'required|string',
-            'answer' => 'required|array',
-            'answer.*' => 'required|string',
+            'options' => 'nullable|array',
+            'options.*' => 'nullable|string',
+            'answer' => 'nullable|array',
+            'answer.*' => 'nullable|string',
         ]);
     
         // try {
@@ -191,8 +191,9 @@ class QuizQuesitonController extends Controller
             }
     
             // Decode JSON strings for options and answer
-            $attrs['options'] = json_encode($attrs['options']);
-            $attrs['answer'] = json_encode($attrs['answer']);
+            $attrs['options'] = isset($attrs['options']) ? json_encode($attrs['options']) : null;
+            $attrs['answer'] = isset($attrs['answer']) ? json_encode($attrs['answer']) : null;
+            
             $attrs['question_image_url'] = $questionImagePath;
             $attrs['image_explanation_url'] = $imageExplanationPath;
     

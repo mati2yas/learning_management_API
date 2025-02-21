@@ -219,7 +219,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
 
     data.questions.forEach((question, index) => {
       if (!question.question_text) {
-        setError(`questions.${index}.question_text`, "Question text is required")
+        setError(`questions.${index}.text_explanation`, "Question text is required")
         isValid = false
       }
       // if (!question.text_explanation) {
@@ -251,7 +251,7 @@ const CreateExamQuestionAlert = ({ exam_types = [], exam_years, exam_grades }: C
       return
     }
 
-    console.log(data)
+    // console.log(data)
     post(route("exam-questions.store"), {
       preserveScroll: true,
       preserveState: false,

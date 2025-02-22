@@ -18,7 +18,9 @@ class StudentManagementIndexResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'gender' => $this->gender,
+            // 'gender' => $this->gender,
+            'bio' => $this->bio ? $this->bio : null,
+            'avatar' => $this->avatar ? $this->avatar : null,
             'subscriptionRequests' => $this->subscriptionRequests->map(function ($request) {
                 return [
                     'id' => $request->id,

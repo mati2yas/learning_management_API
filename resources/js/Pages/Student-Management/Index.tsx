@@ -13,6 +13,7 @@ import { ExamCourse } from '@/types'
 import AlertUnBan from './AlertUnBan'
 import PermissionAlert from '@/Components/PermissionAlert'
 // import { SubscriptionRequest } from '@/types'
+import { Avatar } from '@/Components/ui/avatar';
 
 dayjs.extend(realativeTime)
 
@@ -37,6 +38,8 @@ interface SubscriptionRequest {
 interface User{
   email: string
   id: number,
+  bio: string,
+  avatar: string
   name: string,
   bannedUser: boolean
   subscriptionRequests: SubscriptionRequest[]

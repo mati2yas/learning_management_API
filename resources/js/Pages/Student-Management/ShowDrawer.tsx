@@ -45,6 +45,8 @@ interface SubscriptionRequest {
 interface User {
   id: number
   name: string
+  avatar: string
+  bio: string
   email: string
   bannedUser: boolean
   subscriptionRequests: SubscriptionRequest[]
@@ -60,7 +62,7 @@ interface UserDetailProps {
 
 export default function UserDetailDrawer({ user, canBan, canUnban }: UserDetailProps) {
 
-
+  console.log(user)
   const [isOpen, setIsOpen] = useState(false)
   const [expandedRequests, setExpandedRequests] = useState<number[]>([])
 
@@ -84,12 +86,16 @@ export default function UserDetailDrawer({ user, canBan, canUnban }: UserDetailP
         </SheetHeader>
         <div className="py-4">
           <div className="flex items-center space-x-4">
-            <Avatar className="h-20 w-20">
+            {
+              user.avatar ? <img src={'/storage/'+user.avatar} className="w-20 h-50 rounded-full"/> :             <Avatar className="h-20 w-20">
               <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
+            }
+
             <div>
               <h2 className="text-2xl font-bold">{user.name}</h2>
               <p className="text-gray-500">{user.email}</p>
+              <p className="text-gray-500">{user.bio? user.bio : null}</p>
               {/* <p className="text-gray-500">Gender: {user.gender}</p> */}
             </div>
           </div>

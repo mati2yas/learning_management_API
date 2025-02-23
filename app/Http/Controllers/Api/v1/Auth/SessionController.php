@@ -7,10 +7,13 @@ use App\Jobs\EmailVerificationSend;
 use App\Jobs\SendCustomVerificationEmail;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as RulesPassword;
@@ -92,9 +95,25 @@ class SessionController extends Controller
     
         $user->assignRole($studentApi);
         $user->assignRole($studentWeb);
+
+        $webVerificationUrl = URL::temporarySignedRoute(
+            'verification.verify.api',
+            Carbon::now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
+
+        $emailData = [
+            'user' => $user,
+            'webVerificationUrl' => $webVerificationUrl,
+        ];
+
+        Mail::send('emails.verify', $emailData, function ($message) use($user) {
+            $message->to($user->email)
+                ->subject('Verify Your Email Address');
+        });
     
         // Dispatch the custom email job
-        SendCustomVerificationEmail::dispatch($user);
+        // SendCustomVerificationEmail::dispatch($user);
     
         return response()->json([
             'status' => true,

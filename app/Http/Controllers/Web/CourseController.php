@@ -43,9 +43,6 @@ class CourseController extends Controller
         }
     
         $courses = $query->latest()->paginate(16);
-
-        // dd($courses);
-    
     
         return Inertia::render('courses/Index', [
             'categories' => Category::all(),

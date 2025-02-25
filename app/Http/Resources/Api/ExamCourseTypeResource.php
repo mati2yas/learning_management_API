@@ -16,6 +16,7 @@ class ExamCourseTypeResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'questions_count' => $this->examQuestions->count(),
             'course_name' => $this->course_name,
             'exam_years' => $this->getUniqueExamYears(),
         ];

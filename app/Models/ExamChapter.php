@@ -13,4 +13,8 @@ class ExamChapter extends Model
     public function examCourse(){
         return $this->belongsTo(ExamCourse::class);
     }
+
+    public function examQuestions(){
+        return $this->hasMany(ExamQuestion::class);
+    }
 }

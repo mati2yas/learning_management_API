@@ -27,6 +27,7 @@ class ExamGradeResource extends JsonResource
                 return [
                     'id' => $chapter->id,
                     'title' => $chapter->title,
+                    'questions_count' => $chapter->examQuestions->count()? $chapter->examQuestions->count() : 0,
                 ];
             });
         })->unique('id')->values()->toArray();  // Ensure unique chapters

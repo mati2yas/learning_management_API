@@ -297,11 +297,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
-Route::get('exams/exam-grades/{exam_year_id}', function($exam_year_id) {
+Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id,$exam_year_id) {
 
     
-    $examGrades = ExamQuestion::where('exam_year_id', $exam_year_id)
-                    ->with('examGrade.examCourses.examChapters')  // 
+    $examGrades = ExamQuestion::where('exam_course_id', $exam_course_id)->where('exam_year_id', $exam_year_id)
+                    ->with('examGrade.examCourses.examChapters','examGrade.examCourses.examChapters.examQuestions')  // 
                     ->get()
                     ->pluck('examGrade') 
                     ->unique()->filter();   

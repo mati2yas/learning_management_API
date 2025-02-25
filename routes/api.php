@@ -242,9 +242,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('homepage/courses', HomepageCourseController::class);
     Route::resource('courses', CourseController::class);
 
-    Route::get('exams/exam-questions-chapter/{chapter_id}', function($chapter_id){
+    Route::get('exams/exam-questions-chapter/{exam_grade_id}/{chapter_id}', function($exam_grade_id, $chapter_id){
 
-        $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)
+        $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)->where('exam_grade_id', $exam_grade_id)
         ->with([ 'examChapter.examCourse'])
         ->get();
     

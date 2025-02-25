@@ -21,7 +21,6 @@ class ExamQuestionChapterResource extends JsonResource
             "exam_grade_id" => $this->exam_grade_id,
             "exam_type_id" => $this->exam_type_id,
             "exam_chapter_id" => $this->exam_chapter_id,
-
             "question_text"=> $this->question_text,
             "options" => $this->options,
             "answer" => $this->answer ,

@@ -171,6 +171,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return CourseResource::collection($courses);
     });
 
+
+
     Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
 
         $user = $request->user();
@@ -293,6 +295,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $examType = ExamType::where('name',$examType)->first();
     
         return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
+    });
+
+    Route::get('exams/exam-questions-year/{exam_year_id}', function ($exam_year_id) {
+        $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
+            ->with(['examChapter.examCourse'])
+            ->get();
+
+        return ExamQuestionChapterResource::collection($questions);
     });
 });
 

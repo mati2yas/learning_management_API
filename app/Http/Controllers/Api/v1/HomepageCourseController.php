@@ -16,33 +16,35 @@ class HomepageCourseController extends Controller
     {
         $userId = $request->user()->id;
         $categories = ['lower_grades', 'higher_grades', 'university', 'random_courses'];
-        
+    
         $courses = collect();
-        
+    
         foreach ($categories as $category) {
             $categoryCourses = Course::query()
                 ->whereHas('category', function ($query) use ($category) {
                     $query->where('name', $category);
                 })
-                ->with(['batch', 'grade', 'department', 'category','chapters']) // Eager load relationships
+                ->whereDoesntHave('subscriptionRequests', function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                          ->whereIn('status', ['Pending', 'Approved']);
+                }) // Exclude courses with 'Pending' or 'Approved' subscriptions for the user
+                ->with(['batch', 'grade', 'department', 'category', 'chapters']) // Eager load relationships
                 ->withCount(['likes', 'saves'])
                 ->leftJoin('paid_courses', function ($join) use ($userId) {
                     $join->on('courses.id', '=', 'paid_courses.course_id')
                         ->where('paid_courses.user_id', $userId);
                 })
                 ->whereNull('paid_courses.id') // Exclude bought courses
-                ->orderByRaw('(`likes_count` + `saves_count`) DESC')
+                ->orderByRaw('(likes_count + saves_count) DESC')
                 ->limit(10) // Fetch top 10
                 ->get()
                 ->shuffle() // Shuffle to get random 3
                 ->take(3);
-            
+    
             $courses = $courses->merge($categoryCourses);
         }
-
+    
         return HomepageCourseResource::collection($courses);
-        
-        // return $courses;
-    }
+    }    
     
 }

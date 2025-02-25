@@ -50,6 +50,7 @@ class HomepageCourseResource extends JsonResource
             ] : null,
             'is_liked' => $user ? $this->isLikedByUser($user->id) : false,
             'is_saved' => $user ? $this->isSavedByUser($user->id) : false,
+             'is_paid' => $user ? $this->isPaidByUser($user->id) : false,
         ];
     }
 
@@ -86,5 +87,17 @@ class HomepageCourseResource extends JsonResource
     protected function isSavedByUser(int $userId): bool
     {
         return $this->saves()->where('user_id', $userId)->exists();
+    }
+
+        /**
+     * Check if the course is paid by a specific user.
+     *
+     * @param int $userId
+     * @return bool
+     */
+
+    protected function isPaidByUser(int $userId): bool
+    {
+        return $this->paidCourses()->where('user_id', $userId)->exists();
     }
 }

@@ -102,32 +102,6 @@ Route::get('/random-contents', function(){
 
 Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
 
-Route::get('/random-courses/{filterType}', function ($filterType) {
-    $categoryMap = [
-        "lower_grades" => "lower_grades",
-        "high_school" => "higher_grades",
-        "university" => "university",
-        "random_courses" => "random_courses"
-    ];
-
-    if (!array_key_exists($filterType, $categoryMap)) {
-        return response()->json(['error' => 'Invalid filter type'], 400);
-    }
-
-    $dbCategoryName = $categoryMap[$filterType];
-
-    $category = Category::where('name', $dbCategoryName)->first();
-
-    if (!$category) {
-        return response()->json(['error' => 'Category not found'], 404);
-    }
-
-    $courses = Course::with(['department', 'grade', 'batch', 'category', 'chapters'])
-        ->where('category_id', $category->id)
-        ->get();
-    return CourseResource::collection($courses);
-});
-
 Route::post('/delete-user/{id}', function ($id) {
     $user = User::find($id);
 
@@ -163,6 +137,39 @@ Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword'])
 Route::post('reset-password', [NewPasswordController::class, 'reset']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+
+    Route::get('/random-courses/{filterType}', function (Request $request, $filterType) {
+        $categoryMap = [
+            "lower_grades" => "lower_grades",
+            "high_school" => "higher_grades",
+            "university" => "university",
+            "random_courses" => "random_courses"
+        ];
+    
+        if (!array_key_exists($filterType, $categoryMap)) {
+            return response()->json(['error' => 'Invalid filter type'], 400);
+        }
+    
+        $dbCategoryName = $categoryMap[$filterType];
+    
+        $category = Category::where('name', $dbCategoryName)->first();
+    
+        if (!$category) {
+            return response()->json(['error' => 'Category not found'], 404);
+        }
+    
+        $userId = $request->user()->id;
+    
+        $courses = Course::with(['department', 'grade', 'batch', 'category', 'chapters'])
+            ->where('category_id', $category->id)
+            ->whereDoesntHave('subscriptionRequests', function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->whereIn('status', ['Pending', 'Approved']);
+            }) // Exclude courses with "Pending" or "Approved" subscriptions for the user
+            ->get();
+    
+        return CourseResource::collection($courses);
+    });
 
     Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
 
@@ -251,6 +258,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
         return ExamQuestionChapterResource::collection($questions);
     });
+
 
     Route::post('subscription-request', [SubscriptionController::class, 'store']);
 

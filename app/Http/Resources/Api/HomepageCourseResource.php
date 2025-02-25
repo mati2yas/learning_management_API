@@ -30,6 +30,7 @@ class HomepageCourseResource extends JsonResource
             'on_sale_one_year' => $this->on_sale_one_year,
             'likes_count' => $this->likes_count,
             'saves_count' => $this->saves_count,
+            'chapter_count' => $this->chapters->count(),
             'stream' => $this->stream ? $this->stream : null,
             'batch' => $this->batch ? [
                 'id' => $this->batch->id,

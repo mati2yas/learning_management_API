@@ -297,8 +297,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
     });
 
-    Route::get('exams/exam-questions-year/{exam_year_id}', function ($exam_year_id) {
-        $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
+    Route::get('exams/exam-questions-year/{exam_course_id}/{exam_year_id}', function ($exam_course_id, $exam_year_id) {
+        $questions = ExamQuestion::where('exam_year_id', $exam_year_id)->where('exam_course_id', $exam_course_id)
             ->with(['examChapter.examCourse'])
             ->get();
 

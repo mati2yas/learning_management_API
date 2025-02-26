@@ -17,7 +17,7 @@ class ExamYearResource extends JsonResource
         return [
             'id' => $this->examYear->id ?? null,
             'exam_year' => $this->examYear->year ?? 'N/A',
-            'question_count' => $this->question_count,
+            'questions_count' => $this->question_count,
         ];
     }
 }

@@ -171,6 +171,16 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return CourseResource::collection($courses);
     });
 
+    Route::get('/course-search', function (Request $request) {
+        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch']);
+    
+        if ($request->query('course_name')) {
+            $query->where('course_name', 'like', '%' . $request->query('course_name') . '%');
+        }
+    
+        return CourseResource::collection($query->get());
+    });
+
 
 
     Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
@@ -316,16 +326,10 @@ Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_c
                     ->pluck('examGrade') 
                     ->unique()->filter();   
                     
-    // return $examGrades;
     return ExamGradeResource::collection(resource: $examGrades);
 });
 
 
-// Route::get('ca')
-
-
-// Route::get()
-//for the web
 Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_course_id', $gradeId)->get());
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){

@@ -16,24 +16,25 @@ class ExamCourseTypeResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'questions_count' => $this->examQuestions->count(),
             'course_name' => $this->course_name,
             'exam_years' => $this->getUniqueExamYears(),
         ];
     }
 
     /**
-     * Extract unique exam years from the related exam questions.
+     * Extract unique exam years with their respective exam question count.
      */
     private function getUniqueExamYears(): array
     {
         return $this->examQuestions
-            ->pluck('examYear.year', 'examYear.id') // Assuming 'year_name' in the ExamYear model
-            ->unique()
-            ->map(function ($year, $id) {
+            ->groupBy('exam_year_id') // Group questions by exam_year_id
+            ->map(function ($questions, $yearId) {
+                $examYear = $questions->first()->examYear; // Get the first examYear instance
+
                 return [
-                    'id' => $id,
-                    'year_name' => $year,
+                    'id' => $yearId,
+                    'year_name' => optional($examYear)->year, // Handle possible null examYear
+                    'exam_questions_count' => $questions->count(), // Count questions in this year
                 ];
             })
             ->values()

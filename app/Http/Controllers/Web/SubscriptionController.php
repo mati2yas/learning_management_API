@@ -14,7 +14,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -24,12 +26,8 @@ class SubscriptionController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(Subscription::with('subscriptionRequest')->get());
-
-        // dd(SubscriptionRequest::with(['user', 'courses'])->get());
 
         $query = SubscriptionRequest::with(['user', 'courses']);
-
 
         if ($request->filled('status')){
             $query->where('status', $request->input('status'));
@@ -37,9 +35,12 @@ class SubscriptionController extends Controller
 
         $subscriptionRequests = $query->latest()->paginate(16);
 
+        // dd(          Subscription::with([
+        //     'subscriptionRequest.courses', // 🔥 Ensure courses are eager loaded!
+        //     'subscriptionRequest.user',
+        // ])->get());
 
         return Inertia::render('Subscriptions/Index', [
-
             'subscriptions' => SubscriptionResource::collection(Subscription::with([
                 'subscriptionRequest.user',
                 'subscriptionRequest.courses',
@@ -98,10 +99,28 @@ class SubscriptionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Subscription $subscription)
+    public function destroy(string $id, Request $request)
     {
-        //
+        $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+        // Validate the password
+        $request->validate([
+            'password' => 'required',
+        ]);
+    
+        // Check if the password is correct
+        if (!Hash::check($request->password, auth()->user()->password)) {
+
+           throw ValidationException::withMessages([
+               'password' => 'Incorrect password.',
+           ]);
+        }
+    
+        // If password is correct, proceed with deletion
+        $subscriptionRequest->delete();
+        
+        return redirect()->route('subscriptions.index')->with('success', 'Subscription request is deleted.');
     }
+    
 
     public function approve(string $id, Request $request)
     {

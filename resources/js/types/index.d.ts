@@ -269,6 +269,7 @@ export interface CarouselContent{
     }
 
 export interface Subscription{
+        // subscription_type: ReactNode;
    
         id: number
         subscription_request: {
@@ -281,6 +282,7 @@ export interface Subscription{
             status: 'Pending' | 'Approved' | 'Rejected'
             created_at?: string;
             updated_at?: string;
+            subscription_type: string;
         }
         subscription_start_date: string
         subscription_end_date: string

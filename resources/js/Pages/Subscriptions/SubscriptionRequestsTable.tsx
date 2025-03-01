@@ -3,6 +3,7 @@ import { Button } from "@/Components/ui/button"
 import { Badge } from "@/Components/ui/badge"
 import { SubscriptionRequest } from "@/types";
 import { Link } from "@inertiajs/react";
+import DeleteSubscriptionRequest from "./DeleteSubscriptionRequest";
 
 
 interface SubscriptionRequestsTableProps {
@@ -47,7 +48,7 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
             <TableCell className="flex flex-wrap gap-2 items-center">{
                 request.courses.map((course)=>(
                   <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
-                    {  course.name}
+                    {course.name}
                   </Badge>
                 ))
               }</TableCell>
@@ -67,7 +68,9 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>
+                
               </Link>
+              <DeleteSubscriptionRequest id={request.id} name={""} />
             </TableCell>
           </TableRow>
         ))}

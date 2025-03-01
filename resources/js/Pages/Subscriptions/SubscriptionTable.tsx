@@ -12,7 +12,7 @@ interface SubscriptionsTableProps {
 
 export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
 
-  console.log('subscripton table',subscriptions)
+  // console.log('subscripton table',subscriptions)
 
   return (
     <Table>

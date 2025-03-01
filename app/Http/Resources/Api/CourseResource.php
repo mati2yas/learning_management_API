@@ -35,7 +35,7 @@ class CourseResource extends JsonResource
             'department' => $this->whenLoaded('department', function () {
                 return [
                     'id' => $this->department->id,
-                    'department_name' => $this->department->departement_name,
+                    'department_name' => $this->department->department_name,
                 ];
             }),
             'grade' => $this->whenLoaded('grade', function () {

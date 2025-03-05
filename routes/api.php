@@ -17,6 +17,7 @@ use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;
 use App\Http\Resources\ExamYearResource;
+use App\Models\APINotification;
 use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -37,6 +38,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Response;
+
+use Illuminate\Notifications\DatabaseNotification;
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
@@ -180,6 +184,38 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
         return CourseResource::collection($query->get());
     });
+
+
+    Route::get('/notifications/unread', function (Request $request) {
+        return response()->json([
+            'unread_notifications' => $request->user()->unreadNotifications
+        ]);
+    });
+
+    Route::post('/notifications/{id}/read', function ($id, Request $request) {
+        $notification = $request->user()->notifications()->where('id', $id)->first();
+    
+        if ($notification) {
+            $notification->markAsRead();
+            return response()->json(['message' => 'Notification marked as read']);
+        }
+    
+        return response()->json(['error' => 'Notification not found'], 404);
+    });
+
+    Route::post('/notifications/read-all', function (Request $request) {
+        $request->user()->unreadNotifications->markAsRead();
+    
+        return response()->json(['message' => 'All notifications marked as read']);
+    });
+
+    Route::get('/notifications', function (Request $request) {
+        return response()->json([
+            'notifications' => $request->user()->notifications
+        ]);
+    });
+    
+
 
 
 

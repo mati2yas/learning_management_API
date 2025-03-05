@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\APINotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,6 +45,12 @@ class SendSubscriptionNotificationJob implements ShouldQueue
         Notification::send($this->workers, new SubscriptionRequestNotification($this->subscriptionRequest));
 
         // Notify the requested user without a link
+        APINotification::create([
+            'user_id' => $this->user->id,
+            'type' => 'subscription',
+            'message' => "Your subscription request has been received.",
+            'read' => false
+        ]);
         $this->user->notify(new SubscriptionRequestNotification($this->subscriptionRequest, true));
     }
 }

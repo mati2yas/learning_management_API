@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Web\SubscriptionRequestResource;
 use App\Http\Resources\Web\SubscriptionResource;
 use App\Jobs\SendSubscriptionApproveJob;
+use App\Jobs\SubscriptionRejectionJob;
 use App\Models\PaidCourse;
 use App\Models\Subscription;
 use App\Models\SubscriptionRequest;
@@ -182,6 +183,37 @@ class SubscriptionController extends Controller
             DB::rollBack();
             Log::error('Subscription approval failed: ' . $e->getMessage());
             return redirect()->route('subscriptions.index')->with('error', 'Subscription approval failed. Please try again.');
+        }
+    }
+
+    public function rejection(string $id, Request $request)
+    {
+        DB::beginTransaction();
+    
+        try {
+            $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+    
+            // Prevent duplicate rejections
+            if ($subscriptionRequest->status === 'Rejected') {
+                return redirect()->route('subscriptions.index')->with('error', 'This subscription has already been rejected.');
+            }
+    
+            $subscriptionRequest->update(['status' => "Rejected"]);
+    
+            $superAdmins = User::role('admin')->get();
+            $workers = User::role('worker')->get();
+    
+            $associatedUser = User::findOrFail($subscriptionRequest->user_id);
+    
+            dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $associatedUser, $request->input('message')));
+    
+            DB::commit();
+    
+            return redirect()->route('subscriptions.index')->with('success', 'Subscription is rejected.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Subscription rejection failed: ' . $e->getMessage());
+            return redirect()->route('subscriptions.index')->with('error', 'Subscription rejection failed. Please try again.');
         }
     }
 }

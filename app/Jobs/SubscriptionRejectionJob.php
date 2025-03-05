@@ -41,6 +41,7 @@ class SubscriptionRejectionJob implements ShouldQueue
     {
         Notification::send($this->superAdmins, new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest));
         Notification::send($this->workers, new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest));
+        
         $this->user->notify(new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest,  true));
     }
 }

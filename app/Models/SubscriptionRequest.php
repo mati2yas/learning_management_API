@@ -15,9 +15,9 @@ class SubscriptionRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function examCourses()
+    public function exams()
     {
-        return $this->hasMany(ExamCourse::class);
+        return $this->belongsToMany(Exam::class, 'exam_subscription_request');
     }
 
     public function courses()

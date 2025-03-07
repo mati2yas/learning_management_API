@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendSubscriptionNotificationJob;
 use App\Models\Course;
 use App\Models\Exam;
+use App\Models\ExamType;
 use App\Models\PaidCourse;
 use App\Models\PaidExam;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,7 @@ class SubscriptionController extends Controller
              'courses.*' => 'required|exists:courses,id',
              'exam_course_id' => 'nullable|integer',
              'exam_years' => 'nullable|array|min:1',
-             'exam_type_id' => 'nullable',
+             'exam_type' => 'nullable|string',
              'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
              'subscription_type' => 'required|in:oneMonth,threeMonths,sixMonths,yearly',
              'transaction_id' => 'required',
@@ -54,13 +55,24 @@ class SubscriptionController extends Controller
              ], 400);
          }
  
-        //  try {
+         try {
              DB::beginTransaction();
+
+             $examType = ExamType::where('name', $validatedData['exam_type'])->first();
+
+                if (!$examType) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Invalid exam type provided.',
+                    ], 400);
+                }
+            
+            $examTypeId = $examType->id;
  
              $exams = [];
              if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type_id'])) {
                  // Fetch relevant exams based on exam_type_id, exam_course_id, and exam_years
-                 $exams = Exam::where('exam_type_id', $validatedData['exam_type_id'])
+                 $exams = Exam::where('exam_type_id', $examTypeId)
                  ->where('exam_course_id', $validatedData['exam_course_id'])
                  ->whereIn('exam_year_id', $validatedData['exam_years'])
                  ->get();
@@ -175,15 +187,15 @@ class SubscriptionController extends Controller
                  'total_price' => $totalPrice,
              ], 201);
  
-        //  } catch (\Exception $e) {
-        //      DB::rollBack();
-        //      Log::error('Subscription request creation failed: ' . $e->getMessage());
+         } catch (\Exception $e) {
+             DB::rollBack();
+             Log::error('Subscription request creation failed: ' . $e->getMessage());
  
-        //      return response()->json([
-        //          'status' => false,
-        //          'message' => 'An error occurred while processing your request. Please try again later.',
-        //      ], 500);
-        //  }
+             return response()->json([
+                 'status' => false,
+                 'message' => 'An error occurred while processing your request. Please try again later.',
+             ], 500);
+         }
      }
  
 

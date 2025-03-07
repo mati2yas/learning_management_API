@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('exam_year_id')->constrained('exam_years')
             ->cascadeOnDelete();
 
-            $table->foreignId('exam_course_id')->constrained('exam_courses')->cascadeOnDelete()->nullable();
+            $table->foreignId('exam_course_id')->nullable()->constrained('exam_courses')->cascadeOnDelete();
 
             $table->decimal('price_one_month', 8, 2)->nullable();
             $table->decimal('price_three_month', 8, 2)->nullable();

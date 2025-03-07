@@ -101,7 +101,7 @@ const DeleteSubscriptionRequest = ({ id, name }: DeleteSubscriptionRequestProps)
               className="bg-red-500 hover:bg-red-600"
               onClick={(e) => {
                 e.preventDefault()
-                handleDelete()
+                handleDelete(e)
               }}
               disabled={processing}
             >

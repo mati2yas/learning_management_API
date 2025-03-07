@@ -257,9 +257,10 @@ export interface CarouselContent{
             id: number
             user: { name: string, email?: string}
             courses: {id: number, name: string}[],
-            exam_course: {
+            exams: {
                 id: number, 
-                name: string}[] | null
+                exam_type: string,
+                exam_course: string}[] | null
             total_price: number
             proof_of_payment: string
             transaction_id: string

@@ -28,7 +28,7 @@ class SubscriptionController extends Controller
     public function index(Request $request)
     {
 
-        $query = SubscriptionRequest::with(['user', 'courses']);
+        $query = SubscriptionRequest::with(['user', 'courses','exams.examType','exams.examCourse','exams.examYear']);
 
         if ($request->filled('status')){
             $query->where('status', $request->input('status'));
@@ -41,11 +41,14 @@ class SubscriptionController extends Controller
         //     'subscriptionRequest.user',
         // ])->get());
 
+        // dd($subscriptionRequests);
+   
+
         return Inertia::render('Subscriptions/Index', [
             'subscriptions' => SubscriptionResource::collection(Subscription::with([
                 'subscriptionRequest.user',
                 'subscriptionRequest.courses',
-                // 'subscriptionRequest.examCourse',
+                'subscriptionRequest.exams',
             ])->get()),
             'subscriptionRequests' => SubscriptionRequestResource::collection($subscriptionRequests),
             'filters' => $request->only(['status']),

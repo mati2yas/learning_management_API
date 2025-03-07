@@ -23,11 +23,13 @@ class SubscriptionRequestResource extends JsonResource
                     'email' => $this->user->email,
                 ];
             }),
-            'exam_course' => $this->whenLoaded('exam_course', function () {
-                return [
-                    'id' => $this->exam_course->id,
-                    'name' => $this->exam_course->course_name,
-                ];
+            'exams' => $this->whenLoaded('exams', function () {
+                return $this->exams->map(fn($exam) => [
+                    'id' => $exam->id,
+                    'exam_type' => $exam->examType->name,
+
+                    'exam_course' => $exam->examCourse->course_name,
+                ]);
             }),
             'courses' => $this->whenLoaded('courses', function () {
                 return $this->courses->map(fn($course) => [

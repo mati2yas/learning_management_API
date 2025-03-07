@@ -32,4 +32,9 @@ class Exam extends Model
     {
         return $this->belongsToMany(SubscriptionRequest::class, 'exam_subscription_request');
     }
+
+    public function paidExams()
+    {
+        return $this->hasMany(PaidExam::class);
+    }
 }

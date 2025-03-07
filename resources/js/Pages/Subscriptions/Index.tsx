@@ -35,7 +35,7 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
 
   const { flash } = usePage().props as unknown as { flash: { success?: string, error?: string } };
 
-  // console.log(subscriptions)
+  console.log(subscriptionRequests)
 
   const {data, setData} = useForm({
     status: filters.status || '',

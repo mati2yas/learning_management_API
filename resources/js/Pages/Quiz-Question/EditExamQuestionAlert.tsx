@@ -32,9 +32,6 @@ interface EditExamQuestionAlertProps {
 
 const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
 
-  // console.log(question)
-  // console.log('examtype', exam_types)
-  // console.log('examgrade', exam_grades)
 
   const [isOpen, setIsOpen] = useState(false)
   const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
@@ -53,7 +50,7 @@ const EditExamQuestionAlert = ({ exam_types, exam_years, exam_grades, question }
 
   useEffect(() => {
   
-    console.log('hi thereeeeeee')
+   
     // if (data.exam_type_id) 
     fetchExamCourses(question.exam_year_id.toString())
     // if (data.exam_course_id) 

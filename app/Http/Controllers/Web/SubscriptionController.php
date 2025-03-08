@@ -8,6 +8,7 @@ use App\Http\Resources\Web\SubscriptionResource;
 use App\Jobs\SendSubscriptionApproveJob;
 use App\Jobs\SubscriptionRejectionJob;
 use App\Models\PaidCourse;
+use App\Models\PaidExam;
 use App\Models\Subscription;
 use App\Models\SubscriptionRequest;
 use App\Models\User;
@@ -78,7 +79,7 @@ class SubscriptionController extends Controller
     {
 
         return Inertia::render('Subscriptions/Show', [
-            'subscription' => new SubscriptionRequestResource($subscription->load(['user', 'courses'])),
+            'subscription' => new SubscriptionRequestResource($subscription->load(['user', 'courses','exams.examType','exams.examCourse','exams.examYear'])),
             'canApprove' => Auth::user()->hasDirectPermission('approve subscription'),
             'canReject' => Auth::user()->hasDirectPermission('update subscription')
         ]);
@@ -157,16 +158,33 @@ class SubscriptionController extends Controller
             ]);
     
             // Create PaidCourse for approved courses
-            foreach ($subscriptionRequest->courses as $course) {
-                $alreadyBought = PaidCourse::where('user_id', $subscriptionRequest->user_id)
-                    ->where('course_id', $course->id)
-                    ->exists();
-    
-                if (!$alreadyBought) {
-                    PaidCourse::create([
-                        'user_id' => $subscriptionRequest->user_id,
-                        'course_id' => $course->id,
-                    ]);
+            if($subscriptionRequest->courses->isNotEmpty()){
+                foreach ($subscriptionRequest->courses as $course) {
+                    $alreadyBought = PaidCourse::where('user_id', $subscriptionRequest->user_id)
+                        ->where('course_id', $course->id)
+                        ->exists();
+        
+                    if (!$alreadyBought) {
+                        PaidCourse::create([
+                            'user_id' => $subscriptionRequest->user_id,
+                            'course_id' => $course->id,
+                        ]);
+                    }
+                }
+            }
+
+            if($subscriptionRequest->exams->isNotEmpty()){
+                foreach ($subscriptionRequest->exams as $exam) {
+                    $alreadyBought = PaidExam::where('user_id', $subscriptionRequest->user_id)
+                        ->where('exam_id', $exam->id)
+                        ->exists();
+        
+                    if (!$alreadyBought) {
+                        PaidExam::create([
+                            'user_id' => $subscriptionRequest->user_id,
+                            'exam_id' => $exam->id,
+                        ]);
+                    }
                 }
             }
     

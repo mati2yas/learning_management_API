@@ -48,7 +48,7 @@ class SubscriptionController extends Controller
          $user = $request->user();
  
          // Ensure that either courses or exams are provided, but not both null
-         if (empty($validatedData['courses']) && (empty($validatedData['exam_course_id']) || empty($validatedData['exam_years']) || empty($validatedData['exam_type_id']))) {
+         if (empty($validatedData['courses']) && (empty($validatedData['exam_course_id']) || empty($validatedData['exam_years']) || empty($validatedData['exam_type']))) {
              return response()->json([
                  'status' => false,
                  'message' => 'You must provide either courses or exam details.',
@@ -70,7 +70,7 @@ class SubscriptionController extends Controller
             $examTypeId = $examType->id;
  
              $exams = [];
-             if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type_id'])) {
+             if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type'])) {
                  // Fetch relevant exams based on exam_type_id, exam_course_id, and exam_years
                  $exams = Exam::where('exam_type_id', $examTypeId)
                  ->where('exam_course_id', $validatedData['exam_course_id'])

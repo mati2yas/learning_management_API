@@ -51,6 +51,14 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
                     {course.name}
                   </Badge>
                 ))
+                
+              }{
+                request.exams?.map((exam)=>(
+                  <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
+                    {exam.exam_type} - {exam.exam_course}
+                  </Badge>
+                ))
+                
               }</TableCell>
             <TableCell>{request.total_price} ETB</TableCell>
             <TableCell>

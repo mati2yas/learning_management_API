@@ -16,7 +16,7 @@ const Show = ({ subscription, canApprove, canReject }: {
   canApprove: boolean;
   canReject: boolean; }) => {
 
-  // console.log(subscription)
+  console.log(subscription)
 
   const [isImageFullscreen, setIsImageFullscreen] = useState(false)
   const { processing } = useForm()

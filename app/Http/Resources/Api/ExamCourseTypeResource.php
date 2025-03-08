@@ -35,7 +35,7 @@ class ExamCourseTypeResource extends JsonResource
                 $examYear = $questions->first()->examYear; // Get the first examYear instance
                 $exam = Exam::find($questions->first()->exam_id); // Get the first exam instance 
 
-                dd($exam);
+                // dd($exam);
 
                 $isPaid = $exam->paidExams()->where('user_id', $user)->exists(); // Check if the user has paid for this exam
 

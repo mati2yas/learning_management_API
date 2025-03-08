@@ -66,9 +66,9 @@ const Show = ({ subscription, canApprove, canReject }: {
                 <div>
                   <h3 className="font-semibold">Requested Exam Course</h3>
                   <p className="capitalize">
-                    {subscription.data.exam_course?.map((course)=>(
+                    {subscription.data.exams?.map((exam)=>(
                       <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
-                        {course.name}
+                        {exam.exam_type} - {exam.exam_course}
                       </Badge>
                     ))}
                    

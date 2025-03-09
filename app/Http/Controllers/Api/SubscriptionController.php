@@ -28,9 +28,11 @@ class SubscriptionController extends Controller
          $attrs = Validator::make($request->all(), [
              'courses' => 'nullable|array|min:1',
              'courses.*' => 'required|exists:courses,id',
-             'exam_course_id' => 'nullable|integer',
-             'exam_years' => 'nullable|array|min:1',
-             'exam_type' => 'nullable|string',
+            //  'exam_course_id' => 'nullable|integer',
+            //  'exam_years' => 'nullable|array|min:1',
+            //  'exam_type' => 'nullable|string',
+            'exams' => 'nullable|array|min:1',
+            'exams.*' => 'required|exists:exams,id',
              'screenshot' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
              'subscription_type' => 'required|in:oneMonth,threeMonths,sixMonths,yearly',
              'transaction_id' => 'required',
@@ -48,7 +50,7 @@ class SubscriptionController extends Controller
          $user = $request->user();
  
          // Ensure that either courses or exams are provided, but not both null
-         if (empty($validatedData['courses']) && (empty($validatedData['exam_course_id']) || empty($validatedData['exam_years']) || empty($validatedData['exam_type']))) {
+         if (empty($validatedData['courses']) && (empty($validatedData['exams']) )) {
              return response()->json([
                  'status' => false,
                  'message' => 'You must provide either courses or exam details.',
@@ -58,25 +60,25 @@ class SubscriptionController extends Controller
          try {
              DB::beginTransaction();
 
-             $examType = ExamType::where('name', $validatedData['exam_type'])->first();
+            //  $examType = ExamType::where('name', $validatedData['exam_type'])->first();
 
-                if (!$examType) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Invalid exam type provided.',
-                    ], 400);
-                }
+            //     if (!$examType) {
+            //         return response()->json([
+            //             'status' => false,
+            //             'message' => 'Invalid exam type provided.',
+            //         ], 400);
+            //     }
             
-            $examTypeId = $examType->id;
+            // $examTypeId = $examType->id;
  
-             $exams = [];
-             if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type'])) {
-                 // Fetch relevant exams based on exam_type_id, exam_course_id, and exam_years
-                 $exams = Exam::where('exam_type_id', $examTypeId)
-                 ->where('exam_course_id', $validatedData['exam_course_id'])
-                 ->whereIn('exam_year_id', $validatedData['exam_years'])
-                 ->get();
-             }
+            //  $exams = [];
+            //  if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type'])) {
+            //      // Fetch relevant exams based on exam_type_id, exam_course_id, and exam_years
+            //      $exams = Exam::where('exam_type_id', $examTypeId)
+            //      ->where('exam_course_id', $validatedData['exam_course_id'])
+            //      ->whereIn('exam_year_id', $validatedData['exam_years'])
+            //      ->get();
+            //  }
  
              // Check if user already owns any of the courses
              if (!empty($validatedData['courses'])) {
@@ -92,9 +94,9 @@ class SubscriptionController extends Controller
              }
  
              // Check if user already owns any of the exams
-             if (collect($exams)->isNotEmpty()) {
+             if (!empty($validatedData['exams'])) {
                  $alreadyBoughtExams = PaidExam::where('user_id', $user->id)
-                     ->whereIn('exam_id', $exams->pluck('id')->toArray())
+                     ->whereIn('exam_id', $validatedData['exams'])
                      ->exists();
                  if ($alreadyBoughtExams) {
                      return response()->json([
@@ -112,9 +114,9 @@ class SubscriptionController extends Controller
                          $query->whereIn('course_id', $validatedData['courses']);
                      });
                  })
-                 ->when(collect($exams)->isNotEmpty(), function ($query) use ($exams) {
-                     $query->whereHas('exams', function ($query) use ($exams) {
-                         $query->whereIn('exam_id', $exams->pluck('id')->toArray());
+                 ->when(!empty($validatedData['exams']), function ($query) use ($validatedData) {
+                     $query->whereHas('exams', function ($query) use ($validatedData) {
+                         $query->whereIn('exam_id', $validatedData['exams']);
                      });
                  })
                  ->exists();
@@ -147,8 +149,10 @@ class SubscriptionController extends Controller
                  }
              }
  
-             if ($exams->isNotEmpty()) {
-                 foreach ($exams as $exam) {
+             
+             if (!empty($validatedData['exams'])) {
+                 foreach ($validatedData['exams'] as $examId) {
+                        $exam = Exam::findOrFail($examId);
                      $priceColumn = $this->getPriceColumnBySubscriptionType($validatedData['subscription_type']);
                      if ($priceColumn) {
                          $onSaleColumn = str_replace('price_', 'on_sale_', $priceColumn);
@@ -170,8 +174,8 @@ class SubscriptionController extends Controller
                  $subscriptionRequest->courses()->attach($validatedData['courses']);
              }
  
-             if ($exams->isNotEmpty()) {
-                 $subscriptionRequest->exams()->attach($exams->pluck('id')->toArray());
+             if (!empty($validatedData['exams'])) {
+                 $subscriptionRequest->exams()->attach($validatedData['exams']);
              }
  
              $superAdmins = User::role('admin')->get();

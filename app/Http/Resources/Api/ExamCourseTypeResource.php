@@ -40,6 +40,7 @@ class ExamCourseTypeResource extends JsonResource
                 return [
                     'id' => $yearId,
                     'year_name' => optional($examYear)->year, // Handle possible null examYear
+                    'exam_sheet_id' => $exam->id, // This is the exam id that is required for the exam sheet 
                     'exam_questions_count' => $questions->count(), // Count questions in this year
                     'price_one_month' => $exam->price_one_month,
                     'price_three_month' => $exam->price_three_month,

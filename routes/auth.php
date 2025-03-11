@@ -22,6 +22,7 @@ use Inertia\Inertia;
 
 
 Route::get('reset-password-api/{token}', function($token, Request $request){
+
     return Inertia::render('Auth-Api/ResetPasswordApi', [
         'token' => $token,
         'email'=>$request->email
@@ -29,16 +30,21 @@ Route::get('reset-password-api/{token}', function($token, Request $request){
 })
 ->name('password.reset.api');
 
+
 Route::post('reset-password-api', function(Request $request){
+
     $request->validate([
         'token' => 'required',
         'email' => 'required',
         'password' => ['required', 'confirmed',],
     ]);
 
+
     $status = Password::reset(
         $request->only('email', 'password', 'password_confirmation', 'token'),
         function ($user) use ($request) {
+
+            
             $user->forceFill([
                 'password' => Hash::make($request->password),
                 'remember_token' => Str::random(60),

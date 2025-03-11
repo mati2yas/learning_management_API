@@ -104,6 +104,8 @@ class ChapterController extends Controller
      */
     public function destroy(Chapter $chapter)
     {
+
+        // dd($chapter);
         $course_id = $chapter->course_id;
         $chapter->delete();
 

@@ -57,6 +57,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(PaidCourse::class);
     }
 
+    public function paidExams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaidExam::class);
+    }
+
     // Relationship for the user who created this user
     public function creator(){
         return $this->belongsTo(User::class,'created_by');

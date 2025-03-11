@@ -30,18 +30,40 @@ class ExamCourseTypeResource extends JsonResource
     private function getUniqueExamYears(User $user): array
     {
         return $this->examQuestions
-            ->groupBy('exam_year_id') // Group questions by exam_year_id
+            ->groupBy('exam_year_id')
             ->map(function ($questions, $yearId) use ($user) {
-                $examYear = $questions->first()->examYear; // Get the first examYear instance
-                $exam = Exam::find($questions->first()->exam_id); // Get the first exam instance 
-
-                $isPaid = $exam->paidExams()->where('user_id', $user)->exists(); // Check if the user has paid for this exam
-
+                $firstQuestion = $questions->first(); // Get the first question safely
+    
+                if (!$firstQuestion) {
+                    return [
+                        'id' => $yearId,
+                        'year_name' => null,
+                        'exam_sheet_id' => null,
+                        'exam_questions_count' => 0,
+                        'is_paid' => false,
+                    ];
+                }
+    
+                $examYear = $firstQuestion->examYear; // Get examYear
+                $exam = Exam::find($firstQuestion->exam_id); // Get exam instance
+    
+                if (!$exam) {
+                    return [
+                        'id' => $yearId,
+                        'year_name' => optional($examYear)->year,
+                        'exam_sheet_id' => null,
+                        'exam_questions_count' => $questions->count(),
+                        'is_paid' => false,
+                    ];
+                }
+    
+                $isPaid = $exam->paidExams()->where('user_id', $user->id)->exists();
+    
                 return [
                     'id' => $yearId,
-                    'year_name' => optional($examYear)->year, // Handle possible null examYear
-                    'exam_sheet_id' => $exam->id, // This is the exam id that is required for the exam sheet 
-                    'exam_questions_count' => $questions->count(), // Count questions in this year
+                    'year_name' => optional($examYear)->year,
+                    'exam_sheet_id' => $exam->id,
+                    'exam_questions_count' => $questions->count(),
                     'price_one_month' => $exam->price_one_month,
                     'price_three_month' => $exam->price_three_month,
                     'price_six_month' => $exam->price_six_month,
@@ -56,9 +78,8 @@ class ExamCourseTypeResource extends JsonResource
             ->values()
             ->all();
     }
+    
+    
 
-    protected function isPaidByUser(int $userId): bool
-    {
-        return $this->paidExams()->where('user_id', $userId)->exists();
-    }
+
 }

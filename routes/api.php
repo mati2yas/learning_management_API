@@ -204,6 +204,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::post('/notifications/read-all', function (Request $request) {
+
         $request->user()->unreadNotifications->markAsRead();
     
         return response()->json(['message' => 'All notifications marked as read']);
@@ -338,12 +339,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
     Route::get('exams/exam-courses/{examType}', function($examType){
     
-        $examType = ExamType::where('name',$examType)->first();
+        $examType = ExamType::with('exam.paidExams')->where('name',$examType)->first();
     
         return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
     });
 
     Route::get('exams/exam-questions-year/{exam_course_id}/{exam_year_id}', function ($exam_course_id, $exam_year_id) {
+
         $questions = ExamQuestion::where('exam_year_id', $exam_year_id)->where('exam_course_id', $exam_course_id)
             ->with(['examChapter.examCourse'])
             ->get();
@@ -355,7 +357,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id,$exam_year_id) {
 
-    
+
     $examGrades = ExamQuestion::where('exam_course_id', $exam_course_id)->where('exam_year_id', $exam_year_id)
                     ->with('examGrade.examCourses.examChapters','examGrade.examCourses.examChapters.examQuestions')  // 
                     ->get()

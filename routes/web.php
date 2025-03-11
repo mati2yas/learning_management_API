@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExamCourseController;
+use App\Http\Controllers\ExamNewController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\CarouselContentController;
 use App\Http\Controllers\Web\ChapterController;
@@ -94,6 +95,9 @@ Route::middleware(['auth', 'verified'])->resource('quiz-questions', QuizQuesiton
 // Route::middleware(['auth', 'verified'])->resource('user-management', UserManagementController::class);
 
 Route::middleware(['auth', 'verified'])->resource('exams', ExamController::class);
+
+Route::middleware(['auth', 'verified'])->resource('exams-new', ExamNewController::class);
+
 
 Route::middleware(['auth', 'verified'])->resource('exam-questions', ExamQuestionController::class);
 

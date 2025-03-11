@@ -21,6 +21,7 @@ class NewPasswordController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
         ]);
+    
 
         if ($validator->fails()) {
             return response()->json([
@@ -42,10 +43,6 @@ class NewPasswordController extends Controller
                 ]
             ], 404);
         }
-
-        // Password::sendResetLink(
-        //     $request->only('email')
-        // );
 
         SendCustomPasswordResetEmail::dispatch($user);
 

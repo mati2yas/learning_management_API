@@ -291,3 +291,24 @@ export interface Subscription{
         updated_at?: string;
   
 }
+
+
+export interface Exam{
+    id: number;
+    exam_type_id: number;
+    exam_year_id: number;
+    exam_course_id: number;
+
+    price_one_month: number;
+    price_three_month: number;
+    price_six_month: number;
+    price_one_year: number;
+    on_sale_one_month: number
+    on_sale_three_month: number;
+    on_sale_six_month: number;
+    on_sale_one_year: number;
+    stream: string|null;
+
+    created_at?: string;
+    updated_at?: string;
+}

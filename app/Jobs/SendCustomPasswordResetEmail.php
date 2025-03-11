@@ -31,6 +31,7 @@ class SendCustomPasswordResetEmail implements ShouldQueue
     public function handle(): void
     {
         $token = Password::createToken($this->user);
+        
         $resetUrl = config('app.url') . '/reset-password-api/' . $token . '?email=' . urlencode($this->user->email);
 
         $emailData = [

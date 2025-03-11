@@ -53,6 +53,17 @@ export default function Authenticated({
 
                                 <NavLink
                                     prefetch
+                                    href={route('exams-new.index')}  
+                                    active={route().current('exams.index')} 
+                                >
+                                    New Exam
+                                </NavLink>
+
+
+                                
+
+                                <NavLink
+                                    prefetch
                                     href={route('exam-courses.index')}  
                                     active={route().current('exam-courses.index')} 
                                 >
@@ -207,6 +218,16 @@ export default function Authenticated({
                             active={route().current('exams.index')}
                         >
                             Exams
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            cacheFor={'20s'}
+                            prefetch
+                            href={route('exams-new.index')}
+                            active={route().current('exams.index')}
+                        >
+
+                            Exams New
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink

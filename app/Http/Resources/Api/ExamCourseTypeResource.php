@@ -64,6 +64,7 @@ class ExamCourseTypeResource extends JsonResource
                     'year_name' => optional($examYear)->year,
                     'exam_sheet_id' => $exam->id,
                     'exam_questions_count' => $questions->count(),
+                    'exam_duration' => $exam->exam_duration,
                     'price_one_month' => $exam->price_one_month,
                     'price_three_month' => $exam->price_three_month,
                     'price_six_month' => $exam->price_six_month,

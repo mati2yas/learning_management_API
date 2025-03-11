@@ -41,6 +41,10 @@ class ExamCourseTypeResource extends JsonResource
                         'exam_sheet_id' => null,
                         'exam_questions_count' => 0,
                         'is_paid' => false,
+                        'subscription_status' => null,
+                        'is_pending' => false,
+                        'is_approved' => false,
+                        'is_rejected' => false,
                     ];
                 }
     
@@ -54,10 +58,28 @@ class ExamCourseTypeResource extends JsonResource
                         'exam_sheet_id' => null,
                         'exam_questions_count' => $questions->count(),
                         'is_paid' => false,
+                        'subscription_status' => null,
+                        'is_pending' => false,
+                        'is_approved' => false,
+                        'is_rejected' => false,
                     ];
                 }
     
                 $isPaid = $exam->paidExams()->where('user_id', $user->id)->exists();
+    
+                // Fetch user's latest subscription request for this exam
+                $subscription = $exam->subscriptionRequests()
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->first();
+    
+                // Get subscription status
+                $subscriptionStatus = $subscription ? $subscription->status : null;
+    
+                // Boolean values based on subscription status
+                $isPending = $subscriptionStatus === 'Pending';
+                $isApproved = $subscriptionStatus === 'Approved';
+                $isRejected = $subscriptionStatus === 'Rejected';
     
                 return [
                     'id' => $yearId,
@@ -74,11 +96,16 @@ class ExamCourseTypeResource extends JsonResource
                     'on_sale_six_month' => $exam->on_sale_six_month,
                     'on_sale_one_year' => $exam->on_sale_one_year,
                     'is_paid' => $isPaid,
+                    'subscription_status' => $subscriptionStatus,
+                    'is_pending' => $isPending,
+                    'is_approved' => $isApproved,
+                    'is_rejected' => $isRejected,
                 ];
             })
             ->values()
             ->all();
     }
+    
     
     
 

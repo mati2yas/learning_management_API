@@ -38,6 +38,8 @@ class ExamSeeder extends Seeder
                     $onSaleSixMonth = round($priceSixMonth * (rand(75, 95) / 100), 2);
                     $onSaleOneYear = round($priceOneYear * (rand(75, 95) / 100), 2);
 
+                    
+
                     // Handle cases where `exam_course_id` is not needed
                     if (in_array($examType->name, $noExamGradeTypes)) {
                         Exam::factory()->create([
@@ -51,6 +53,7 @@ class ExamSeeder extends Seeder
                             'on_sale_three_month' => $onSaleThreeMonth,
                             'on_sale_six_month' => $onSaleSixMonth,
                             'on_sale_one_year' => $onSaleOneYear,
+                            'exam_duration'=> fake()->randomElement([20, 30, 60])
                         ]);
                     } else {
                         // For other types, use `exam_course_id`

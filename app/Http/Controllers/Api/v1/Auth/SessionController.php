@@ -128,7 +128,7 @@ class SessionController extends Controller
         try {
             $attrs = Validator::make($request->all(), [
                 'email' => 'required|email',
-                'password' => ['required', RulesPassword::min(6)],
+                'password' => ['required', RulesPassword::min(4)],
             ]);
     
             if ($attrs->fails()) {

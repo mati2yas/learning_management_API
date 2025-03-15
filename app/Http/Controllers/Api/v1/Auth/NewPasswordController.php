@@ -44,12 +44,21 @@ class NewPasswordController extends Controller
             ], 404);
         }
 
-        SendCustomPasswordResetEmail::dispatch($user);
+        // SendCustomPasswordResetEmail::dispatch($user);
+
+        $token = Password::createToken($user);
 
         return response()->json([
             'status' => 'Success',
-            'message' => 'You will receive a password reset link shortly.'
+            'token' => $token
         ]);
+
+
+
+        // return response()->json([
+        //     'status' => 'Success',
+        //     'message' => 'You will receive a password reset link shortly.'
+        // ]);
     }
 
     public function reset(Request $request)

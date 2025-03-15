@@ -408,8 +408,8 @@ Route::get('/batches', function(Request $request){
     return Batch::where('department_id', $request->department_id)->get();
 });
 
-Route::get('/exam-chapters/{id}', fn()=>ExamChapter::find($id));
+// Route::get('/exam-chapters/{id}', fn()=>ExamChapter::find($id));
 
-Route::get('/exam-courses/{id}', fn()=>ExamCourse::find($id));
+// Route::get('/exam-courses/{id}', fn()=>ExamCourse::find($id));
 
 

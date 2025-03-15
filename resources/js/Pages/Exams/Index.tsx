@@ -181,7 +181,9 @@ const Index: React.FC<ExamIndexProps> = ({
 
   const getExamTypeName = (id: number) => exam_types.find((c) => c.id === id)?.name || ""
   const getExamCourseName = (id: number) => exam_courses.find((c) => c.id === id)?.course_name || ""
+
   const getChapterTitle = (id: number) => exam_chapters?.find((g) => g.id === id)?.title || ""
+
   const getExamYear = (id: number) => exam_years.find((d) => d.id === id)?.year || ""
 
   return (

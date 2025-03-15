@@ -36,6 +36,7 @@ class ExamQuestionController extends Controller
     
         try {
             $validatedData = $request->validate([
+                'exam_id' => 'required|exists:exams,id',
                 'exam_type_id' => 'required|exists:exam_types,id',
                 'exam_year_id' => 'required|exists:exam_years,id',
                 'exam_course_id' => 'required|exists:exam_courses,id',
@@ -85,6 +86,7 @@ class ExamQuestionController extends Controller
                 }
 
                 $attrs = [
+                    'exam_id' => $validatedData['exam_id'],
                     'exam_type_id' => $validatedData['exam_type_id'],
                     'exam_year_id' => $validatedData['exam_year_id'],
                     'exam_course_id' => $validatedData['exam_course_id'],
@@ -109,11 +111,8 @@ class ExamQuestionController extends Controller
                 // $createdQuestions[] = $question;
             }
     
-            return redirect()->route('exams.index')->with('success', 'Exam questions created successfully');
-    
-        // } catch (\Illuminate\Validation\ValidationException $e) {
-        //     Log::error('Validation error:', $e->errors());
-        //     return back()->withErrors($e->errors())->withInput();
+            return redirect()->route('exam-details.show', $attrs['exam_id'])->with('success', 'Exam questions created successfully');
+
         } catch (\Exception $e) {
             Log::error('Error creating exam questions:', [
                 'error' => $e->getMessage(),
@@ -167,6 +166,7 @@ class ExamQuestionController extends Controller
     {
         try {
             $validatedData = $request->validate([
+                'exam_id' => 'required|exists:exams,id',
                 'exam_type_id' => 'required|exists:exam_types,id',
                 'exam_year_id' => 'required|exists:exam_years,id',
                 'exam_course_id' => 'required|exists:exam_courses,id',
@@ -215,6 +215,7 @@ class ExamQuestionController extends Controller
 
     
             $attrs = [
+                'exam_id' => $validatedData['exam_id'],
                 'exam_type_id' => $validatedData['exam_type_id'],
                 'exam_year_id' => $validatedData['exam_year_id'],
                 'exam_course_id' => $validatedData['exam_course_id'],
@@ -237,7 +238,7 @@ class ExamQuestionController extends Controller
     
             $examQuestion->update($attrs);
     
-            return redirect()->route('exams.index')
+            return redirect()->route('exam-details.show',  $attrs['exam_id'])
                 ->with('success', 'Exam question updated successfully');
     
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -261,6 +262,6 @@ class ExamQuestionController extends Controller
 
         $examQuestion->delete();
 
-        return redirect()->route('exams.index')->with('success', 'Exam question deleted successfully');
+        return redirect()->back()->with('success', 'Exam question deleted successfully');
     }
 }

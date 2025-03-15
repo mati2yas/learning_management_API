@@ -21,6 +21,8 @@ const Index: React.FC<IndexProps> = ({
   canAdd,
 }) => {
 
+
+
   const { flash } = usePage().props as unknown as { flash: { success?: string } };
 
   const { data, setData } = useForm({
@@ -52,7 +54,6 @@ const Index: React.FC<IndexProps> = ({
   const getCategoryName = (id: number) => categories.find((c: { id: number }) => c.id === id)?.name || '';
 
   const getGradeName = (id: number) => grades.find((g: { id: number }) => g.id === id)?.grade_name || '';
-
 
   const getDepartmentName = (id: number) => departments.find((d: { id: number }) => d.id === id)?.department_name || '';
 
@@ -118,7 +119,7 @@ const Index: React.FC<IndexProps> = ({
                 <CourseCard
                   key={course.id}
                   id={Number(course.id)}
-                  name={course.course_name}
+                  name={course.name}
                   thumbnail={course.thumbnail}
                   category={getCategoryName(course.category_id)}
                   grade={course.grade_id ? getGradeName(course.grade_id) : undefined}

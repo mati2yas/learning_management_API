@@ -5,7 +5,6 @@ import { Link } from "@inertiajs/react"
 import { CalendarDays, BookOpen, ThumbsUp, Bookmark, User } from "lucide-react"
 import dayjs from "dayjs"
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useEffect, useState } from "react"
 
 dayjs.extend(relativeTime);
 
@@ -61,6 +60,8 @@ export function CourseCard({
   created_at,
   created_by
 }: CourseCardProps) {
+
+  console.log('name', name, price_one_month)
   
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800 border-0 rounded-xl">
@@ -71,6 +72,8 @@ export function CourseCard({
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+
+
         <div className="absolute top-4 right-4">
           <Badge className="bg-white/80 text-black font-semibold px-3 py-1 rounded-full">
             {(() => {
@@ -86,7 +89,7 @@ export function CourseCard({
 
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="text-xl font-bold text-white mb-2 capitalize">{name}</h3>
+
           <div className="flex items-center text-sm text-white space-x-4">
             <span className="flex items-center">
               <User className="w-4 h-4 mr-2" />
@@ -100,6 +103,8 @@ export function CourseCard({
         </div>
       </div>
       <CardContent className="px-6 py-6">
+
+      <h3 className="text- font-bold text-black mb-2 capitalize">{name}</h3>
         <div className="flex flex-wrap gap-2 mb-4">
           {[price_one_month, price_three_month, price_six_month, price_one_year].map((price, index) => {
             if (!price) return null

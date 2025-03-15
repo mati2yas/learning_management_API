@@ -25,4 +25,8 @@ class ExamQuestion extends Model
     public function examType(){
         return $this->belongsTo(ExamType::class);
     }
+
+    public function exam(){
+        return $this->belongsTo(Exam::class);
+    }
 }

@@ -1,7 +1,7 @@
 export interface Course{
   topicsCount: number;
   id: number;
-  course_name: string;
+  name: string;
   thumbnail: string;
   category_id: number;
   grade_id: number;

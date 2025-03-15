@@ -2,7 +2,7 @@ import type React from "react"
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Badge } from "@/Components/ui/badge"
-import type { ExamGrade, ExamQuestion, ExamType, ExamYear } from "@/types"
+import type { ExamGrade, ExamQuestion } from "@/types"
 import DeleteExamQuestionAlert from "./DeleteExamQuestionAlert"
 import { Link } from "@inertiajs/react"
 import { PencilIcon, Trash2, X } from "lucide-react"
@@ -17,26 +17,19 @@ interface QuestionCardProps {
     answer: string
     question_image_url: string | null
   }
-  examTypes: ExamType[]
   examGrades: ExamGrade[]
-  examYears: ExamYear[]
   canEdit: boolean
   canDelete: boolean
-  getExamCourseName: (id: number) => string
   getChapterTitle: (id: number) => string
-  getExamYear: (id: number) => string | number
+
 }
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
-  examTypes,
   examGrades,
-  examYears,
   canEdit,
   canDelete,
-  getExamCourseName,
   getChapterTitle,
-  getExamYear,
 }) => {
   const [isImageOpen, setIsImageOpen] = useState(false)
 
@@ -63,9 +56,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         <CardTitle className="text-lg font-semibold capitalize w-full  break-words">{question.question_text}</CardTitle>
 
         <div className="flex flex-wrap gap-2 mt-2">
-          <Badge variant="outline">{getExamCourseName(question.exam_course_id)}</Badge>
+         
           <Badge variant="outline">{getChapterTitle(question.exam_chapter_id)}</Badge>
-          <Badge variant="outline">{getExamYear(question.exam_year_id)}</Badge>
         </div>
       </CardHeader>
 

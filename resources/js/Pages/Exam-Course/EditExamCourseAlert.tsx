@@ -1,5 +1,3 @@
-"use client"
-
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -182,7 +180,7 @@ const EditExamCourseAlert = ({
                 <div className="space-y-2">
                   <Label htmlFor="exam_grade_id">Exam Grade</Label>
                   <Select
-                    value={data.exam_grade_id.toString()}
+                    value={data.exam_grade_id?.toString()}
                     onValueChange={(value) => {
                       setData("exam_grade_id", Number(value))
                       if (!showStreamDropdown) {

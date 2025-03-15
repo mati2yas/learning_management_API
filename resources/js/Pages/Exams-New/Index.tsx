@@ -12,6 +12,7 @@ interface ExamIndexProps {
 }
 
 const Index = ({ exam_types }: ExamIndexProps) => {
+
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
   // Function to get a random number for placeholder stats
@@ -78,6 +79,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {exam_types.map((examType) => {
+              
               const questionCount = getRandomStat(10, 50)
               const courseCount = getRandomStat(3, 12)
               const yearCount = getRandomStat(1, 5)

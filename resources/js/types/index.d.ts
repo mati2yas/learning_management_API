@@ -208,6 +208,7 @@ export interface ExamYear{
 }
 
 export interface ExamQuestion{
+    exam_id: any
     exam_type_id: any;
     exam_grade_id: any;
     text_explanation: string;
@@ -253,21 +254,21 @@ export interface CarouselContent{
     updated_at?: string;
 }
 
-    export interface SubscriptionRequest{
-            id: number
-            user: { name: string, email?: string}
-            courses: {id: number, name: string}[],
-            exams: {
-                id: number, 
-                exam_type: string,
-                exam_course: string}[] | null
-            total_price: number
-            proof_of_payment: string
-            transaction_id: string
-            status: 'Pending' | 'Approved' | 'Rejected'
-            created_at?: string;
-            updated_at?: string;
-    }
+export interface SubscriptionRequest{
+        id: number
+        user: { name: string, email?: string}
+        courses: {id: number, name: string}[],
+        exams: {
+            id: number, 
+            exam_type: string,
+            exam_course: string}[] | null
+        total_price: number
+        proof_of_payment: string
+        transaction_id: string
+        status: 'Pending' | 'Approved' | 'Rejected'
+        created_at?: string;
+        updated_at?: string;
+}
 
 export interface Subscription{
         // subscription_type: ReactNode;
@@ -292,23 +293,25 @@ export interface Subscription{
   
 }
 
-
-export interface Exam{
-    id: number;
-    exam_type_id: number;
-    exam_year_id: number;
-    exam_course_id: number;
-
-    price_one_month: number;
-    price_three_month: number;
-    price_six_month: number;
-    price_one_year: number;
+export interface Exam {
+    id: number
+    exam_duration: number
+    exam_type_id: number
+    exam_year_id: number
+    exam_course_id: number | null
+    price_one_month: number
+    price_three_month: number
+    price_six_month: number
+    price_one_year: number
     on_sale_one_month: number
-    on_sale_three_month: number;
-    on_sale_six_month: number;
-    on_sale_one_year: number;
-    stream: string|null;
-
-    created_at?: string;
-    updated_at?: string;
-}
+    on_sale_three_month: number
+    on_sale_six_month: number
+    on_sale_one_year: number
+    stream: string | null
+    created_at?: string
+    updated_at?: string
+    // Relationships
+    exam_course?: ExamCourse | null
+    exam_year?: ExamYear
+    exam_type?: ExamType
+  }

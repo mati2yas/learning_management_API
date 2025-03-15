@@ -406,6 +406,7 @@ export function CreateCourseAlert() {
                         htmlFor={`on_sale_${duration}`}
                         value={`Sale Price for ${duration.replace("_", " ")}`}
                       />
+
                       <TextInput
                         id={`on_sale_${duration}`}
                         name={`on_sale_${duration}`}
@@ -414,6 +415,7 @@ export function CreateCourseAlert() {
                         onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
                         className="w-full"
                       />
+                      
                       <InputError message={errors[`on_sale_${duration}` as keyof typeof errors]} className="mt-2" />
                     </div>
                   )}

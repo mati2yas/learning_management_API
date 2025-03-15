@@ -58,7 +58,7 @@ export function UpdateCourseAlert({
 
   const { data, setData, post, processing, errors, reset, progress, clearErrors, setError } = useForm({
     _method: "PATCH",
-    course_name: course.course_name,
+    course_name: course.name,
     category_id: course.category_id.toString(),
     grade_id: course.grade_id?.toString() || "",
     department_id: course.department_id?.toString() || "",
@@ -235,6 +235,7 @@ export function UpdateCourseAlert({
       preserveScroll: true,
       onSuccess: () => {
         setIsOpen(false)
+        window.location.reload()
       },
       onError: (errors: any) => {
         console.log("Validation errors:", errors)

@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { Head, useForm, usePage } from "@inertiajs/react"
@@ -11,34 +9,34 @@ import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
 import { Input } from "@/Components/ui/input"
-import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear, ExamQuestion } from "@/types"
+import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear, ExamQuestion, Exam } from "@/types"
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
+import { SessionToast } from "@/Components/SessionToast"
+import { ErrorToast } from "@/Components/ErrorToast"
 
 interface EditExamQuestionAlertProps {
-  exam_types: ExamType[]
   exam_grades: ExamGrade[]
-  exam_years: ExamYear[]
+  exam: Exam
   question: ExamQuestion
 }
 
-const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQuestionAlertProps) => {
+const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlertProps) => {
   // console.log(question)
   const [options, setOptions] = useState<string[]>(JSON.parse(question.options))
   const [correctAnswer, setCorrectAnswer] = useState<string | string[]>(JSON.parse(question.answer))
   const [isMultipleChoice, setIsMultipleChoice] = useState(Array.isArray(JSON.parse(question.answer)))
   const [questionImagePreview, setQuestionImagePreview] = useState<string | null>(question.question_image_url)
   const [imageExplanationPreview, setImageExplanationPreview] = useState<string | null>(question.image_explanation_url)
-
-  const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
-  const [selectedExamTypeName, setSelectedExamTypeName] = useState("")
+
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<{
     _method: string
+    exam_id: string
     exam_type_id: string,
     exam_year_id: string,
     exam_course_id: string,
@@ -53,6 +51,7 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     answer: string[]
   }>({
     _method: "PATCH",
+    exam_id: question.exam_id.toString(),
     exam_type_id: question.exam_type_id?.toString(),
     exam_year_id: question.exam_year_id?.toString(),
     exam_course_id: question.exam_course_id?.toString(),
@@ -67,14 +66,6 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     answer: JSON.parse(question.answer),
   })
 
-  const fetchExamCourses = useCallback(async (examTypeId: string) => {
-    try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}`)
-      setExamCourses(response.data)
-    } catch (error) {
-      console.error("Error fetching exam courses:", error)
-    }
-  }, [])
 
   const fetchExamChapters = useCallback(async (examCourseId: string) => {
     try {
@@ -85,17 +76,16 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     }
   }, [])
 
-  const showExamGrade = useMemo(() => {
-    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
-    console.log(selectedExamTypeName)
-    return selectedExamType && ["6th Grade Ministry", "8th Grade Ministry", "ESSLCE"].includes(selectedExamType.name)
-  }, [data.exam_type_id, exam_types])
+  const showExamGrade = () => {
+    const excludedExamTypes = ["NGAT", "EXIT", "SAT", "UAT", "EXAM"]
+    return !excludedExamTypes.includes(exam.exam_type?.name || "")
+  }
 
   const getFilteredExamGrades = useMemo(() => {
-    const selectedExamType = exam_types.find((type) => type.id.toString() === data.exam_type_id)
+    const selectedExamType = showExamGrade()
     if (!selectedExamType) return []
 
-    switch (selectedExamType.name) {
+    switch (exam.exam_type?.name) {
       case "6th Grade Ministry":
         return exam_grades?.filter((grade) => [5, 6].includes(grade.grade)) || []
       case "8th Grade Ministry":
@@ -105,58 +95,14 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
       default:
         return []
     }
-  }, [data.exam_type_id, exam_types, exam_grades])
+  }, [])
 
-  useEffect(() => {
-    if (data.exam_type_id) {
-      fetchExamCourses(data.exam_type_id)
-    }
-  }, [data.exam_type_id, fetchExamCourses])
 
   useEffect(() => {
     if (data.exam_course_id) {
       fetchExamChapters(data.exam_course_id)
     }
   }, [data.exam_course_id, fetchExamChapters])
-
-  const handleExamTypeChange = useCallback(
-    (value: string) => {
-      setData((prevData) => ({
-        ...prevData,
-        exam_type_id: value,
-        exam_course_id: "",
-        exam_grade_id: "",
-        exam_chapter_id: "",
-      }))
-      setExamCourses([])
-      setExamChapters([])
-      const selectedType = exam_types.find((type) => type.id.toString() === value)
-      setSelectedExamTypeName(selectedType ? selectedType.name : "")
-    },
-    [setData],
-  )
-
-  const handleExamYearChange = useCallback(
-    (value: string) => {
-      setData((prevData) => ({
-        ...prevData,
-        exam_year_id: value,
-      }))
-    },
-    [setData],
-  )
-
-  const handleExamCourseChange = useCallback(
-    (value: string) => {
-      setData((prevData) => ({
-        ...prevData,
-        exam_course_id: value,
-        exam_chapter_id: "",
-      }))
-      setExamChapters([])
-    },
-    [setData],
-  )
 
   const handleExamGradeChange = useCallback(
     (value: string) => {
@@ -233,22 +179,9 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
       isValid = false
     }
 
-    if (!data.exam_year_id) {
-      setError("exam_year_id", "Exam year is required")
-      isValid = false
-    }
 
-    if (!data.exam_course_id) {
-      setError("exam_course_id", "Exam course is required")
-      isValid = false
-    }
 
-    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) && !data.exam_grade_id) {
-      setError("exam_grade_id", "Exam grade is required")
-      isValid = false
-    }
-
-    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(selectedExamTypeName) 
+    if (["6th Grade Ministry",'8th Grade Ministry', "ESSCLE"].includes(exam.exam_type?.name ?? "") 
      && !data.exam_chapter_id) {
       setError("exam_chapter_id", "Exam chapter is required")
       isValid = false
@@ -299,10 +232,8 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
     [validateForm, post, question.id],
   )
 
-  const memoizedExamTypes = useMemo(() => exam_types, [exam_types])
-  const memoizedExamYears = useMemo(() => exam_years, [exam_years])
   const memoizedExamGrades = useMemo(() => exam_grades, [exam_grades])
-
+  const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
   return (
     <Authenticated
@@ -311,6 +242,10 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
       }
     >
       <Head title="Edit Exam Question" />
+
+      {/* {flash.success && (<SessionToast message={flash.success }  />)} */}
+      {flash.error && (<ErrorToast message={flash.error} />)}
+      
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <Card>
@@ -321,60 +256,8 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
               <form onSubmit={submit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <div>
-                      <InputLabel htmlFor="exam-type" value="Exam Type" />
-                      <Select value={data.exam_type_id} onValueChange={handleExamTypeChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an exam type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {memoizedExamTypes.map((examType) => (
-                            <SelectItem key={examType.id} value={examType.id.toString()}>
-                              {examType.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <InputError message={errors.exam_type_id} className="mt-2" />
-                    </div>
 
-                    <div>
-                      <InputLabel htmlFor="exam-year" value="Exam Year" />
-                      <Select value={data.exam_year_id} onValueChange={handleExamYearChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an exam year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {memoizedExamYears.map((examYear) => (
-                            <SelectItem key={examYear.id} value={examYear.id.toString()}>
-                              {examYear.year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <InputError message={errors.exam_year_id} className="mt-2" />
-                    </div>
-
-                    {data.exam_type_id && (
-                      <div>
-                        <InputLabel htmlFor="exam-course" value="Exam Course" />
-                        <Select value={data.exam_course_id} onValueChange={handleExamCourseChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an exam course" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {examCourses.map((examCourse) => (
-                              <SelectItem key={examCourse.id} value={examCourse.id.toString()}>
-                                {examCourse.course_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <InputError message={errors.exam_course_id} className="mt-2" />
-                      </div>
-                    )}
-
-                    {showExamGrade && data.exam_year_id &&(
+                    {showExamGrade() && data.exam_year_id &&(
                       <div>
                         <InputLabel htmlFor="exam-grade" value="Exam Grade" />
                         <Select value={data.exam_grade_id} onValueChange={handleExamGradeChange}>
@@ -587,5 +470,5 @@ const EditExam = ({ exam_types, exam_years, exam_grades, question }: EditExamQue
   )
 }
 
-export default EditExam
+export default EditExamQuestion
 

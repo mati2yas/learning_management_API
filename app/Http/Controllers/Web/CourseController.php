@@ -71,23 +71,24 @@ class CourseController extends Controller
     public function store(Request $request)
     {
 
-    $attrs = $request->validate([
-        'course_name' => 'required|max:100',
-        'category_id' => 'required',
-        'grade_id' => 'nullable',
-        'department_id' => 'nullable',
-        'batch_id' => 'nullable',
-        'stream' => 'nullable|in:natural,social',
-        'price_one_month' => 'required|numeric|max:100000',
-        'on_sale_one_month' => 'nullable|numeric|max:100000',
-        'price_three_month' => 'required|numeric|max:100000',
-        'on_sale_three_month' => 'nullable|numeric|max:100000',
-        'price_six_month' => 'required|numeric|max:100000',
-        'on_sale_six_month' => 'nullable|numeric|max:100000',
-        'price_one_year' => 'required|numeric|max:100000',
-        'on_sale_one_year' => 'nullable|numeric|max:100000',
-        'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+        $attrs = $request->validate([
+            'course_name' => 'required|max:100',
+            'category_id' => 'required',
+            'grade_id' => 'nullable',
+            'department_id' => 'nullable',
+            'batch_id' => 'nullable',
+            'stream' => 'nullable|in:natural,social',
+            'price_one_month' => 'required|numeric|min:0|max:100000',
+            'on_sale_one_month' => 'nullable|numeric|min:0|max:100000',
+            'price_three_month' => 'required|numeric|min:0|max:100000',
+            'on_sale_three_month' => 'nullable|numeric|min:0|max:100000',
+            'price_six_month' => 'required|numeric|min:0|max:100000',
+            'on_sale_six_month' => 'nullable|numeric|min:0|max:100000',
+            'price_one_year' => 'required|numeric|min:0|max:100000',
+            'on_sale_one_year' => 'nullable|numeric|min:0|max:100000',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        
         
 
         if ($request->hasFile('thumbnail')) {

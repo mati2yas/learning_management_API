@@ -58,7 +58,7 @@ export function UpdateCourseAlert({
 
   const { data, setData, post, processing, errors, reset, progress, clearErrors, setError } = useForm({
     _method: "PATCH",
-    course_name: course.name,
+    course_name: course.course_name,
     category_id: course.category_id.toString(),
     grade_id: course.grade_id?.toString() || "",
     department_id: course.department_id?.toString() || "",

@@ -10,7 +10,7 @@ class CourseResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'course_name' => $this->course_name,
             'thumbnail' => $this->thumbnail,
             'category_id' => optional($this->category)->id,
             'stream' => $this->stream ? $this->stream : null,

@@ -111,7 +111,7 @@ export function CourseCard({
             const duration = ["1 Month", "3 Months", "6 Months", "1 Year"][index]
             return (
               <Badge key={duration} variant="secondary" className="px-3 py-1 rounded-full text-xs">
-                {duration} - {price}Birr
+                {duration} - {price} Birr
               </Badge>
             )
           })}

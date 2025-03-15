@@ -21,7 +21,7 @@ const Index: React.FC<IndexProps> = ({
   canAdd,
 }) => {
 
-
+  console.log(courses)
 
   const { flash } = usePage().props as unknown as { flash: { success?: string } };
 
@@ -119,7 +119,7 @@ const Index: React.FC<IndexProps> = ({
                 <CourseCard
                   key={course.id}
                   id={Number(course.id)}
-                  name={course.name}
+                  name={course.course_name}
                   thumbnail={course.thumbnail}
                   category={getCategoryName(course.category_id)}
                   grade={course.grade_id ? getGradeName(course.grade_id) : undefined}

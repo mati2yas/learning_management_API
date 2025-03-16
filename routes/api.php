@@ -13,11 +13,11 @@ use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\ExamCourseTypeResource;
+use App\Http\Resources\Api\ExamResource;
 use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;
 use App\Http\Resources\ExamYearResource;
-use App\Models\APINotification;
 use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -32,16 +32,13 @@ use App\Models\ExamType;
 use App\Models\ExamYear;
 use App\Models\Grade;
 use App\Models\Like;
+use App\Models\PaidExam;
 use App\Models\Quiz;
 use App\Models\Save;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Response;
-
-use Illuminate\Notifications\DatabaseNotification;
-
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
     return $request->user();
@@ -270,6 +267,27 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return CourseResource::collection(
              $savedCourses
         );
+    });
+
+    Route::get('/paid-exams', function(Request $request){
+        $user = $request->user(); // Get authenticated user
+
+        $paidExams = PaidExam::where('user_id', $user->id)
+            ->with('exam.examCourse', 'exam.examType', 'exam.examYear') // Eager load relationships
+            ->get()
+            ->map(function ($paidExam) {
+                return [
+                    'exam_id' => $paidExam->exam->id,
+                    'course' => $paidExam->exam->examCourse->name,
+                    'exam_type' => $paidExam->exam->examType->name,
+                    'exam_year' => $paidExam->exam->examYear->year,
+                ];
+            });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $paidExams,
+        ]);
     });
 
     Route::get('/paid-courses', function (Request $request) {

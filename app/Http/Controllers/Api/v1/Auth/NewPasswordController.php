@@ -51,7 +51,7 @@ class NewPasswordController extends Controller
         return response()->json([
             'status' => 'Success',
             'token' => $token
-        ]);
+        ], 200);
 
 
 

@@ -91,7 +91,6 @@ class NewPasswordController extends Controller
                 'message'=> 'Password reset successfully',
                 'token' => $request->user()->createToken("API TOKEN")->plainTextToken,
                 'data' => ['user' => $request->user()],
-
             ]);
         }
 

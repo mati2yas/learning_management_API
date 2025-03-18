@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\Auth\NewPasswordController;
 use App\Http\Controllers\Api\v1\Auth\SessionController;
 use App\Http\Controllers\Api\v1\CourseController;
 use App\Http\Controllers\Api\v1\HomepageCourseController;
+use App\Http\Controllers\Api\v1\NotificationController;
 use App\Http\Resources\Api\ChapterContentResource;
 use App\Http\Resources\Api\ChapterResource;
 use App\Http\Resources\Api\ContentResource;
@@ -181,6 +182,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
         return CourseResource::collection($query->get());
     });
+
+
+
+    Route::get('/notifications-new', [NotificationController::class, 'index']); // Fetch all notifications
+    Route::patch('/notifications-new/{id}/read', [NotificationController::class, 'markAsRead']); // Mark as read
+    Route::post('/notifications-new/read-all', [NotificationController::class, 'markAllAsRead']); // Mark all as read
 
 
     Route::get('/notifications/unread', function (Request $request) {

@@ -128,6 +128,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(BannedUser::class);
     }
 
+
+    public function APINotifications(){
+        return $this->hasMany(APINotification::class);
+    }
     
 
     protected function casts(): array

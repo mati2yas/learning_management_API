@@ -194,6 +194,11 @@ class SubscriptionController extends Controller
             $workers = User::role('worker')->get();
     
             $associatedUser = User::findOrFail($subscriptionRequest->user_id);
+
+            $associatedUser->APINotifications()->create([
+                'type' => 'subscription',
+                'message' => 'Your subscription request has been approved.',
+            ]);
     
             dispatch(new SendSubscriptionApproveJob($subscriptionRequest, $subscription, $superAdmins, $workers, $associatedUser));
     
@@ -225,6 +230,11 @@ class SubscriptionController extends Controller
             $workers = User::role('worker')->get();
     
             $associatedUser = User::findOrFail($subscriptionRequest->user_id);
+
+            $associatedUser->APINotifications()->create([
+                'type' => 'subscription',
+                'message' => 'Your subscription request has been rejected for the '.$request->input('message').' reason.',
+            ]);
     
             dispatch(new SubscriptionRejectionJob($subscriptionRequest, $superAdmins, $workers, $associatedUser, $request->input('message')));
     

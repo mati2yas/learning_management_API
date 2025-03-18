@@ -59,27 +59,6 @@ class SubscriptionController extends Controller
  
          try {
              DB::beginTransaction();
-
-            //  $examType = ExamType::where('name', $validatedData['exam_type'])->first();
-
-            //     if (!$examType) {
-            //         return response()->json([
-            //             'status' => false,
-            //             'message' => 'Invalid exam type provided.',
-            //         ], 400);
-            //     }
-            
-            // $examTypeId = $examType->id;
- 
-            //  $exams = [];
-            //  if (!empty($validatedData['exam_course_id']) && !empty($validatedData['exam_years']) && !empty($validatedData['exam_type'])) {
-            //      // Fetch relevant exams based on exam_type_id, exam_course_id, and exam_years
-            //      $exams = Exam::where('exam_type_id', $examTypeId)
-            //      ->where('exam_course_id', $validatedData['exam_course_id'])
-            //      ->whereIn('exam_year_id', $validatedData['exam_years'])
-            //      ->get();
-            //  }
- 
              // Check if user already owns any of the courses
              if (!empty($validatedData['courses'])) {
                  $alreadyBoughtCourses = PaidCourse::where('user_id', $user->id)
@@ -136,10 +115,15 @@ class SubscriptionController extends Controller
              }
  
              $totalPrice = 0;
+             $subscribedItems = [];
+             $totalPrice = 0; // Make sure totalPrice is initialized
+             
              if (!empty($validatedData['courses'])) {
                  foreach ($validatedData['courses'] as $courseId) {
                      $course = Course::findOrFail($courseId);
-                    //  dd('tre');
+                     
+                     $subscribedItems[] = $course->course_name;
+             
                      $priceColumn = $this->getPriceColumnBySubscriptionType($validatedData['subscription_type']);
                      if ($priceColumn) {
                          $onSaleColumn = str_replace('price_', 'on_sale_', $priceColumn);
@@ -148,11 +132,15 @@ class SubscriptionController extends Controller
                      }
                  }
              }
+             
  
              
              if (!empty($validatedData['exams'])) {
                  foreach ($validatedData['exams'] as $examId) {
-                        $exam = Exam::findOrFail($examId);
+                    
+                    $exam = Exam::findOrFail($examId);
+                    
+                    $subscribedItems[] = $exam->examCourse->course_name." ".$exam->examYear->year;
                      $priceColumn = $this->getPriceColumnBySubscriptionType($validatedData['subscription_type']);
                      if ($priceColumn) {
                          $onSaleColumn = str_replace('price_', 'on_sale_', $priceColumn);
@@ -184,6 +172,15 @@ class SubscriptionController extends Controller
              DB::commit();
  
              dispatch(new SendSubscriptionNotificationJob($subscriptionRequest, $superAdmins, $workers, $user));
+
+        
+
+             $message = 'You have subscribed to the following: ' . implode(', ', $subscribedItems) . '. Your part is pending.';
+
+            $user->APINotifications()->create([
+                'type' => 'subscription',
+                'message' => $message,
+            ]);
  
              return response()->json([
                  'status' => true,

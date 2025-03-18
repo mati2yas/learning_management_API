@@ -88,7 +88,10 @@ class NewPasswordController extends Controller
 
         if ($status == Password::PASSWORD_RESET) {
             return response()->json([
-                'message'=> 'Password reset successfully'
+                'message'=> 'Password reset successfully',
+                'token' => $request->user()->createToken("API TOKEN")->plainTextToken,
+                'data' => ['user' => $request->user()],
+
             ]);
         }
 

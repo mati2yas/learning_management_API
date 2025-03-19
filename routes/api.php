@@ -284,10 +284,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             ->get()
             ->map(function ($paidExam) {
                 return [
-                    'exam_id' => $paidExam->exam->id,
-                    'course' => $paidExam->exam->examCourse->name,
+                    'exam_sheet_id' => $paidExam->exam->id,
+                    'course_id' => $paidExam->exam->exam_course_id,
+                    'course' => $paidExam->exam->examCourse->name? $paidExam->exam->examCourse->name : "chemistry",
                     'exam_type' => $paidExam->exam->examType->name,
                     'exam_year' => $paidExam->exam->examYear->year,
+                    'exam_year_id' => $paidExam->exam->exam_year_id,
                 ];
             });
 

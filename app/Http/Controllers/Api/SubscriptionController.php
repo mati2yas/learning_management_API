@@ -137,7 +137,7 @@ class SubscriptionController extends Controller
              
              if (!empty($validatedData['exams'])) {
                  foreach ($validatedData['exams'] as $examId) {
-                    
+
                     $exam = Exam::findOrFail($examId);
                     
                     $subscribedItems[] = $exam->examCourse->course_name." ".$exam->examYear->year;
@@ -173,7 +173,6 @@ class SubscriptionController extends Controller
  
              dispatch(new SendSubscriptionNotificationJob($subscriptionRequest, $superAdmins, $workers, $user));
 
-        
 
              $message = 'You have subscribed to the following: ' . implode(', ', $subscribedItems) . '. Your part is pending.';
 

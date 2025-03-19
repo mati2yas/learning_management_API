@@ -290,6 +290,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                     'exam_type' => $paidExam->exam->examType->name,
                     'exam_year' => $paidExam->exam->examYear->year,
                     'exam_year_id' => $paidExam->exam->exam_year_id,
+                    'exam_duration' => $paidExam->exam->exam_duration ? $paidExam->exam->exam_duration : 60,
                 ];
             });
 

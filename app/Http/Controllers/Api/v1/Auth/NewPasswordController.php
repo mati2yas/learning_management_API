@@ -65,43 +65,41 @@ class NewPasswordController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required',
-            'password' => ['required', 'confirmed',],
+            'email' => 'required|email',
+            'password' => ['required', 'confirmed'],
         ]);
-
+    
+        $user = null; // Declare user variable
+    
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
+            function ($resetUser) use ($request, &$user) { // Pass $user by reference
+                $resetUser->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
                 ])->save();
-
-                $user->tokens()->delete();
-
-                dispatch(function()use($user){
-                    event(new PasswordReset($user));
+    
+                $resetUser->tokens()->delete(); // Delete old tokens
+    
+                dispatch(function () use ($resetUser) {
+                    event(new PasswordReset($resetUser));
                 });
-
+    
+                $user = $resetUser; // Assign the user
             }
         );
-
-        // $request->user()->APINotifications()->create([
-        //     'type' => 'forgot-password',
-        //     'message' => 'Your password is rested successfully.'
-        // ]);
-
-        if ($status == Password::PASSWORD_RESET) {
+    
+        if ($status == Password::PASSWORD_RESET && $user) {
             return response()->json([
-                'message'=> 'Password reset successfully',
-                'token' => $request->user()->createToken("API TOKEN")->plainTextToken,
-                'data' => ['user' => $request->user()],
+                'message' => 'Password reset successfully',
+                'token' => $user->createToken("API TOKEN")->plainTextToken, // Generate token
+                'data' => ['user' => $user],
             ]);
         }
-
+    
         return response()->json([
-            'message'=> __($status)
+            'message' => __($status),
         ], 500);
-
     }
+    
 }

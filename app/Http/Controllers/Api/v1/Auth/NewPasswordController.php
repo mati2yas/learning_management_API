@@ -86,10 +86,10 @@ class NewPasswordController extends Controller
             }
         );
 
-        $request->user()->APINotifications()->create([
-            'type' => 'forgot-password',
-            'message' => 'Your password is rested successfully.'
-        ]);
+        // $request->user()->APINotifications()->create([
+        //     'type' => 'forgot-password',
+        //     'message' => 'Your password is rested successfully.'
+        // ]);
 
         if ($status == Password::PASSWORD_RESET) {
             return response()->json([

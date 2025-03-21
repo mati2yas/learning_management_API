@@ -105,9 +105,4 @@ class ExamCourseTypeResource extends JsonResource
             ->values()
             ->all();
     }
-    
-    
-    
-
-
 }

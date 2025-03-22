@@ -11,6 +11,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -46,7 +47,32 @@ class NewPasswordController extends Controller
             ], 404);
         }
 
-        SendCustomPasswordResetEmail::dispatch($user);
+
+        $pin = random_int(100000, 999999);
+
+        // Store in the database with a 15-minute expiration
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'pin' => $pin,
+                'expires_at' => Carbon::now()->addMinutes(60),
+                'updated_at' => now()
+            ]
+        );
+
+        // Send email with the PIN
+        $emailData = [
+            'user' => $user,
+            'pin' => $pin,
+        ];
+
+        Mail::send('emails.password-reset', $emailData, function ($message) use($user) {
+            $message->to($user->email)
+                ->subject('Your Password Reset PIN');
+        });
+
+
+        // SendCustomPasswordResetEmail::dispatch($user);
 
         // $token = Password::createToken($user);
 
@@ -59,7 +85,7 @@ class NewPasswordController extends Controller
 
         return response()->json([
             'status' => 'Success',
-            'message' => 'You will receive a PIN shortly.'
+            'message' => 'You will receive a PIN through email shortly.'
         ]);
     }
 

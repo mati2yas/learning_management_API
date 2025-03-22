@@ -1,4 +1,5 @@
-<?php
+<?php 
+
 namespace App\Http\Resources\Web;
 
 use Illuminate\Http\Request;
@@ -23,17 +24,19 @@ class SubscriptionResource extends JsonResource
                         'name' => $this->subscriptionRequest->user->name,
                         'email' => $this->subscriptionRequest->user->email,
                     ] : null,
-                    'courses' => $this->subscriptionRequest && $this->subscriptionRequest->relationLoaded('courses')
+                    'courses' => $this->subscriptionRequest->relationLoaded('courses')
                         ? $this->subscriptionRequest->courses->map(fn($course) => [
                             'id' => $course->id,
                             'name' => $course->course_name,
                         ])
                         : null,
+                    'exams' => $this->subscriptionRequest->relationLoaded('exams')
+                        ? $this->subscriptionRequest->exams->map(fn($exam) => [
+                            'id' => $exam->id,
+                            'name' => $exam->examCourse->course_name ?? 'Unknown Exam',
+                        ])
+                        : null,
 
-                    'exam_course' => $this->subscriptionRequest->examCourse ? [
-                        'id' => $this->subscriptionRequest->examCourse->id,
-                        'name' => $this->subscriptionRequest->examCourse->course_name,
-                    ] : null,
                     'proof_of_payment' => $this->subscriptionRequest->proof_of_payment,
                     'total_price' => $this->subscriptionRequest->total_price,
                     'status' => $this->subscriptionRequest->status,
@@ -44,6 +47,7 @@ class SubscriptionResource extends JsonResource
             }),
             'subscription_start_date' => $this->subscription_start_date,
             'subscription_end_date' => $this->subscription_end_date,
+            'status' => $this->status,
         ];
     }
 }

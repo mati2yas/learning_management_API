@@ -281,35 +281,55 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user = $request->user(); // Get authenticated user
 
         $user->subscriptionRequests()
-            ->whereHas('subscriptions', function ($query) {
-                $query->where('subscription_end_date', '<', Carbon::today())
-                      ->where('status', 'active');
-            })
-            ->with([
-                'subscriptions.subscriptionRequest.course',
-                'subscriptions.subscriptionRequest.exam.examCourse',
-            ])
-            ->get()
-            ->pluck('subscriptions')
-            ->flatten()
-            ->each(function ($subscription) use ($user) {
-                // Update subscription status to expired
-                $subscription->update(['status' => 'expired']);
+        ->whereHas('subscriptions', function ($query) {
+            $query->where('subscription_end_date', '<', Carbon::today())
+                  ->where('status', 'active');
+        })
+        ->with([
+            'subscriptions.subscriptionRequest.courses', // Assuming `courses` is the correct relation name
+            'subscriptions.subscriptionRequest.exams.examCourse',
+        ])
+        ->get()
+        ->pluck('subscriptions')
+        ->flatten()
+        ->each(function ($subscription) use ($user) {
+            // Update subscription status to expired
+            $subscription->update(['status' => 'expired']);
         
-                // Get course or exam name
-                $subscriptionRequest = $subscription->subscriptionRequest;
-                $courseName = $subscriptionRequest->course->name ?? null;
-                $examName = $subscriptionRequest->exam->examCourse->course_name ?? null;
-                
-                // Determine the appropriate message
-                $subscriptionType = $courseName ? "Course: $courseName" : ($examName ? "Exam: $examName" : "your subscription");
+            // Get the subscriptionRequest and iterate over courses and exams
+            $subscriptionRequest = $subscription->subscriptionRequest;
+            
+            // Handle courses
+            $courseNames = $subscriptionRequest->courses->pluck('name')->toArray();
+            
+            // Handle exams
+            $examNames = $subscriptionRequest->exams->pluck('examCourse.course_name')->toArray();
+            
+            // Determine the appropriate message
+            $subscriptionType = '';
+            
+            if (count($courseNames) > 0) {
+                $subscriptionType .= "Courses: " . implode(', ', $courseNames);
+            }
+            
+            if (count($examNames) > 0) {
+                if ($subscriptionType) {
+                    $subscriptionType .= " | ";
+                }
+                $subscriptionType .= "Exams: " . implode(', ', $examNames);
+            }
+            
+            if (empty($subscriptionType)) {
+                $subscriptionType = "your subscription";
+            }
         
-                // Send notification
-                $user->APINotifications()->create([
-                    'type' => 'subscription',
-                    'message' => "Your subscription for {$subscriptionType} has expired.",
-                ]);
-            });
+            // Send notification
+            $user->APINotifications()->create([
+                'type' => 'subscription',
+                'message' => "Your subscription for {$subscriptionType} has expired.",
+            ]);
+        });
+    
         
 
             $paidExams = PaidExam::where('user_id', $user->id)
@@ -353,35 +373,55 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user = $request->user(); // Get authenticated user
 
         $user->subscriptionRequests()
-            ->whereHas('subscriptions', function ($query) {
-                $query->where('subscription_end_date', '<', Carbon::today())
-                      ->where('status', 'active');
-            })
-            ->with([
-                'subscriptions.subscriptionRequest.course',
-                'subscriptions.subscriptionRequest.exam.examCourse',
-            ])
-            ->get()
-            ->pluck('subscriptions')
-            ->flatten()
-            ->each(function ($subscription) use ($user) {
-                // Update subscription status to expired
-                $subscription->update(['status' => 'expired']);
+        ->whereHas('subscriptions', function ($query) {
+            $query->where('subscription_end_date', '<', Carbon::today())
+                  ->where('status', 'active');
+        })
+        ->with([
+            'subscriptions.subscriptionRequest.courses', // Assuming `courses` is the correct relation name
+            'subscriptions.subscriptionRequest.exams.examCourse',
+        ])
+        ->get()
+        ->pluck('subscriptions')
+        ->flatten()
+        ->each(function ($subscription) use ($user) {
+            // Update subscription status to expired
+            $subscription->update(['status' => 'expired']);
         
-                // Get course or exam name
-                $subscriptionRequest = $subscription->subscriptionRequest;
-                $courseName = $subscriptionRequest->course->name ?? null;
-                $examName = $subscriptionRequest->exam->examCourse->course_name ?? null;
-                
-                // Determine the appropriate message
-                $subscriptionType = $courseName ? "Course: $courseName" : ($examName ? "Exam: $examName" : "your subscription");
+            // Get the subscriptionRequest and iterate over courses and exams
+            $subscriptionRequest = $subscription->subscriptionRequest;
+            
+            // Handle courses
+            $courseNames = $subscriptionRequest->courses->pluck('name')->toArray();
+            
+            // Handle exams
+            $examNames = $subscriptionRequest->exams->pluck('examCourse.course_name')->toArray();
+            
+            // Determine the appropriate message
+            $subscriptionType = '';
+            
+            if (count($courseNames) > 0) {
+                $subscriptionType .= "Courses: " . implode(', ', $courseNames);
+            }
+            
+            if (count($examNames) > 0) {
+                if ($subscriptionType) {
+                    $subscriptionType .= " | ";
+                }
+                $subscriptionType .= "Exams: " . implode(', ', $examNames);
+            }
+            
+            if (empty($subscriptionType)) {
+                $subscriptionType = "your subscription";
+            }
         
-                // Send notification
-                $user->APINotifications()->create([
-                    'type' => 'subscription',
-                    'message' => "Your subscription for {$subscriptionType} has expired.",
-                ]);
-            });
+            // Send notification
+            $user->APINotifications()->create([
+                'type' => 'subscription',
+                'message' => "Your subscription for {$subscriptionType} has expired.",
+            ]);
+        });
+    
     
         // Fetch paid courses for the user with course details
         $paidCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch', 'subscriptionRequests'=> function ($query) use ($user) {

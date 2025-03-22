@@ -284,9 +284,9 @@ export interface Subscription{
         id: number
         subscription_request: {
             id: number
-            user: { name: string}
-            course: {name: string} | null
-            exam_course: {name: string} | null
+            user: { name: string, email: string}
+            courses: {name: string}[] | null
+            exams: {name: string}[] | null
             total_price: number
             proof_of_payment: string
             status: 'Pending' | 'Approved' | 'Rejected'
@@ -296,6 +296,7 @@ export interface Subscription{
         }
         subscription_start_date: string
         subscription_end_date: string
+        status: string;
         created_at?: string;
         updated_at?: string;
   

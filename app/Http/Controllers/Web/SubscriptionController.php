@@ -38,8 +38,10 @@ class SubscriptionController extends Controller
         $subscriptionRequests = $query->latest()->paginate(16);
 
         // dd(          Subscription::with([
-        //     'subscriptionRequest.courses', // 🔥 Ensure courses are eager loaded!
-        //     'subscriptionRequest.user',
+        //   'subscriptionRequest',
+        //         'subscriptionRequest.user',
+        //         'subscriptionRequest.courses',
+        //         'subscriptionRequest.exams',
         // ])->get());
 
         // dd($subscriptionRequests);
@@ -47,6 +49,7 @@ class SubscriptionController extends Controller
 
         return Inertia::render('Subscriptions/Index', [
             'subscriptions' => SubscriptionResource::collection(Subscription::with([
+                'subscriptionRequest',
                 'subscriptionRequest.user',
                 'subscriptionRequest.courses',
                 'subscriptionRequest.exams',

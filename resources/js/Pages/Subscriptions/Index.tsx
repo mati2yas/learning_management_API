@@ -62,7 +62,7 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
         </div>
         }
       >
-      <Head title='user management' />
+      <Head title='Subscription | Management' />
       
       {flash.success && (<SessionToast message={flash.success }  />)}
 

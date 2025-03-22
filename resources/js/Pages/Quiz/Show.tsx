@@ -109,7 +109,7 @@ const QuizQuestionCard = ({ question, canDeleteQuizQuestions, canUpdateQuizQuest
           <img
             src={`${question.question_image_url.replace("/quizzes/", "/")}`}
             alt="Question"
-            className="w-full h-40 object-cover rounded-md mb-4"
+             className="w-full aspect-[16/9] object-cover rounded-md mb-4"
           />
         )}
         <p className="font-semibold mb-2">Explanation:</p>

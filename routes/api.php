@@ -47,11 +47,11 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request 
 });
 
 Route::get('/random-courses-paginate', function(){
-     return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters'])->paginate()); 
+     return CourseResource::collection(Course::with(['category','grade','department','batch', 'chapters','subscriptionRequests'])->paginate()); 
 });
 
 Route::get('/random-chapters/{id}', function ($id) {
-    $chapter = Chapter::with('contents')->findOrFail($id);
+    $chapter = Chapter::with('contents','subscriptionRequests')->findOrFail($id);
     return new ChapterResource($chapter);
 });
 
@@ -103,7 +103,7 @@ Route::get('/random-contents', function(){
 
 
 
-Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters'])->latest()->get() ));
+Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters','subscriptionRequests'])->latest()->get() ));
 
 Route::post('/delete-user/{id}', function ($id) {
     $user = User::find($id);
@@ -163,7 +163,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
         $userId = $request->user()->id;
     
-        $courses = Course::with(['department', 'grade', 'batch', 'category', 'chapters'])
+        $courses = Course::with(['department', 'grade', 'batch', 'category', 'chapters','subscriptionRequests'])
             ->where('category_id', $category->id)
             ->whereDoesntHave('subscriptionRequests', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
@@ -175,7 +175,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::get('/course-search', function (Request $request) {
-        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch']);
+        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch'.'subscriptionRequests']);
     
         if ($request->query('course_name')) {
             $query->where('course_name', 'like', '%' . $request->query('course_name') . '%');
@@ -266,7 +266,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user = $request->user(); // Get the authenticated user
     
         // Fetch saved courses for the user with course details
-        $savedCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+        $savedCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch','subscriptionRequests'])
         ->whereIn('id', function ($query) use ($user) {
             $query->select('course_id')->from('saves')->where('user_id', $user->id);
         })->get();
@@ -328,40 +328,38 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                 'type' => 'subscription',
                 'message' => "Your subscription for {$subscriptionType} has expired.",
             ]);
-        });
-    
-        
+        });   
 
-            $paidExams = PaidExam::where('user_id', $user->id)
-            ->with([
-                'exam.examCourse',
-                'exam.examType',
-                'exam.examYear',
-                'exam.subscriptionRequests' => function ($query) use ($user) {
-                    // Filter to only get approved subscription requests
-                    $query->where('user_id', $user->id)
-                          ->where('status', 'Approved')  // Only Approved subscriptions
-                          ->with('subscriptions');
-                }
-            ])
-            ->get()
-            ->map(function ($paidExam) use ($user) {
-                $exam = $paidExam->exam;
-    
-                // Get the user's approved subscription related to this exam
-                $subscription = optional($exam->subscriptionRequests->first()->subscriptions->first());
-    
-                return [
-                    'exam_sheet_id' => $exam->id,
-                    'course_id' => $exam->exam_course_id,
-                    'course' => $exam->examCourse->name ?? "chemistry",
-                    'exam_type' => $exam->examType->name,
-                    'exam_year' => $exam->examYear->year,
-                    'exam_year_id' => $exam->exam_year_id,
-                    'exam_duration' => $exam->exam_duration ?? 60,
-                    'subscription_status' => $subscription->status ?? 'inactive', // Correctly fetch approved status
-                ];
-            });
+        $paidExams = PaidExam::where('user_id', $user->id)
+        ->with([
+            'exam.examCourse',
+            'exam.examType',
+            'exam.examYear',
+            'exam.subscriptionRequests' => function ($query) use ($user) {
+                // Filter to only get approved subscription requests
+                $query->where('user_id', $user->id)
+                        ->where('status', 'Approved')  // Only Approved subscriptions
+                        ->with('subscriptions');
+            }
+        ])
+        ->get()
+        ->map(function ($paidExam) use ($user) {
+            $exam = $paidExam->exam;
+
+            // Get the user's approved subscription related to this exam
+            $subscription = optional($exam->subscriptionRequests->first()->subscriptions->first());
+
+            return [
+                'exam_sheet_id' => $exam->id,
+                'course_id' => $exam->exam_course_id,
+                'course' => $exam->examCourse->name ?? "chemistry",
+                'exam_type' => $exam->examType->name,
+                'exam_year' => $exam->examYear->year,
+                'exam_year_id' => $exam->exam_year_id,
+                'exam_duration' => $exam->exam_duration ?? 60,
+                'subscription_status' => $subscription->status ?? 'inactive', // Correctly fetch approved status
+            ];
+        });
     
         return response()->json([
             'status' => 'success',

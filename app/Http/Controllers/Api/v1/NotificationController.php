@@ -13,7 +13,7 @@ class NotificationController extends Controller
     // Fetch all notifications for the authenticated user
     public function index(Request $request)
     {
-        $notifications = $request->user()->APINotifications()->latest()->paginate(10);
+        $notifications = $request->user()->APINotifications()->latest()->paginate(1);
         return response()->json($notifications);
     }
 

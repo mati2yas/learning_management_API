@@ -15,12 +15,17 @@ class CourseResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user();
+        $subscriptionStatus = null;
 
-        // Find the user's subscription for the current course
-        $userSubscription = $this->subscriptionRequests->first()->subscriptions->first();
-
-        // dd($userSubscription->course->subscriptionRequests);
-        $subscriptionStatus = $userSubscription ? $userSubscription->status : 'inactive';
+        if ($user && $this->relationLoaded('subscriptionRequests')) {
+            // Get the first subscription request linked to this course (if any)
+            $userSubscriptionRequest = $this->subscriptionRequests->first();
+            
+            if ($userSubscriptionRequest && $userSubscriptionRequest->relationLoaded('subscriptions')) {
+                $userSubscription = $userSubscriptionRequest->subscriptions->first();
+                $subscriptionStatus = $userSubscription ? $userSubscription->status : 'inactive';
+            }
+        }
 
         return [
             'id' => $this->id,
@@ -61,7 +66,7 @@ class CourseResource extends JsonResource
                     ];
                 });
             }),
-            'chapter_count' => $this->chapters ? $this->chapters->count() : 0, // Count of chapters
+            'chapter_count' => $this->relationLoaded('chapters') ? $this->chapters->count() : 0,
 
             'batch' => $this->whenLoaded('batch', function () {
                 return [
@@ -88,8 +93,8 @@ class CourseResource extends JsonResource
             'likes_count' => $this->likes()->count(),
             'saves_count' => $this->saves()->count(),
 
-            // Include the subscription status
-            'subscription_status' => $subscriptionStatus,
+            // Include the subscription status only if a user is authenticated
+            'subscription_status' => $user ? $subscriptionStatus : null,
         ];
     }
 

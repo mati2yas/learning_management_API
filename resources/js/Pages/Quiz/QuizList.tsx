@@ -23,7 +23,8 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
           <div key={quiz.id} className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <div className="flex-grow">
               <h3 className="font-semibold">{quiz.title}</h3>
-              <p className="text-sm text-gray-600">{quiz.title} questions</p>
+              <p className="text-sm text-gray-600">{quiz.quiz_questions_count} questions</p>
+              <p>Duration: {quiz.exam_duration} Minutes</p>
             </div>
             <div className="flex space-x-2">
 
@@ -45,7 +46,6 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
 
                   />
                 }
-                {/* <EditQuizAlert quiz={quiz}/>*/}
 
                 {
                   canDeleteQuizzes ? <DeleteQuizAlert title={quiz.title} id={quiz.id} />: <PermissionAlert
@@ -58,7 +58,7 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, canAddQuizzes, canUpdateQu
 
                   />
                 }
-                {/* <DeleteQuizAlert title={quiz.title} id={quiz.id} /> */}
+
   
             </div>
           </div>

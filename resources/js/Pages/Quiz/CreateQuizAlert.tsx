@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, type FormEventHandler, useEffect } from "react"
 import { useForm } from "@inertiajs/react"
 import { Button } from "@/Components/ui/button"
@@ -15,50 +13,67 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { PlusCircle, X } from "lucide-react"
-// Assuming you are using vue-router, adjust if different
 
 interface CreateMultipleQuizzesAlertProps {
   id: number
   chapter_title: string
 }
 
+interface QuizData {
+  title: string
+  exam_duration: number
+}
+
 const MAX_QUIZZES = 10
 
 const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzesAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [quizTitles, setQuizTitles] = useState<string[]>([""])
- // Assuming you are using vue-router, adjust if different
+  const [quizData, setQuizData] = useState<QuizData[]>([{ title: "", exam_duration: 30 }])
 
   const { data, setData, post, processing, errors, reset } = useForm({
     chapter_id: id,
-    quizzes: [] as { title: string }[],
+    quizzes: [] as { title: string; exam_duration: number }[],
   })
 
   useEffect(() => {
     setData("chapter_id", id)
     updateFormData()
-  }, [id, setData]) // Removed quizTitles from dependencies
+  }, [id, setData])
 
   const updateFormData = () => {
-    const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
+    const quizzes = quizData
+      .filter((quiz) => quiz.title.trim() !== "")
+      .map((quiz) => ({
+        title: quiz.title,
+        exam_duration: quiz.exam_duration,
+      }))
     setData("quizzes", quizzes)
   }
 
-  const addQuizTitle = () => {
-    if (quizTitles.length < MAX_QUIZZES) {
-      setQuizTitles((prev) => [...prev, ""])
+  const addQuizData = () => {
+    if (quizData.length < MAX_QUIZZES) {
+      setQuizData((prev) => [...prev, { title: "", exam_duration: 30 }])
     }
   }
 
-  const removeQuizTitle = (index: number) => {
-    setQuizTitles((prev) => prev.filter((_, i) => i !== index))
+  const removeQuizData = (index: number) => {
+    setQuizData((prev) => prev.filter((_, i) => i !== index))
   }
 
   const updateQuizTitle = (index: number, value: string) => {
-    setQuizTitles((prev) => {
-      const newTitles = [...prev]
-      newTitles[index] = value
-      return newTitles
+    setQuizData((prev) => {
+      const newData = [...prev]
+      newData[index] = { ...newData[index], title: value }
+      return newData
+    })
+  }
+
+  const updateQuizDuration = (index: number, value: number) => {
+    setQuizData((prev) => {
+      const newData = [...prev]
+      newData[index] = { 
+        ...newData[index], exam_duration: value }
+      return newData
     })
   }
 
@@ -66,17 +81,22 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
     e.preventDefault()
 
     // Ensure form data is up-to-date before submission
-    const quizzes = quizTitles.filter((title) => title.trim() !== "").map((title) => ({ title }))
+    const quizzes = quizData
+      .filter((quiz) => quiz.title.trim() !== "")
+      .map((quiz) => ({
+        title: quiz.title,
+        exam_duration: quiz.exam_duration,
+      }))
     setData("quizzes", quizzes)
 
     post(route("quizzes.store", id.toString()), {
-      // Replace with your actual route logic.  This assumes a route like /quizzes/:id
+      // Replace with your actual route logic. This assumes a route like /quizzes/:id
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
         setIsOpen(false)
         reset()
-        setQuizTitles([""])
+        setQuizData([{ title: "", exam_duration: 30 }])
       },
       onError: (errors) => {
         console.log("Validation errors:", errors)
@@ -95,32 +115,48 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>Create Quizzes for {chapter_title}</AlertDialogTitle>
-          <AlertDialogDescription>Add up to {MAX_QUIZZES} quiz titles</AlertDialogDescription>
+          <AlertDialogDescription>Add up to {MAX_QUIZZES} quiz titles with duration</AlertDialogDescription>
         </AlertDialogHeader>
 
         <form onSubmit={submit} className="space-y-4">
-          {quizTitles.map((title, index) => (
+          {quizData.map((quiz, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <Label htmlFor={`quiz-${index}`} className="sr-only">
-                Quiz Title
-              </Label>
-              <Input
-                id={`quiz-${index}`}
-                value={title}
-                onChange={(e) => updateQuizTitle(index, e.target.value)}
-                placeholder={`Quiz ${index + 1} Title`}
-                required
-              />
+              <div className="flex-1">
+                <Label htmlFor={`quiz-${index}`} className="sr-only">
+                  Quiz Title
+                </Label>
+                <Input
+                  id={`quiz-${index}`}
+                  value={quiz.title}
+                  onChange={(e) => updateQuizTitle(index, e.target.value)}
+                  placeholder={`Quiz ${index + 1} Title`}
+                  required
+                />
+              </div>
+              <div className="w-24">
+                <Label htmlFor={`duration-${index}`} className="sr-only">
+                  Duration (minutes)
+                </Label>
+                <Input
+                  id={`duration-${index}`}
+                  type="number"
+                  min="1"
+                  value={quiz.exam_duration}
+                  onChange={(e) => updateQuizDuration(index, Number.parseInt(e.target.value) || 0)}
+                  placeholder="Minutes"
+                  required
+                />
+              </div>
               {index > 0 && (
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeQuizTitle(index)}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeQuizData(index)}>
                   <X className="h-4 w-4" />
                 </Button>
               )}
             </div>
           ))}
 
-          {quizTitles.length < MAX_QUIZZES && (
-            <Button type="button" variant="outline" onClick={addQuizTitle}>
+          {quizData.length < MAX_QUIZZES && (
+            <Button type="button" variant="outline" onClick={addQuizData}>
               Add Another Quiz
             </Button>
           )}
@@ -130,7 +166,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
               onClick={() => {
                 setIsOpen(false)
                 reset()
-                setQuizTitles([""])
+                setQuizData([{ title: "", exam_duration: 30 }])
               }}
             >
               Cancel

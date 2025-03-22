@@ -56,7 +56,7 @@ export default function Authenticated({
                                     href={route('exams-new.index')}  
                                     active={route().current('exams.index')} 
                                 >
-                                    New Exam
+                                    Exams
                                 </NavLink>
 
 
@@ -227,7 +227,7 @@ export default function Authenticated({
                             active={route().current('exams.index')}
                         >
 
-                            Exams New
+                            Exams 
                         </ResponsiveNavLink>
 
                         <ResponsiveNavLink

@@ -48,30 +48,26 @@ class ChapterController extends Controller
      */
     public function show(Chapter $chapter)
     {
-        return Inertia::render('Chapters/Show', 
-        props: [
+        // Eager load quiz_questions and get the count for each quiz
+        $quizzes = $chapter->quizzes()->withCount('quizQuestions')->get();
+    
+        return Inertia::render('Chapters/Show', [
             'chapter' => $chapter,
             'contents' => $chapter->contents,
-            'quizzes' => $chapter->quizzes,
+            'quizzes' => $quizzes, // Now quizzes include quiz_questions count
             'course_id' => $chapter->course_id,
             'contentsCount' => $chapter->contents->count(),
-            'quizzesCount' => $chapter->quizzes->count(),
-
+            'quizzesCount' => $quizzes->count(),
             'canDeleteContents' => Auth::user()->hasDirectPermission('delete content'),
             'canAddContents' => Auth::user()->hasDirectPermission('add content'),
             'canUpdateContents' => Auth::user()->hasDirectPermission('update content'),
             'canViewContents' => Auth::user()->hasDirectPermission('can view contents'),
-            
             'canAddQuizzes' => Auth::user()->hasDirectPermission('add quizzes'),
-
             'canUpdateQuizzes' => Auth::user()->hasDirectPermission('update quizzes'),
-
             'canDeleteQuizzes' => Auth::user()->hasDirectPermission('delete quizzes'),
-
-            'session' => session('success'),
-        ]
-        );
+        ]);
     }
+    
 
     /**
      * Show the form for editing the specified resource.

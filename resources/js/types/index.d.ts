@@ -62,6 +62,8 @@ export interface Quiz{
     id: number;
     chapter_id: number;
     title: string;
+    quiz_questions_count: number;
+    exam_duration: number;
     created_at?: string;
     updated_at?: string;
 }
@@ -226,9 +228,15 @@ export interface ExamQuestion{
     updated_at?: string;
 }
 
+
 export interface ExamType{
     id:number
     name: string
+    total_exam_courses: number;
+    total_exam_questions: number;
+    total_exams: number;
+    total_users: number;
+    total_years: number;
     created_at?: string;
     updated_at?: string;
 }

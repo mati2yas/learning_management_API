@@ -16,10 +16,31 @@ class ExamNewController extends Controller
      */
     public function index()
     {
+        $exam_types = ExamType::with([
+            'exams.examYear',   // Load exam year
+            'exams.examCourse', // Load exam course
+            'exams.examQuestions',
+            'exams.paidExams.user',
+        ])->get();
+    
+        // Transform the data to include the total counts
+        $exam_types = $exam_types->map(function ($examType) {
+            return [
+                'id' => $examType->id,
+                'name' => $examType->name,
+                'total_exams' => $examType->exams->count(),
+                'total_exam_courses' => $examType->exams->sum(fn($exam) => $exam->examCourse ? 1 : 0), // Count courses
+                'total_exam_questions' => $examType->exams->sum(fn($exam) => $exam->examQuestions->count()), 
+                'total_years' => $examType->exams->sum(fn($exam) => $exam->examYear ? 1 : 0),// Sum questions
+                'total_users' => $examType->exams->sum(fn($exam) => $exam->paidExams->count()), // Sum users
+            ];
+        });
+    
         return Inertia::render('Exams-New/Index', [
-            'exam_types' => ExamType::all(),
+            'exam_types' => $exam_types,
         ]);
     }
+        
 
     /**
      * Show the form for creating a new resource.

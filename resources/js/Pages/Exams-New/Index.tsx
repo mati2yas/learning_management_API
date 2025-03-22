@@ -13,6 +13,8 @@ interface ExamIndexProps {
 
 const Index = ({ exam_types }: ExamIndexProps) => {
 
+  console.log(exam_types)
+
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
   // Function to get a random number for placeholder stats
@@ -79,11 +81,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
         <div className="mx-auto max-w-[1300px] sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {exam_types.map((examType) => {
-              
-              const questionCount = getRandomStat(10, 50)
-              const courseCount = getRandomStat(3, 12)
-              const yearCount = getRandomStat(1, 5)
-              const studentCount = getRandomStat(50, 500)
+
               const iconConfig = getIconConfig(examType.name)
               const { icon: Icon, bgColor, textColor, accentColor } = iconConfig
 
@@ -111,7 +109,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                               ID: {examType.id}
                             </Badge>
                             <Badge variant="outline" className={`${accentColor} ${textColor}`}>
-                              {yearCount} {yearCount === 1 ? "Year" : "Years"}
+                              {examType.total_years} {examType.total_years === 1 ? "Year" : "Years"}
                             </Badge>
                           </div>
                         </div>
@@ -128,10 +126,10 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                             </div>
                             <span className="text-xs font-medium text-muted-foreground">Questions</span>
                           </div>
-                          <div className="text-2xl font-bold">{questionCount}</div>
+                          <div className="text-2xl font-bold">{examType.total_exam_questions}</div>
                           <div
                             className={`absolute bottom-0 left-0 h-1 ${bgColor}`}
-                            style={{ width: `${Math.min(100, questionCount * 2)}%` }}
+                            style={{ width: `${Math.min(100, examType.total_exam_questions * 2)}%` }}
                           ></div>
                         </div>
 
@@ -142,10 +140,10 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                             </div>
                             <span className="text-xs font-medium text-muted-foreground">Courses</span>
                           </div>
-                          <div className="text-2xl font-bold">{courseCount}</div>
+                          <div className="text-2xl font-bold">{examType.total_exam_courses}</div>
                           <div
                             className={`absolute bottom-0 left-0 h-1 ${bgColor}`}
-                            style={{ width: `${Math.min(100, courseCount * 8)}%` }}
+                            style={{ width: `${Math.min(100, examType.total_exam_courses * 8)}%` }}
                           ></div>
                         </div>
                       </div>
@@ -160,7 +158,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                               </div>
                               <div>
                                 <div className="text-sm font-medium">Enrolled Students</div>
-                                <div className="text-2xl font-bold">{studentCount}</div>
+                                <div className="text-2xl font-bold">{examType.total_users}</div>
                               </div>
                             </div>
 
@@ -179,7 +177,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                                 <circle
                                   className={textColor}
                                   strokeWidth="8"
-                                  strokeDasharray={`${Math.min(85, studentCount / 10)} 251.2`}
+                                  strokeDasharray={`${Math.min(85, examType.total_users / 10)} 251.2`}
                                   strokeLinecap="round"
                                   stroke="currentColor"
                                   fill="transparent"
@@ -192,6 +190,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <CheckCircle className={`h-5 w-5 ${textColor}`} />
                               </div>
+
                             </div>
                           </div>
                         </div>

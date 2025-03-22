@@ -1,4 +1,4 @@
-"use client"
+import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useForm } from "@inertiajs/react"
@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
-import InputError from "@/Components/InputError"
+import { Card } from "@/Components/ui/card"
 
 interface YouTubeContentDialogProps {
   isOpen: boolean
@@ -16,7 +16,7 @@ interface YouTubeContentDialogProps {
 
 export default function YouTubeContentDialog({ isOpen, onClose, contentId }: YouTubeContentDialogProps) {
   const { data, setData, post, processing, errors, reset } = useForm({
-    youtube_number: 0,
+    youtube_number: 1,
     title: "",
     url: "",
     content_id: contentId,
@@ -52,62 +52,63 @@ export default function YouTubeContentDialog({ isOpen, onClose, contentId }: You
         <DialogHeader>
           <DialogTitle>Add Video Content</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4">
-            <div>
-              <Label htmlFor="title" className="text-right">
-                Title
-              </Label>
-              <Input
-                id="title"
-                value={data.title}
-                onChange={(e) => setData("title", e.target.value)}
-                className="col-span-3"
-              />
-              <InputError message={errors.title} className="mt-2" />
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" value={data.title} onChange={(e) => setData("title", e.target.value)} />
+              {errors.title && <p className="text-sm font-medium text-destructive">{errors.title}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="order" className="text-right">
-                Order
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="order">Order</Label>
               <Input
                 id="order"
-                value={data.youtube_number}
-                onChange={(e) => setData("youtube_number", Number(e.target.value))}
-                className="col-span-3"
+                value={data.youtube_number === 0 ? "" : data.youtube_number}
+                onChange={(e) => {
+                  const inputValue = e.target.value
+                  // If the input is empty, set to empty string temporarily
+                  if (inputValue === "") {
+                    setData("youtube_number", 0)
+                  } else {
+                    const newValue = Number.parseInt(inputValue, 10)
+                    if (!isNaN(newValue)) {
+                      setData("youtube_number", newValue)
+                    }
+                  }
+                }}
                 type="number"
+                min="1"
               />
-              <InputError message={errors.youtube_number} className="mt-2" />
+              {errors.youtube_number && <p className="text-sm font-medium text-destructive">{errors.youtube_number}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="url" className="text-right">
-                URL
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="url">URL</Label>
               <Input
                 id="url"
                 value={data.url}
                 onChange={(e) => setData("url", e.target.value)}
-                className="col-span-3"
+                placeholder="https://www.youtube.com/watch?v=..."
               />
-              <InputError message={errors.url} className="mt-2" />
+              {errors.url && <p className="text-sm font-medium text-destructive">{errors.url}</p>}
             </div>
 
             {videoId && (
-              <div className="aspect-video">
-                <iframe
-                  width="90%"
-                  height="90%"
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
+              <Card className="overflow-hidden mt-4">
+                <div className="aspect-video">
+                  <iframe
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </Card>
             )}
           </div>
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-6">
             <Button type="submit" disabled={processing}>
               Add Content
             </Button>

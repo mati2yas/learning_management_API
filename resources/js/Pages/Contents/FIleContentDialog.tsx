@@ -1,10 +1,12 @@
+import type React from "react"
+
 import { useState } from "react"
 import { useForm } from "@inertiajs/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
-import InputError from "@/Components/InputError"
+import { Progress } from "@/Components/ui/progress"
 
 interface FileContentDialogProps {
   isOpen: boolean
@@ -70,53 +72,44 @@ export default function FileContentDialog({ isOpen, onClose, contentId }: FileCo
         <DialogHeader>
           <DialogTitle>Add PDF Content</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div>
-              <Label htmlFor="title" className="text-right">
-                Title
-              </Label>
-              <Input
-                id="title"
-                value={data.title}
-                onChange={(e) => setData("title", e.target.value)}
-                className="col-span-3"
-              />
-              <InputError message={errors.title} className="mt-2" />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" value={data.title} onChange={(e) => setData("title", e.target.value)} />
+              {errors.title && <p className="text-sm font-medium text-destructive">{errors.title}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="file_number" className="text-right">
-                Order
-              </Label>
+            <div className="space-y-2">
+              <Label htmlFor="file_number">Order</Label>
               <Input
                 id="file_number"
-                value={data.file_number}
-                onChange={(e) => setData("file_number", Number(e.target.value))}
-                className="col-span-3"
+                value={data.file_number === 0 ? "" : data.file_number}
+                onChange={(e) => {
+                  const inputValue = e.target.value
+                  // If the input is empty, set to empty string temporarily
+                  if (inputValue === "") {
+                    setData("file_number", 0)
+                  } else {
+                    const newValue = Number.parseInt(inputValue, 10)
+                    if (!isNaN(newValue)) {
+                      setData("file_number", newValue)
+                    }
+                  }
+                }}
+                type="number"
+                min="1"
               />
-              <InputError message={errors.file_number} className="mt-2" />
+              {errors.file_number && <p className="text-sm font-medium text-destructive">{errors.file_number}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="file_url" className="text-right">
-                PDF File
-              </Label>
-              <Input
-                id="file_url"
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={handleFileChange}
-                className="col-span-3"
-              />
-              {fileTypeError && <p className="text-red-500 text-sm">{fileTypeError}</p>}
-              {fileSizeError && <p className="text-red-500 text-sm">{fileSizeError}</p>}
-              {progress && (
-                <progress value={progress.percentage} max="100" className="w-full h-2 bg-gray-200 rounded-lg mt-2">
-                  {progress.percentage}%
-                </progress>
-              )}
-              <InputError className="mt-2" message={errors.file_url} />
+            <div className="space-y-2">
+              <Label htmlFor="file_url">PDF File</Label>
+              <Input id="file_url" type="file" accept=".pdf,application/pdf" onChange={handleFileChange} />
+              {fileTypeError && <p className="text-sm font-medium text-destructive">{fileTypeError}</p>}
+              {fileSizeError && <p className="text-sm font-medium text-destructive">{fileSizeError}</p>}
+              {progress && <Progress value={progress.percentage} className="h-2 mt-2" />}
+              {errors.file_url && <p className="text-sm font-medium text-destructive">{errors.file_url}</p>}
             </div>
           </div>
           <DialogFooter>

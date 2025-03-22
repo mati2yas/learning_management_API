@@ -17,6 +17,7 @@ class QuizResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'quiz_duration' => $this->exam_duration,
             'number_of_questions' => $this->quizQuestions->count(),
             'questions' => $this->quizQuestions->map(fn($question) => [
                 'id' => $question->id,

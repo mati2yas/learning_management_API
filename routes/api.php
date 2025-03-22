@@ -182,7 +182,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::get('/course-search', function (Request $request) {
-        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch'.'subscriptionRequests']);
+        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch','subscriptionRequests']);
     
         if ($request->query('course_name')) {
             $query->where('course_name', 'like', '%' . $request->query('course_name') . '%');

@@ -103,7 +103,14 @@ Route::get('/random-contents', function(){
 
 
 
-Route::get('/random-courses', fn() => CourseResource::collection(Course::with(['category', 'grade','department','batch','chapters','subscriptionRequests'])->latest()->get() ));
+ Route::get('/random-courses', fn() => 
+ CourseResource::collection(
+     Course::with(['category', 'grade', 'department', 'batch', 'chapters', 'subscriptionRequests'])
+         ->latest()
+         ->take(20)
+         ->get()
+ )
+);
 
 Route::post('/delete-user/{id}', function ($id) {
     $user = User::find($id);

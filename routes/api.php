@@ -282,7 +282,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         $user->subscriptionRequests()
             ->whereHas('subscriptions', function ($query) {
-                $query->where('end_date', '<', Carbon::today())
+                $query->where('subscription_end_date', '<', Carbon::today())
                       ->where('status', 'active');
             })
             ->with([
@@ -314,21 +314,37 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 
 
-        $paidExams = PaidExam::where('user_id', $user->id)
-            ->with('exam.examCourse', 'exam.examType', 'exam.examYear') // Eager load relationships
+            $paidExams = PaidExam::where('user_id', $user->id)
+            ->with([
+                'exam.examCourse',
+                'exam.examType',
+                'exam.examYear',
+                'exam.subscriptionRequests' => function ($query) use ($user) {
+                    // Filter to only get approved subscription requests
+                    $query->where('user_id', $user->id)
+                          ->where('status', 'Approved')  // Only Approved subscriptions
+                          ->with('subscriptions');
+                }
+            ])
             ->get()
-            ->map(function ($paidExam) {
+            ->map(function ($paidExam) use ($user) {
+                $exam = $paidExam->exam;
+    
+                // Get the user's approved subscription related to this exam
+                $subscription = optional($exam->subscriptionRequests->first()->subscriptions->first());
+    
                 return [
-                    'exam_sheet_id' => $paidExam->exam->id,
-                    'course_id' => $paidExam->exam->exam_course_id,
-                    'course' => $paidExam->exam->examCourse->name? $paidExam->exam->examCourse->name : "chemistry",
-                    'exam_type' => $paidExam->exam->examType->name,
-                    'exam_year' => $paidExam->exam->examYear->year,
-                    'exam_year_id' => $paidExam->exam->exam_year_id,
-                    'exam_duration' => $paidExam->exam->exam_duration ? $paidExam->exam->exam_duration : 60,
+                    'exam_sheet_id' => $exam->id,
+                    'course_id' => $exam->exam_course_id,
+                    'course' => $exam->examCourse->name ?? "chemistry",
+                    'exam_type' => $exam->examType->name,
+                    'exam_year' => $exam->examYear->year,
+                    'exam_year_id' => $exam->exam_year_id,
+                    'exam_duration' => $exam->exam_duration ?? 60,
+                    'status' => $subscription->status ?? 'inactive', // Correctly fetch approved status
                 ];
             });
-
+    
         return response()->json([
             'status' => 'success',
             'data' => $paidExams,
@@ -340,7 +356,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         $user->subscriptionRequests()
             ->whereHas('subscriptions', function ($query) {
-                $query->where('end_date', '<', Carbon::today())
+                $query->where('subscription_end_date', '<', Carbon::today())
                       ->where('status', 'active');
             })
             ->with([
@@ -370,7 +386,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             });
     
         // Fetch paid courses for the user with course details
-        $paidCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
+        $paidCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch', 'subscriptionRequests'=> function ($query) use ($user) {
+            // Filter to only get approved subscription requests
+            $query->where('user_id', $user->id)
+                  ->where('status', 'Approved')  // Only Approved subscriptions
+                  ->with('subscriptions');
+        }])
         ->whereIn('id', function ($query) use ($user) {
             $query->select('course_id')
                   ->from('paid_courses')

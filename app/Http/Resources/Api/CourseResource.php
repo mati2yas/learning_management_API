@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Resources\Api;
 
@@ -15,6 +15,12 @@ class CourseResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user();
+
+        // Find the user's subscription for the current course
+        $userSubscription = $this->subscriptionRequests->first()->subscriptions->first();
+
+        // dd($userSubscription->course->subscriptionRequests);
+        $subscriptionStatus = $userSubscription ? $userSubscription->status : 'inactive';
 
         return [
             'id' => $this->id,
@@ -81,6 +87,9 @@ class CourseResource extends JsonResource
             // Add likes_count and saves_count
             'likes_count' => $this->likes()->count(),
             'saves_count' => $this->saves()->count(),
+
+            // Include the subscription status
+            'subscription_status' => $subscriptionStatus,
         ];
     }
 

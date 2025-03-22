@@ -312,8 +312,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             });
         
 
-
-
             $paidExams = PaidExam::where('user_id', $user->id)
             ->with([
                 'exam.examCourse',
@@ -341,7 +339,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                     'exam_year' => $exam->examYear->year,
                     'exam_year_id' => $exam->exam_year_id,
                     'exam_duration' => $exam->exam_duration ?? 60,
-                    'status' => $subscription->status ?? 'inactive', // Correctly fetch approved status
+                    'subscription_status' => $subscription->status ?? 'inactive', // Correctly fetch approved status
                 ];
             });
     

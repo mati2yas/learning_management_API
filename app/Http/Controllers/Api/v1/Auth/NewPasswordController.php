@@ -160,7 +160,10 @@ class NewPasswordController extends Controller
         // Delete the used PIN
         DB::table('password_resets')->where('email', $request->email)->delete();
 
-        return response()->json(['message' => 'Password reset successful']);
+        return response()->json([
+            'message' => 'Password reset successful',
+            'data' =>['user' => $user] 
+        ]);
     }
     
 }

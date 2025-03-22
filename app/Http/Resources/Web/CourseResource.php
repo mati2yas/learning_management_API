@@ -39,3 +39,6 @@ class CourseResource extends JsonResource
         ];
     }
 }
+
+
+//https://cdn.courses.apisystem.tech/memberships/YDmVucZsFEQkzq8Q6j7V/post-materials/2b1e109c-534b-4020-ad96-13a4b2144994/Account-Detail-no-Background.json

@@ -14,7 +14,6 @@ use App\Http\Resources\Api\ContentResource;
 use App\Http\Resources\Api\CourseChapterResource;
 use App\Http\Resources\Api\CourseResource;
 use App\Http\Resources\Api\ExamCourseTypeResource;
-use App\Http\Resources\Api\ExamResource;
 use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;

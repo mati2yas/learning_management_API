@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendSubscriptionNotificationJob;
 use App\Models\Course;
 use App\Models\Exam;
-use App\Models\ExamType;
 use App\Models\PaidCourse;
 use App\Models\PaidExam;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +21,6 @@ class SubscriptionController extends Controller
      * Display a listing of the resource.
      */
 
-    
      public function store(Request $request)
      {
          $attrs = Validator::make($request->all(), [

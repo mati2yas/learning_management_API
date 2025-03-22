@@ -38,6 +38,7 @@ use App\Models\PaidExam;
 use App\Models\Quiz;
 use App\Models\Save;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -280,6 +281,40 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/paid-exams', function(Request $request){
         $user = $request->user(); // Get authenticated user
 
+        $user->subscriptionRequests()
+            ->whereHas('subscriptions', function ($query) {
+                $query->where('end_date', '<', Carbon::today())
+                      ->where('status', 'active');
+            })
+            ->with([
+                'subscriptions.subscriptionRequest.course',
+                'subscriptions.subscriptionRequest.exam.examCourse',
+            ])
+            ->get()
+            ->pluck('subscriptions')
+            ->flatten()
+            ->each(function ($subscription) use ($user) {
+                // Update subscription status to expired
+                $subscription->update(['status' => 'expired']);
+        
+                // Get course or exam name
+                $subscriptionRequest = $subscription->subscriptionRequest;
+                $courseName = $subscriptionRequest->course->name ?? null;
+                $examName = $subscriptionRequest->exam->examCourse->course_name ?? null;
+                
+                // Determine the appropriate message
+                $subscriptionType = $courseName ? "Course: $courseName" : ($examName ? "Exam: $examName" : "your subscription");
+        
+                // Send notification
+                $user->APINotifications()->create([
+                    'type' => 'subscription',
+                    'message' => "Your subscription for {$subscriptionType} has expired.",
+                ]);
+            });
+        
+
+
+
         $paidExams = PaidExam::where('user_id', $user->id)
             ->with('exam.examCourse', 'exam.examType', 'exam.examYear') // Eager load relationships
             ->get()
@@ -303,6 +338,37 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('/paid-courses', function (Request $request) {
         $user = $request->user(); // Get authenticated user
+
+        $user->subscriptionRequests()
+            ->whereHas('subscriptions', function ($query) {
+                $query->where('end_date', '<', Carbon::today())
+                      ->where('status', 'active');
+            })
+            ->with([
+                'subscriptions.subscriptionRequest.course',
+                'subscriptions.subscriptionRequest.exam.examCourse',
+            ])
+            ->get()
+            ->pluck('subscriptions')
+            ->flatten()
+            ->each(function ($subscription) use ($user) {
+                // Update subscription status to expired
+                $subscription->update(['status' => 'expired']);
+        
+                // Get course or exam name
+                $subscriptionRequest = $subscription->subscriptionRequest;
+                $courseName = $subscriptionRequest->course->name ?? null;
+                $examName = $subscriptionRequest->exam->examCourse->course_name ?? null;
+                
+                // Determine the appropriate message
+                $subscriptionType = $courseName ? "Course: $courseName" : ($examName ? "Exam: $examName" : "your subscription");
+        
+                // Send notification
+                $user->APINotifications()->create([
+                    'type' => 'subscription',
+                    'message' => "Your subscription for {$subscriptionType} has expired.",
+                ]);
+            });
     
         // Fetch paid courses for the user with course details
         $paidCourses = Course::with(['category', 'department', 'grade', 'chapters', 'batch'])
@@ -366,11 +432,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
 
     
-    Route::get('exams/exam-courses/{examType}', function($examType){
+    Route::get('exams/exam-courses/{examType}', function($examType) {
+
+        $examType = ExamType::with('exams.paidExams')->where('name', $examType)->first();
     
-        $examType = ExamType::with('exam.paidExams')->where('name',$examType)->first();
+        if (!$examType) {
+            return response()->json(['message' => 'Exam type not found'], 404);
+        }
     
-        return ExamCourseTypeResource::collection(ExamCourse::where('exam_type_id', $examType->id)->with('examQuestions.examYear')->get()); 
+        return ExamCourseTypeResource::collection(
+            ExamCourse::where('exam_type_id', $examType->id)
+                ->with('examQuestions.examYear')
+                ->get()
+        );
     });
 
     Route::get('exams/exam-questions-year/{exam_course_id}/{exam_year_id}', function ($exam_course_id, $exam_year_id) {

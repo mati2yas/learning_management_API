@@ -139,26 +139,6 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
         <InputError message={errors[`questions.${index}.question_image`]} />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`text_explanation_${index}`}>Explanation(optional)</Label>
-        <Textarea
-          id={`text_explanation_${index}`}
-          value={question.text_explanation}
-          onChange={(e) => updateQuestion(index, "text_explanation", e.target.value)}
-        />
-        <InputError>{errors[`questions.${index}.text_explanation`]}</InputError>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={`video_explanation_url_${index}`}>Video Explanation URL (optional)</Label>
-        <Input
-          id={`video_explanation_url_${index}`}
-          type="url"
-          value={question.video_explanation_url}
-          onChange={(e) => updateQuestion(index, "video_explanation_url", e.target.value)}
-        />
-        <InputError>{errors[`questions.${index}.video_explanation_url`]}</InputError>
-      </div>
 
       <div className="space-y-2">
         <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
@@ -249,6 +229,30 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
           </div>
         </>
       )}
+
+
+      <div className="space-y-2">
+        <Label htmlFor={`text_explanation_${index}`}>Explanation(optional)</Label>
+        <Textarea
+          id={`text_explanation_${index}`}
+          value={question.text_explanation}
+          onChange={(e) => updateQuestion(index, "text_explanation", e.target.value)}
+        />
+        <InputError>{errors[`questions.${index}.text_explanation`]}</InputError>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`video_explanation_url_${index}`}>Video Explanation URL (optional)</Label>
+        <Input
+          id={`video_explanation_url_${index}`}
+          type="url"
+          value={question.video_explanation_url}
+          onChange={(e) => updateQuestion(index, "video_explanation_url", e.target.value)}
+        />
+        <InputError>{errors[`questions.${index}.video_explanation_url`]}</InputError>
+      </div>
+
+
     </div>
   )
 }

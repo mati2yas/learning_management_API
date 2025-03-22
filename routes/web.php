@@ -3,6 +3,7 @@
 use App\Http\Controllers\ExamCourseController;
 use App\Http\Controllers\ExamNewController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Web\BankController;
 use App\Http\Controllers\Web\CarouselContentController;
 use App\Http\Controllers\Web\ChapterController;
 use App\Http\Controllers\Web\ContentController;
@@ -80,6 +81,8 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::post('/subscription-rejection/{subscriptionId}', [SubscriptionController::class, 'rejection'])->name('subscriptions.reject');
 
     Route::post('/subscription-approve/{subscriptionId}', [SubscriptionController::class, 'approve'])->name('subscriptions.approve');
+
+    Route::resource('/banks', BankController::class);
 });
 
 

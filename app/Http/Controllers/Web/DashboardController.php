@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bank;
 use App\Models\CarouselContent;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -48,6 +49,7 @@ class DashboardController extends Controller
             'examQuestions' => ExamQuestion::count(),
             'users' => User::role('student')->count(),
             'carouselContents' => CarouselContent::all(),
+            'banks' => Bank::all(),
             'pendingSubscriptions' => SubscriptionRequest::where('status', 'Pending')->count(),
             'canAdd' => Auth::user()->hasDirectPermission('add courses'),
         ]);

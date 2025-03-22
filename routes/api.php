@@ -19,6 +19,7 @@ use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;
 use App\Http\Resources\ExamYearResource;
+use App\Models\Bank;
 use App\Models\Batch;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -381,6 +382,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return ExamQuestionChapterResource::collection($questions);
     });
 });
+
+
+Route::get('/bank-accounts', fn() => Bank::all());
 
 
 Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id,$exam_year_id) {

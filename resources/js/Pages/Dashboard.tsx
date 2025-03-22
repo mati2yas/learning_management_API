@@ -10,6 +10,7 @@ import CreateCourseAlert from "./courses/CreateCourseAlert"
 import PermissionAlert from "@/Components/PermissionAlert"
 import type { CarouselContent } from "@/types"
 import { CarouselContentList } from "./carousel-content/CarouselContentList"
+import { BankList } from "./bank/BankList"
 
 interface CourseData {
   browser: string
@@ -25,6 +26,7 @@ interface DashboardProps {
   users: number
   canAdd: boolean
   carouselContents: CarouselContent[]
+  banks: {id: number, bank_name: string, bank_account_number: number }[]
 }
 
 export default function Dashboard({
@@ -35,6 +37,7 @@ export default function Dashboard({
   users,
   canAdd,
   carouselContents,
+  banks
 }: DashboardProps) {
   const isPendingPayments = true
 
@@ -91,6 +94,12 @@ export default function Dashboard({
 
             <div className="p-6">
               <CarouselContentList carouselContents={carouselContents} />
+
+            </div>
+
+            <div className="p-6">
+              <BankList banks={banks}  />
+              
             </div>
           </div>
         </div>

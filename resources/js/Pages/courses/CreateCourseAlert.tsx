@@ -359,7 +359,7 @@ export function CreateCourseAlert() {
                           <SelectValue placeholder="Select Stream" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="none">Common</SelectItem>
                           <SelectItem value="natural">Natural</SelectItem>
                           <SelectItem value="social">Social</SelectItem>
                         </SelectContent>

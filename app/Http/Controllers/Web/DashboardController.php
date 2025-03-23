@@ -26,6 +26,8 @@ class DashboardController extends Controller
         $categories = Category::whereIn('name', ['lower_grades', 'higher_grades', 'university', 'random_courses'])
         ->pluck('id', 'name');
 
+        
+
         // Define colors for categories
         $categoryColors = [
             'lower_grades' => 'var(--color-chrome)',
@@ -34,10 +36,21 @@ class DashboardController extends Controller
             'random_courses' => 'var(--color-edge)',
         ];
 
+        
+
         // Prepare course data dynamically
         $courseData = collect($categories)->map(function ($categoryId, $categoryName) use ($categoryColors) {
+
+            if (strtolower($categoryName) === 'random_courses') {
+                $formattedCategoryName = 'Other Courses';
+            } else {
+                // For other category names like "lower_grades"
+                $formattedCategoryName = ucwords(str_replace('_', ' ', $categoryName));
+            }
+
+
             return [
-                'browser' => $categoryName,
+                'browser' => $formattedCategoryName,
                 'visitors' => Course::where('category_id', $categoryId)->count(),
                 'fill' => $categoryColors[$categoryName] ?? 'var(--color-default)',
             ];

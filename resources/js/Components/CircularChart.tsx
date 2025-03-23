@@ -96,7 +96,7 @@ export function CircularChart({ courseData }: CircularChartProps) {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalVisitors.toLocaleString() }
                         </tspan>
                         <tspan
                           x={viewBox.cx}

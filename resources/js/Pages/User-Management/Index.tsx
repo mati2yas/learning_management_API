@@ -183,9 +183,12 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
                       </TableCell>
                       <TableCell className='text-nowrap'>
                         {<>
-                        <ShowAdminPrevillage 
-                          user={user}
-                        />
+                        {
+                          canUpdate ?  <ShowAdminPrevillage 
+                          user={user} 
+                        /> : null
+                        }
+                       
                         </>}
                       </TableCell>
                       <TableCell className=' text-nowrap'>

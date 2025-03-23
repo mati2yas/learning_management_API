@@ -36,15 +36,6 @@ class SubscriptionController extends Controller
         }
 
         $subscriptionRequests = $query->latest()->paginate(16);
-
-        // dd(          Subscription::with([
-        //   'subscriptionRequest',
-        //         'subscriptionRequest.user',
-        //         'subscriptionRequest.courses',
-        //         'subscriptionRequest.exams',
-        // ])->get());
-
-        // dd($subscriptionRequests);
    
 
         return Inertia::render('Subscriptions/Index', [

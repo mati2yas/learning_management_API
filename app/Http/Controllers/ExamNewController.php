@@ -7,6 +7,7 @@ use App\Models\ExamCourse;
 use App\Models\ExamType;
 use App\Models\ExamYear;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ExamNewController extends Controller
@@ -138,6 +139,9 @@ class ExamNewController extends Controller
                 'year_id' => $yearId,
             ],
             'examTypeId' => $id,
+            'canAdd' => Auth::user()->hasDirectPermission('add exams'),
+            'canUpdate' => Auth::user()->hasDirectPermission('update exams'),
+            'canDelete' => Auth::user()->hasDirectPermission('delete exams')
         ]);
     }
     

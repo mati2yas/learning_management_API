@@ -14,6 +14,11 @@ export default function Authenticated({
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    const { auth } = usePage().props as unknown as {
+        auth: { user: { permissions: string[] } | null };
+    };
+    
+
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="border-b border-gray-100 bg-white">
@@ -58,9 +63,7 @@ export default function Authenticated({
                                 >
                                     Exams
                                 </NavLink>
-
-
-                                
+  
 
                                 <NavLink
                                     prefetch
@@ -71,13 +74,18 @@ export default function Authenticated({
                                 </NavLink>
 
                                 
-                                <NavLink
-                                    prefetch
-                                    href={route('subscriptions.index')}  
-                                    active={route().current('subscriptions.index')} 
-                                >
-                                    Subscriptions
-                                </NavLink>
+                                {
+                                   auth?.user?.permissions?.includes("can view subscription") && (
+                                    <NavLink
+                                        prefetch
+                                        href={route('subscriptions.index')}  
+                                        active={route().current('subscriptions.index')} 
+                                    >
+                                        Subscriptions
+                                    </NavLink>
+                                   ) 
+                                }
+
 
                                 <NavLink
                                     prefetch

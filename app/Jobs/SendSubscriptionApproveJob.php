@@ -38,8 +38,10 @@ class SendSubscriptionApproveJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $permittedWorkers = $this->workers->filter(fn ($worker) => $worker->hasDirectPermission('can view subscription'));
+
         Notification::send($this->superAdmins, new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription));
-        Notification::send($this->workers, new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription));
+        Notification::send($permittedWorkers, new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription));
 
         $this->associatedUser->notify(new SubscriptionApproveNotification($this->subscriptionRequest, $this->subscription, true));
     }

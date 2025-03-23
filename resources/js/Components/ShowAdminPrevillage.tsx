@@ -6,18 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { allPermissions } from '@/constants/allPermissions';
 import { Link } from "@inertiajs/react"
 
-
-interface User {
-  id: number
+interface Permission {
   name: string
-  permissions: string[]
 }
+
+// interface User {
+//   id: number
+//   name: string
+//   permissions: Permission[]
+// }
 
 interface ShowPrivilegeProps {
-  user: User
+  user: any
 }
 
-const permissionGroups = [
+interface PermissionGroup {
+  title: string
+  permissions: Permission[]
+}
+
+const permissionGroups: PermissionGroup[] = [
   {
     title: "Courses",
     permissions: allPermissions.filter((p) => p.name.includes("courses")),
@@ -34,12 +42,18 @@ const permissionGroups = [
     title: "Subscriptions",
     permissions: allPermissions.filter((p) => p.name.includes("subscription")),
   },
+  
+  {
+    title: "can view subscriptions",
+    permissions: allPermissions.filter((p) => p.name === "can view subscription"),
+  },
+
   {
     title: "Quizzes",
     permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),
   },
   {
-    title: "Exams",
+    title: "Exams Questions",
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
   },
   {
@@ -47,9 +61,14 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
   },
   {
+    title: "Exams",
+    permissions: allPermissions.filter((p) => p.name.includes("exams")),
+  },
+  {
     title: "Workers management",
     permissions: allPermissions.filter((p) => p.name.includes("worker")),
   },
+
   {
     title: "Contents",
     permissions: allPermissions.filter((p) => p.name === "can view contents"),
@@ -64,7 +83,12 @@ const permissionGroups = [
   },
 ]
 
+
+// console.log(allPermissions.filter((p) => p.name.includes("exams")))
+
 function ShowAdminPrivilege({ user }: ShowPrivilegeProps) {
+
+  console.log(user)
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -88,7 +112,9 @@ function ShowAdminPrivilege({ user }: ShowPrivilegeProps) {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {group.permissions.map((permission, index) => {
-                    const isChecked = user.permissions.includes(permission.name)
+                    const isChecked = user.permissions.some((userPermission: string) => userPermission === permission.name)
+
+                    // console.log(user.permissions)
                     return (
                       <div key={index} className="flex items-center space-x-2">
                         <Checkbox checked={isChecked} disabled />

@@ -36,6 +36,8 @@ class UserManagementController extends Controller
 
         $users = $query->orderBy($sortField, $sortDirection)->with('creator','updater', 'permissions')->paginate(10);
 
+        // dd($users);
+
         return Inertia::render("User-Management/Index", [
             'users' => UserManagementIndexResource::collection( $users ),
             'queryParams' => request()->query() ?: null,

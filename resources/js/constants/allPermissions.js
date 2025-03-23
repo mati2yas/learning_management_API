@@ -46,6 +46,14 @@ export const allPermissions = [
   {name: 'delete worker'} ,
 
   {name: 'can ban'},
-  {name: 'can unban'}
+  {name: 'can unban'},
+
+  // Exams
+  {name: 'add exams'},
+  {name: 'update exams'},
+  {name: 'delete exams'},
+
+  //Subscription view
+  {name: 'can view subscription'}
 
 ]

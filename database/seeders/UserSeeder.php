@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-// use Spatie\Permission\Models\Permission;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -29,27 +28,34 @@ class UserSeeder extends Seeder
 
         // Get all the permissions by name
         $permissions = [
-            'add coaurses',
+            'add courses',
             'update courses',
             'delete courses',
+
             'add chapters',
             'update chapters',
             'delete chapters',
+
             'add content',
             'update content',
             'delete content',
+
             'approve subscription',
             'update subscription',
             'delete subscription',
+
             'add quizzes',
             'update quizzes',
             'delete quizzes',
+
             'add quiz questions',
             'update quiz questions',
             'delete quiz questions',
+
             'add exam questions',
             'update exam questions',
             'delete exam questions',
+
             'can view contents',
 
             'add exam courses',
@@ -62,6 +68,12 @@ class UserSeeder extends Seeder
             'add worker',
             'update worker',
             'delete worker',
+
+            'add exams',
+            'update exams',
+            'delete exams',
+
+            'can view subscription',
         ];
 
         // Sync all the permissions to the user

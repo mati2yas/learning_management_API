@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import { Head, Link, router, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
@@ -6,7 +8,7 @@ import { Button } from "@/Components/ui/button"
 import { Card, CardContent } from "@/Components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import { Badge } from "@/Components/ui/badge"
-import { Eye, Search, Calendar, ChevronDown, ArrowLeft } from "lucide-react"
+import { Eye, Search, Calendar, ChevronDown, Edit2, Pencil, Trash2 } from "lucide-react"
 import { Input } from "@/Components/ui/input"
 import { useState, useEffect } from "react"
 import {
@@ -18,12 +20,12 @@ import {
   DropdownMenuLabel,
 } from "@/Components/ui/dropdown-menu"
 import CreateExamAlert from "./CreateExamAlert"
-import { Exam } from "@/types"
+import type { Exam } from "@/types"
 import EditExamAlert from "./EditExamAlert"
 import DeleteExamAlert from "./DeleteExamAlert"
 import ViewLink from "@/Components/ViewLink"
 import BackLink from "@/Components/BackLink"
-
+import PermissionAlert from "@/Components/PermissionAlert"
 
 interface ShowProps {
   exams: {
@@ -35,10 +37,10 @@ interface ShowProps {
     }>
     meta: any
   }
-  filteredCourses: {id: number, course_name: string}[]
-  filteredYears: {id: number, year: string}[]
-  courses: {id: number, course_name: string}[]
-  years: {id: number, year: string}[]
+  filteredCourses: { id: number; course_name: string }[]
+  filteredYears: { id: number; year: string }[]
+  courses: { id: number; course_name: string }[]
+  years: { id: number; year: string }[]
   filters?: {
     course_id?: number | null
     year_id?: number | null
@@ -46,11 +48,25 @@ interface ShowProps {
   }
   examTypeId: number
   examTypeName: string
+  canAdd: boolean
+  canUpdate: boolean
+  canDelete: boolean
 }
 
-const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId, courses, years, examTypeName }: ShowProps) => {
+const Show = ({
+  exams,
+  filteredCourses,
+  filteredYears,
+  filters = {},
+  examTypeId,
+  courses,
+  years,
+  examTypeName,
+  canAdd,
+  canDelete,
+  canUpdate,
+}: ShowProps) => {
 
-  
   const { flash } = usePage().props as unknown as { flash: { success?: string } }
   const [searchTerm, setSearchTerm] = useState(filters.search || "")
   const [viewType, setViewType] = useState<"table" | "cards">("cards")
@@ -131,8 +147,9 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
     }).format(price)
   }
 
-  const renderPriceComparison = (regular: number, sale: number) => {
-    if (sale < regular) {
+  const renderPriceComparison = (regular: number, sale: number | null) => {
+    // Only show sale price if it exists, is not zero, and is less than the regular price
+    if (sale && sale > 0 && sale < regular) {
       return (
         <div className="flex flex-col">
           <span className="text-sm line-through text-muted-foreground">{formatPrice(regular)}</span>
@@ -150,15 +167,16 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
           <h1 className="text-2xl font-semibold text-gray-900">Exams Type - {examTypeName} </h1>
 
           <div className="flex items-center gap-2">
-            <BackLink href={route('exams-new.index')} text="Back to Exam Type" />
-            <CreateExamAlert 
-              examCourses={courses} examYears={years} exam_type_id={examTypeId}              
+            <BackLink href={route("exams-new.index")} text="Back to Exam Type" />
+            {
+              canAdd ?  <CreateExamAlert examCourses={courses} examYears={years} exam_type_id={examTypeId} /> : <PermissionAlert children={"Add Exam"} permission={"can add an exam"}  className="p-2 text-xs"                
               />
+            }
+           
           </div>
         </div>
       }
     >
-
       <Head title={"Exam Detail"} />
 
       {flash.success && <SessionToast message={flash.success} />}
@@ -168,7 +186,6 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
           {/* Course Navigation Bar */}
           <div className="mb-6 overflow-x-auto">
             <div className="inline-flex min-w-full p-1 bg-muted/30 rounded-lg">
-
               <Button
                 variant={!filters.course_id ? "default" : "ghost"}
                 className="rounded-md whitespace-nowrap"
@@ -178,20 +195,19 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
               </Button>
 
               {filteredCourses && filteredCourses.length > 0 ? (
-              filteredCourses.map((course) => (
-                <Button
-                  key={course?.id}
-                  variant={filters.course_id === course?.id ? "default" : "ghost"}
-                  className="rounded-md whitespace-nowrap"
-                  onClick={() => handleCourseSelect(course.id.toString())}
-                >
-                  {course?.course_name}
-                </Button>
-              ))
+                filteredCourses.map((course) => (
+                  <Button
+                    key={course?.id}
+                    variant={filters.course_id === course?.id ? "default" : "ghost"}
+                    className="rounded-md whitespace-nowrap"
+                    onClick={() => handleCourseSelect(course.id.toString())}
+                  >
+                    {course?.course_name}
+                  </Button>
+                ))
               ) : (
                 <p className="p-3 pt-1">No courses available.</p> // This message will be shown if filteredCourses is empty or null.
               )}
-
             </div>
           </div>
 
@@ -308,9 +324,7 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
 
           {/* Results Summary */}
           <div className="mb-4">
-            <p className="text-sm text-muted-foreground">
-          
-            </p>
+            <p className="text-sm text-muted-foreground"></p>
           </div>
 
           {/* Main Content Area */}
@@ -349,32 +363,33 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
                             <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell>{exam.exam_duration +" minutes" || "-"}</TableCell>
+                        <TableCell>{exam.exam_duration + " minutes" || "-"}</TableCell>
                         <TableCell>{renderPriceComparison(exam.price_one_month, exam.on_sale_one_month)}</TableCell>
                         <TableCell>{renderPriceComparison(exam.price_three_month, exam.on_sale_three_month)}</TableCell>
                         <TableCell>{renderPriceComparison(exam.price_six_month, exam.on_sale_six_month)}</TableCell>
                         <TableCell>{renderPriceComparison(exam.price_one_year, exam.on_sale_one_year)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            {/* <Button variant="outline" size="icon" title="View">
-                              <Eye className="h-4 w-4" />
-                            </Button> */}
-
-                            <Link href={route('exam-details.show', exam.id)} className="text-blue-500">
+                            <Link href={route("exam-details.show", exam.id)} className="text-blue-500">
                               <Eye className="h-4 w-4" />
                             </Link>
 
-                            {/* <Button variant="outline" size="icon" title="Edit">
-                              <Pencil className="h-4 w-4" />
-                            </Button> */}
+                            {
+                              canUpdate ? <EditExamAlert exam={exam} examCourses={courses} examYears={years} /> : <PermissionAlert children={"Edit"} buttonVariant={'outline'}
+                              className="p-2 text-xs"
+                              buttonSize={'sm'}
+                              permission='update an exam'
+                                icon={<Pencil className="h-4 w-4 mr-1" />} />
+                            }
 
-                            <EditExamAlert exam={exam} examCourses={courses} examYears={years} />
+                            {
+                              canDelete ? <DeleteExamAlert id={exam.id} /> : <PermissionAlert children={"Delete"} permission={"delete an exam"} icon={<Trash2 className="h-4 w-4 mr-1" />}                       
+                              />
+                            }
 
-                            {/* <Button variant="outline" size="icon" className="text-destructive" title="Delete">
-                              <Trash2 className="h-4 w-4" />
-                            </Button> */}
+                            
 
-                            <DeleteExamAlert id={exam.id} />
+
                           </div>
                         </TableCell>
                       </TableRow>
@@ -435,20 +450,20 @@ const Show = ({ exams, filteredCourses, filteredYears, filters = {}, examTypeId,
                         </div>
 
                         <div className="flex justify-end gap-2">
+                          <ViewLink href={route("exam-details.show", exam.id)} />
 
-                          <ViewLink href={route('exam-details.show', exam.id)} />
+                          {
+                              canUpdate ? <EditExamAlert exam={exam} examCourses={courses} examYears={years} /> : <PermissionAlert children={"Edit"} buttonVariant={'outline'}
+                              className="p-2 text-xs"
+                              buttonSize={'sm'}
+                              permission='update an exam'
+                                icon={<Pencil className="h-4 w-4 mr-1" />} />
+                            }
 
-                          {/* <Button variant="outline" size="sm" title="Edit">
-                            <Pencil className="h-4 w-4 mr-1" /> Edit
-                          </Button> */}
-
-                          <EditExamAlert exam={exam} examCourses={courses} examYears={years} />
-
-                          {/* <Button variant="outline" size="sm" className="text-destructive" title="Delete">
-                            <Trash2 className="h-4 w-4 mr-1" /> Delete
-                          </Button> */}
-
-                          <DeleteExamAlert id={exam.id} />
+                          {
+                            canDelete ? <DeleteExamAlert id={exam.id} /> : <PermissionAlert children={"Delete"} permission={"delete an exam"} icon={<Trash2 className="h-4 w-4 mr-1" />}                       
+                            />
+                          }
 
                         </div>
                       </div>

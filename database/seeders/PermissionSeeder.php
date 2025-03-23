@@ -56,6 +56,12 @@ class PermissionSeeder extends Seeder
                 ['name' => 'add worker'],
                 ['name' => 'update worker'],
                 ['name' => 'delete worker'],
+
+                ['name' => 'add exams'],
+                ['name' => 'update exams'],
+                ['name' => 'delete exams'],
+
+                ['name' => 'can view subscription']
             ];
         
 

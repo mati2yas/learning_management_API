@@ -9,6 +9,7 @@ import { Button } from "@/Components/ui/button"
 import { Eye, EyeOff } from "lucide-react"
 import { GroupedPermissions } from "./GroupedPermission"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
+import { allPermissions } from '@/constants/allPermissions';
 
 interface User {
   id: number
@@ -23,42 +24,6 @@ interface EditUser {
   }
 }
 
-const allPermissions = [
-  { name: "add courses" },
-  { name: "update courses" },
-  { name: "delete courses" },
-  { name: "add chapters" },
-  { name: "update chapters" },
-  { name: "delete chapters" },
-  { name: "add content" },
-  { name: "update content" },
-  { name: "delete content" },
-  { name: "approve subscription" },
-  { name: "update subscription" },
-  { name: "delete subscription" },
-  { name: "add quizzes" },
-  { name: "update quizzes" },
-  { name: "delete quizzes" },
-  { name: "add quiz questions" },
-  { name: "update quiz questions" },
-  { name: "delete quiz questions" },
-  { name: "add exam questions" },
-  { name: "update exam questions" },
-  { name: "delete exam questions" },
-  { name: "can view contents" },
-
-  { name: "add exam courses" },
-  { name: "update exam courses" },
-  { name: "delete exam courses" },
-
-  { name: "can ban" },
-  { name: "can unban" },
-
-  { name: "add worker" },
-  { name: "update worker"},
-  { name: "delete worker"},
-
-]
 
 const permissionGroups = [
   {
@@ -78,12 +43,20 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name.includes("subscription")),
   },
   {
+    title: "can view subscriptions",
+    permissions: allPermissions.filter((p) => p.name === "can view subscription"),
+  },
+  {
     title: "Quizzes",
     permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),
   },
   {
-    title: "Exams",
+    title: "Exam Questions",
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
+  },
+  {
+    title: "Exams",
+    permissions: allPermissions.filter((p) => p.name.includes("exams")),
   },
   {
     title: "Workers management",

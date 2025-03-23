@@ -41,8 +41,11 @@ class SendSubscriptionNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $permittedWorkers = $this->workers->filter(fn ($worker) => $worker->hasDirectPermission('can view subscription'));
+
         Notification::send($this->superAdmins, new SubscriptionRequestNotification($this->subscriptionRequest));
-        Notification::send($this->workers, new SubscriptionRequestNotification($this->subscriptionRequest));
+        
+        Notification::send($permittedWorkers, new SubscriptionRequestNotification($this->subscriptionRequest));
 
         // Notify the requested user without a link
         APINotification::create([
@@ -51,6 +54,7 @@ class SendSubscriptionNotificationJob implements ShouldQueue
             'message' => "Your subscription request has been received.",
             'read' => false
         ]);
+
         $this->user->notify(new SubscriptionRequestNotification($this->subscriptionRequest, true));
     }
 }

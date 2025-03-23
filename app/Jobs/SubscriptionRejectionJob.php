@@ -39,8 +39,11 @@ class SubscriptionRejectionJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $permittedWorkers = $this->workers->filter(fn ($worker) => $worker->hasDirectPermission('can view subscription'));
+
         Notification::send($this->superAdmins, new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest));
-        Notification::send($this->workers, new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest));
+        
+        Notification::send($permittedWorkers, new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest));
         
         $this->user->notify(new SubscriptionRejectionNotification($this->message,$this->subscriptionRequest,  true));
     }

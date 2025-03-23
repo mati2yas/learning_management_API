@@ -186,7 +186,7 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
                         {
                           canUpdate ?  <ShowAdminPrevillage 
                           user={user} 
-                        /> : null
+                        /> : <PermissionAlert children={'Show Privileges'} permission={'can show privilegs'} buttonVariant={'outline'}                        />
                         }
                        
                         </>}

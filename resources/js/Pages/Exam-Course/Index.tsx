@@ -13,7 +13,7 @@ import CreateExamCourseAlert from "../Exams/CreateExamCourseAlert"
 dayjs.extend(relativeTime)
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { Input } from "@/Components/ui/input"
-import { Edit2, Search, Trash2 } from "lucide-react"
+import { Edit2, PlusIcon, Search, Trash2 } from "lucide-react"
 import PermissionAlert from "@/Components/PermissionAlert"
 
 interface IndexProps {
@@ -103,7 +103,16 @@ const Index: React.FC<IndexProps> = ({
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 </div>
               </div>
-              <CreateExamCourseAlert examTypes={examTypes} examGrades={examGrades} />
+
+              {
+                canAddExamCourse ? <CreateExamCourseAlert examTypes={examTypes} examGrades={examGrades} />: <PermissionAlert children={
+                  'Add Course/Chapter'
+                } permission={"can add course"}   buttonVariant={'outline'} className="p-2 text-xs" icon={<PlusIcon className="w-5 h-5 mr-2" />}       
+                />
+              }
+              
+
+
             </div>
 
             <Table>

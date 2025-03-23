@@ -88,7 +88,6 @@ const permissionGroups: PermissionGroup[] = [
 
 function ShowAdminPrivilege({ user }: ShowPrivilegeProps) {
 
-  console.log(user)
   return (
     <Dialog>
       <DialogTrigger asChild>

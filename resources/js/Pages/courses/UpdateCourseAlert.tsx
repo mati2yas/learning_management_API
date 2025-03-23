@@ -1,3 +1,7 @@
+"use client"
+
+import type React from "react"
+
 import { type FormEventHandler, useState, useEffect } from "react"
 import { Button } from "@/Components/ui/button"
 import { useForm } from "@inertiajs/react"
@@ -19,11 +23,10 @@ import { Pencil } from "lucide-react"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { Card, CardContent } from "@/Components/ui/card"
-import Checkbox from "@/Components/Checkbox"
 import InputLabel from "@/Components/InputLabel"
-import TextInput from "@/Components/TextInput"
 import InputError from "@/Components/InputError"
 import { fetchGrades, fetchDepartments, fetchBatches } from "@/api/courseManagement"
+import { router } from "@inertiajs/react"
 
 interface UpdateCourseAlertProps {
   categories: Category[]
@@ -45,12 +48,6 @@ export function UpdateCourseAlert({
   const [isOpen, setIsOpen] = useState(false)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail)
   const [fileSizeError, setFileSizeError] = useState<string | null>(null)
-  const [onSaleChecked, setOnSaleChecked] = useState({
-    one_month: !!course.on_sale_one_month,
-    three_month: !!course.on_sale_three_month,
-    six_month: !!course.on_sale_six_month,
-    one_year: !!course.on_sale_one_year,
-  })
   const [grades, setGrades] = useState(initialGrades)
   const [departments, setDepartments] = useState(initialDepartments)
   const [batches, setBatches] = useState(initialBatches)
@@ -154,64 +151,96 @@ export function UpdateCourseAlert({
     }
   }
 
-  const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
-    setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
-    if (!onSaleChecked[duration]) {
-      // When checking the box, set the on-sale price to the regular price
-      setData(`on_sale_${duration}` as keyof typeof data, data[`price_${duration}` as keyof typeof data] || "")
-    } else {
-      // When unchecking the box, clear the on-sale price
-      setData(`on_sale_${duration}` as keyof typeof data, "")
-    }
-  }
-
   const handleStreamChange = (value: string) => {
     const streamValue = value === "none" ? null : value
     setData("stream", streamValue as "natural" | "social" | null)
     setStream(streamValue)
   }
 
-  useEffect(() => {
-    const validateForm = () => {
-      clearErrors()
-      let isValid = true
+  const validateForm = () => {
+    clearErrors()
+    let isValid = true
+    const newErrors: Partial<typeof errors> = {}
 
-      if (data.category_id === "3") {
-        // Assuming 3 is the ID for university
+    if (!data.course_name) {
+      newErrors.course_name = "Course name is required"
+      isValid = false
+    }
+
+    if (!data.category_id) {
+      newErrors.category_id = "Category is required"
+      isValid = false
+    }
+
+    const selectedCategory = categories.find((category) => category.id.toString() === data.category_id)
+    if (selectedCategory) {
+      if (selectedCategory.name === "university") {
         if (!data.department_id) {
-          setError("department_id", "Department is required for university courses")
+          newErrors.department_id = "Department is required for university courses"
           isValid = false
         }
         if (!data.batch_id) {
-          setError("batch_id", "Batch is required for university courses")
+          newErrors.batch_id = "Batch is required for university courses"
           isValid = false
         }
-      } else if (["1", "2"].includes(data.category_id)) {
-        // Assuming 1 and 2 are IDs for lower and higher grades
-        if (data.category_id === "1" || data.category_id === "2") {
-          if (!data.grade_id) {
-            setError("grade_id", "Grade is required for this category")
-            isValid = false
-          }
-          if ((data.grade_id === "11" || data.grade_id === "12") && !data.stream) {
-            setError("stream", "Stream is required for Grade 11 and 12")
-            isValid = false
-          }
+      } else if (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") {
+        if (!data.grade_id) {
+          newErrors.grade_id = "Grade is required for this category"
+          isValid = false
+        }
+        if (
+          grades.some(
+            (grade) =>
+              grade.id.toString() === data.grade_id &&
+              (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
+          ) &&
+          data.stream === null
+        ) {
+          newErrors.stream = "Stream is required for Grade 11 and 12"
+          isValid = false
         }
       }
-
-      Object.entries(onSaleChecked).forEach(([duration, checked]) => {
-        if (checked && !data[`on_sale_${duration}` as keyof typeof data]) {
-          setError(`on_sale_${duration}` as keyof typeof data, "Sale price is required when on sale is checked")
-          isValid = false
-        }
-      })
-
-      return isValid
     }
 
-    validateForm()
-  }, [data, onSaleChecked, clearErrors, setError])
+    // Validate price and sale price values
+    Object.entries({
+      one_month: "one_month",
+      three_month: "three_month",
+      six_month: "six_month",
+      one_year: "one_year",
+    }).forEach(([key, duration]) => {
+      const priceKey = `price_${duration}` as keyof typeof data
+      const saleKey = `on_sale_${duration}` as keyof typeof data
+
+      // Check for negative prices
+      if (data[priceKey] && Number.parseFloat(data[priceKey] as string) < 0) {
+        newErrors[priceKey as keyof typeof errors] = "Price cannot be negative"
+        isValid = false
+      }
+
+      // Check sale price only if it's provided (since it's optional)
+      if (data[saleKey] && data[saleKey] !== "") {
+        // Check for negative sale price
+        if (Number.parseFloat(data[saleKey] as string) < 0) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price cannot be negative"
+          isValid = false
+        }
+
+        // Check if sale price is greater than original price
+        if (Number.parseFloat(data[saleKey] as string) >= Number.parseFloat(data[priceKey] as string)) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price must be less than original price"
+          isValid = false
+        }
+      }
+    })
+
+    // Set all errors at once
+    Object.entries(newErrors).forEach(([key, value]) => {
+      setError(key as keyof typeof errors, value)
+    })
+
+    return isValid
+  }
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
@@ -220,17 +249,11 @@ export function UpdateCourseAlert({
       return
     }
 
-    // Handle on-sale values
-    Object.keys(onSaleChecked).forEach((duration) => {
-      const key = `on_sale_${duration}` as keyof typeof data
-      if (!onSaleChecked[duration as keyof typeof onSaleChecked]) {
-        setData(key, "") // Send an empty string when not on sale
-      }
-    })
+    if (!validateForm()) {
+      return // Stop form submission if validation fails
+    }
 
-    // We don't need to modify the thumbnail here anymore
-
-    post(route("courses.update", course.id), {
+    router.patch(route("courses.update", course.id), data, {
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
@@ -281,81 +304,81 @@ export function UpdateCourseAlert({
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                {categories.map((category) => {
-                      const categoryNameMap: Record<string, string> = {
-                        higher_grades: "High School",
-                        lower_grades: "Elementary School",
-                        random_courses: "Courses",
-                        university: "University",
-                      }
+                  {categories.map((category) => {
+                    const categoryNameMap: Record<string, string> = {
+                      higher_grades: "High School",
+                      lower_grades: "Elementary School",
+                      random_courses: "Courses",
+                      university: "University",
+                    }
 
-                      const formattedName =
-                        categoryNameMap[category.name] ||
-                        category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+                    const formattedName =
+                      categoryNameMap[category.name] ||
+                      category.name.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
 
-                      return (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                          {formattedName}
-                        </SelectItem>
-                      )
-                    })}
+                    return (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {formattedName}
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
               {errors.category_id && <p className="text-red-500 text-sm">{errors.category_id}</p>}
             </div>
 
             {(selectedCategory?.name === "lower_grades" || selectedCategory?.name === "higher_grades") && (
-                <>
+              <>
+                <div>
+                  <InputLabel htmlFor="grade_id" value="Grade" />
+                  <Select
+                    value={data.grade_id}
+                    onValueChange={(e) => {
+                      setData("grade_id", e)
+                      setData("stream", null)
+                      setStream(null)
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {grades.map((grade) => (
+                        <SelectItem key={grade.id} value={grade.id.toString()}>
+                          {grade.grade_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <InputError message={errors.grade_id} className="mt-2" />
+                </div>
+                {grades.some(
+                  (grade) =>
+                    grade.id.toString() === data.grade_id &&
+                    (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
+                ) && (
                   <div>
-                    <InputLabel htmlFor="grade_id" value="Grade" />
+                    <InputLabel htmlFor="stream" value="Stream" />
                     <Select
-                      value={data.grade_id}
+                      value={data.stream || "none"}
                       onValueChange={(e) => {
-                        setData("grade_id", e)
-                        setData("stream", null)
-                        setStream(null)
+                        handleStreamChange(e)
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Grade" />
+                        <SelectValue placeholder="Select Stream" />
                       </SelectTrigger>
                       <SelectContent>
-                        {grades.map((grade) => (
-                          <SelectItem key={grade.id} value={grade.id.toString()}>
-                            {grade.grade_name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="natural">Natural</SelectItem>
+                        <SelectItem value="social">Social</SelectItem>
                       </SelectContent>
                     </Select>
-                    <InputError message={errors.grade_id} className="mt-2" />
+                    <InputError message={errors.stream} className="mt-2" />
                   </div>
-                  {grades.some(
-                    (grade) =>
-                      grade.id.toString() === data.grade_id &&
-                      (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
-                  ) && (
-                    <div>
-                      <InputLabel htmlFor="stream" value="Stream" />
-                      <Select
-                        value={data.stream || "none"}
-                        onValueChange={(e) => {
-                          handleStreamChange(e)
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Stream" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          <SelectItem value="natural">Natural</SelectItem>
-                          <SelectItem value="social">Social</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <InputError message={errors.stream} className="mt-2" />
-                    </div>
-                  )}
-                </>
-              )}
+                )}
+              </>
+            )}
 
             {selectedCategory && selectedCategory.name === "university" && (
               <>
@@ -412,43 +435,68 @@ export function UpdateCourseAlert({
                       name={`price_${duration}`}
                       type="number"
                       value={data[`price_${duration}` as keyof typeof data] as string}
-                      onChange={(e) => setData(`price_${duration}` as keyof typeof data, e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        if (value === "" || Number.parseFloat(value) >= 0) {
+                          setData(`price_${duration}` as keyof typeof data, value)
+
+                          // If sale price exists, validate it against the new price
+                          const salePrice = data[`on_sale_${duration}` as keyof typeof data] as string
+                          if (
+                            salePrice &&
+                            salePrice !== "" &&
+                            Number.parseFloat(salePrice) >= Number.parseFloat(value)
+                          ) {
+                            setError(
+                              `on_sale_${duration}` as keyof typeof errors,
+                              "Sale price must be less than original price",
+                            )
+                          } else {
+                            clearErrors(`on_sale_${duration}` as keyof typeof data)
+                          }
+                        }
+                      }}
                     />
                     {errors[`price_${duration}` as keyof typeof errors] && (
                       <p className="text-red-500 text-sm">{errors[`price_${duration}` as keyof typeof errors]}</p>
                     )}
 
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`on_sale_${duration}`}
-                        checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
-                        onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
-                      />
-                      <label
+                    <div className="mt-2">
+                      <Label
                         htmlFor={`on_sale_${duration}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        On Sale
-                      </label>
-                    </div>
+                      >{`Sale Price for ${duration.replace("_", " ")} (optional)`}</Label>
+                      <Input
+                        id={`on_sale_${duration}`}
+                        name={`on_sale_${duration}`}
+                        type="number"
+                        value={data[`on_sale_${duration}` as keyof typeof data] as string}
+                        onChange={(e) => {
+                          const saleValue = e.target.value
+                          const originalPrice = Number.parseFloat(
+                            data[`price_${duration}` as keyof typeof data] as string,
+                          )
 
-                    {onSaleChecked[duration as keyof typeof onSaleChecked] && (
-                      <div className="mt-2">
-                        <InputLabel
-                          htmlFor={`on_sale_${duration}`}
-                          value={`Sale Price for ${duration.replace("_", " ")}`}
-                        />
-                        <TextInput
-                          id={`on_sale_${duration}`}
-                          name={`on_sale_${duration}`}
-                          type="number"
-                          value={data[`on_sale_${duration}` as keyof typeof data] as string}
-                          onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
-                          className="w-full"
-                        />
-                        <InputError message={errors[`on_sale_${duration}` as keyof typeof errors]} className="mt-2" />
-                      </div>
-                    )}
+                          // Clear the error when input changes
+                          clearErrors(`on_sale_${duration}` as keyof typeof data)
+
+                          // Allow empty value (optional) or non-negative values
+                          if (saleValue === "" || Number.parseFloat(saleValue) >= 0) {
+                            // Check if sale price is greater than original price
+                            if (saleValue !== "" && Number.parseFloat(saleValue) >= originalPrice) {
+                              setError(
+                                `on_sale_${duration}` as keyof typeof errors,
+                                "Sale price must be less than original price",
+                              )
+                            } else {
+                              setData(`on_sale_${duration}` as keyof typeof data, saleValue)
+                            }
+                          }
+                        }}
+                      />
+                      {errors[`on_sale_${duration}` as keyof typeof errors] && (
+                        <p className="text-red-500 text-sm">{errors[`on_sale_${duration}` as keyof typeof errors]}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

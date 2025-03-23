@@ -1,4 +1,6 @@
-import { Exam } from "@/types"
+"use client"
+
+import type { Exam } from "@/types"
 import { type FormEventHandler, useState } from "react"
 import { Button } from "@/Components/ui/button"
 import { useForm } from "@inertiajs/react"
@@ -17,28 +19,21 @@ import {
 } from "@/Components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-import Checkbox from "@/Components/Checkbox"
 import { Edit, Pencil } from "lucide-react"
 
 interface EditExamAlertProps {
-  exam: Exam,
-  examCourses: {id: number, course_name: string}[]
-  examYears: {id: number, year: string}[]
+  exam: Exam
+  examCourses: { id: number; course_name: string }[]
+  examYears: { id: number; year: string }[]
 }
 
-const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
+declare const route: (name: string, params?: any) => string
 
+const EditExamAlert = ({ exam, examCourses, examYears }: EditExamAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [onSaleChecked, setOnSaleChecked] = useState({
-    one_month: !!exam.on_sale_one_month,
-    three_month: !!exam.on_sale_three_month,
-    six_month: !!exam.on_sale_six_month,
-    one_year: !!exam.on_sale_one_year,
-  })
-
   const [stream, setStream] = useState<string | null>(null)
 
-  const { data, setData, put, errors, processing, reset, setError } = useForm({
+  const { data, setData, put, errors, processing, reset, setError, clearErrors } = useForm({
     exam_course_id: exam.exam_course_id,
     exam_type_id: exam.exam_type_id,
     exam_duration: exam.exam_duration,
@@ -53,17 +48,6 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
     on_sale_one_year: exam.on_sale_one_year,
     stream: exam.stream || null,
   })
-
-  const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
-    setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
-    if (!onSaleChecked[duration]) {
-      // When checking the box, set the on-sale price to the regular price
-      setData(`on_sale_${duration}` as keyof typeof data, data[`price_${duration}` as keyof typeof data] || "")
-    } else {
-      // When unchecking the box, clear the on-sale price
-      setData(`on_sale_${duration}` as keyof typeof data, "")
-    }
-  }
 
   const handleStreamChange = (value: string) => {
     const streamValue = value === "none" ? null : value
@@ -88,10 +72,51 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
       isValid = false
     }
 
-    Object.entries(onSaleChecked).forEach(([duration, checked]) => {
-      if (checked && !data[`on_sale_${duration}` as keyof typeof data]) {
-        newErrors[`on_sale_${duration}` as keyof typeof errors] = "Sale price is required when on sale is checked"
+    if (!data.exam_year_id) {
+      newErrors.exam_year_id = "Year is required"
+      isValid = false
+    }
+
+    if (!data.exam_duration) {
+      newErrors.exam_duration = "Duration is required"
+      isValid = false
+    } else if (Number(data.exam_duration) <= 0) {
+      newErrors.exam_duration = "Duration must be greater than 0"
+      isValid = false
+    }
+
+    // Validate price and sale price values
+    Object.entries({
+      one_month: "one_month",
+      three_month: "three_month",
+      six_month: "six_month",
+      one_year: "one_year",
+    }).forEach(([key, duration]) => {
+      const priceKey = `price_${duration}` as keyof typeof data
+      const saleKey = `on_sale_${duration}` as keyof typeof data
+
+      // Check for negative prices
+      if (!data[priceKey]) {
+        newErrors[priceKey as keyof typeof errors] = "Price is required"
         isValid = false
+      } else if (Number(data[priceKey]) < 0) {
+        newErrors[priceKey as keyof typeof errors] = "Price cannot be negative"
+        isValid = false
+      }
+
+      // Check sale price only if it's provided (since it's optional)
+      if (data[saleKey] && data[saleKey] !== "") {
+        // Check for negative sale price
+        if (Number(data[saleKey]) < 0) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price cannot be negative"
+          isValid = false
+        }
+
+        // Check if sale price is greater than original price
+        if (Number(data[saleKey]) >= Number(data[priceKey])) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price must be less than original price"
+          isValid = false
+        }
       }
     })
 
@@ -104,6 +129,7 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
   }
 
   const submit: FormEventHandler = (e) => {
+    e.preventDefault()
 
     if (!validateForm()) {
       return // Stop form submission if validation fails
@@ -115,7 +141,7 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
       onSuccess: () => {
         setIsOpen(false)
         reset()
-        window.location.reload() 
+        window.location.reload()
       },
       onError: (errors) => {
         console.log("Validation errors:", errors)
@@ -123,11 +149,10 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
     })
   }
 
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size={'sm'} className="p-2 text-xs" onClick={() => setIsOpen(true)}>
+        <Button variant="outline" size={"sm"} className="p-2 text-xs" onClick={() => setIsOpen(true)}>
           <Pencil className="h-4 w-4 mr-1" /> Edit
         </Button>
       </AlertDialogTrigger>
@@ -135,7 +160,7 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
       <AlertDialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px] flex flex-col h-[90vh] p-0 gap-0 overflow-hidden">
         <AlertDialogHeader className="px-6 py-4 border-b">
           <AlertDialogTitle className="text-xl font-semibold">Edit an Exam</AlertDialogTitle>
-          <AlertDialogDescription>Fill in the required information to create a new exam</AlertDialogDescription>
+          <AlertDialogDescription>Fill in the required information to edit the exam</AlertDialogDescription>
         </AlertDialogHeader>
 
         <ScrollArea className="flex-grow px-6 py-4 overflow-y-auto">
@@ -183,7 +208,12 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
                 name="exam_duration"
                 type="number"
                 value={data.exam_duration}
-                onChange={(e) => setData("exam_duration", Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === "" || Number(value) > 0) {
+                    setData("exam_duration", Number(value))
+                  }
+                }}
                 required
                 className="w-full h-10 px-3 border rounded-md"
               />
@@ -204,7 +234,23 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
                         name={`price_${duration}`}
                         type="number"
                         value={data[`price_${duration}` as keyof typeof data] as string}
-                        onChange={(e) => setData(`price_${duration}` as keyof typeof data, e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value === "" || Number(value) >= 0) {
+                            setData(`price_${duration}` as keyof typeof data, value)
+
+                            // If sale price exists, validate it against the new price
+                            const salePrice = data[`on_sale_${duration}` as keyof typeof data] as string
+                            if (salePrice && salePrice !== "" && Number(salePrice) >= Number(value)) {
+                              setError(
+                                `on_sale_${duration}` as keyof typeof errors,
+                                "Sale price must be less than original price",
+                              )
+                            } else {
+                              clearErrors(`on_sale_${duration}` as keyof typeof errors)
+                            }
+                          }
+                        }}
                         required
                         className="w-full h-9"
                       />
@@ -214,35 +260,40 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
                       />
                     </div>
 
-                    <div className="flex items-center mt-2">
-                      <Checkbox
+                    <div className="space-y-2">
+                      <InputLabel htmlFor={`on_sale_${duration}`} value="Sale Price (optional)" className="text-sm" />
+                      <TextInput
                         id={`on_sale_${duration}`}
-                        checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
-                        onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
-                        className="h-4 w-4"
-                      />
-                      <label htmlFor={`on_sale_${duration}`} className="ml-2 text-sm font-medium">
-                        On Sale
-                      </label>
-                    </div>
+                        name={`on_sale_${duration}`}
+                        type="number"
+                        value={data[`on_sale_${duration}` as keyof typeof data] as string}
+                        onChange={(e) => {
+                          const saleValue = e.target.value
+                          const originalPrice = Number(data[`price_${duration}` as keyof typeof data] as string)
 
-                    {onSaleChecked[duration as keyof typeof onSaleChecked] && (
-                      <div className="space-y-2">
-                        <InputLabel htmlFor={`on_sale_${duration}`} value="Sale Price" className="text-sm" />
-                        <TextInput
-                          id={`on_sale_${duration}`}
-                          name={`on_sale_${duration}`}
-                          type="number"
-                          value={data[`on_sale_${duration}` as keyof typeof data] as string}
-                          onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
-                          className="w-full h-9"
-                        />
-                        <InputError
-                          message={errors[`on_sale_${duration}` as keyof typeof errors]}
-                          className="mt-1 text-xs"
-                        />
-                      </div>
-                    )}
+                          // Clear the error when input changes
+                          clearErrors(`on_sale_${duration}` as keyof typeof errors)
+
+                          // Allow empty value (optional) or non-negative values
+                          if (saleValue === "" || Number(saleValue) >= 0) {
+                            // Check if sale price is greater than original price
+                            if (saleValue !== "" && Number(saleValue) >= originalPrice) {
+                              setError(
+                                `on_sale_${duration}` as keyof typeof errors,
+                                "Sale price must be less than original price",
+                              )
+                            } else {
+                              setData(`on_sale_${duration}` as keyof typeof data, saleValue)
+                            }
+                          }
+                        }}
+                        className="w-full h-9"
+                      />
+                      <InputError
+                        message={errors[`on_sale_${duration}` as keyof typeof errors]}
+                        className="mt-1 text-xs"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -276,3 +327,4 @@ const EditExamAlert = ({exam, examCourses, examYears}: EditExamAlertProps) => {
 }
 
 export default EditExamAlert
+

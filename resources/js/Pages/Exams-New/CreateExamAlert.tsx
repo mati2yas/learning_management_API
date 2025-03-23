@@ -1,3 +1,5 @@
+"use client"
+
 import { type FormEventHandler, useState } from "react"
 import { Button } from "@/Components/ui/button"
 import { useForm } from "@inertiajs/react"
@@ -16,7 +18,6 @@ import {
 } from "@/Components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-import Checkbox from "@/Components/Checkbox"
 import { Plus } from "lucide-react"
 
 interface CreateExamAlertProps {
@@ -25,15 +26,10 @@ interface CreateExamAlertProps {
   exam_type_id: number
 }
 
+declare const route: (name: string, params?: any) => string
+
 export function CreateExamAlert({ examCourses, examYears, exam_type_id }: CreateExamAlertProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [onSaleChecked, setOnSaleChecked] = useState({
-    one_month: false,
-    three_month: false,
-    six_month: false,
-    one_year: false,
-  })
-
   const [stream, setStream] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset, progress, setError, clearErrors } = useForm({
@@ -51,14 +47,6 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
     exam_duration: "",
     stream: null as string | null,
   })
-
-  const handleOnSaleChange = (duration: keyof typeof onSaleChecked) => {
-    setOnSaleChecked((prev) => ({ ...prev, [duration]: !prev[duration] }))
-    if (!onSaleChecked[duration]) {
-      setData(`on_sale_${duration}` as keyof typeof data, "")
-    }
-    clearErrors(`on_sale_${duration}`)
-  }
 
   const handleExamCourseChange = (value: string) => {
     setData("exam_course_id", value)
@@ -83,10 +71,51 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
       isValid = false
     }
 
-    Object.entries(onSaleChecked).forEach(([duration, checked]) => {
-      if (checked && !data[`on_sale_${duration}` as keyof typeof data]) {
-        newErrors[`on_sale_${duration}` as keyof typeof errors] = "Sale price is required when on sale is checked"
+    if (!data.exam_year_id) {
+      newErrors.exam_year_id = "Year is required"
+      isValid = false
+    }
+
+    if (!data.exam_duration) {
+      newErrors.exam_duration = "Duration is required"
+      isValid = false
+    } else if (Number.parseFloat(data.exam_duration) <= 0) {
+      newErrors.exam_duration = "Duration must be greater than 0"
+      isValid = false
+    }
+
+    // Validate price and sale price values
+    Object.entries({
+      one_month: "one_month",
+      three_month: "three_month",
+      six_month: "six_month",
+      one_year: "one_year",
+    }).forEach(([key, duration]) => {
+      const priceKey = `price_${duration}` as keyof typeof data
+      const saleKey = `on_sale_${duration}` as keyof typeof data
+
+      // Check for negative prices
+      if (!data[priceKey]) {
+        newErrors[priceKey as keyof typeof errors] = "Price is required"
         isValid = false
+      } else if (Number.parseFloat(data[priceKey] as string) < 0) {
+        newErrors[priceKey as keyof typeof errors] = "Price cannot be negative"
+        isValid = false
+      }
+
+      // Check sale price only if it's provided (since it's optional)
+      if (data[saleKey] && data[saleKey] !== "") {
+        // Check for negative sale price
+        if (Number.parseFloat(data[saleKey] as string) < 0) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price cannot be negative"
+          isValid = false
+        }
+
+        // Check if sale price is greater than original price
+        if (Number.parseFloat(data[saleKey] as string) >= Number.parseFloat(data[priceKey] as string)) {
+          newErrors[saleKey as keyof typeof errors] = "Sale price must be less than original price"
+          isValid = false
+        }
       }
     })
 
@@ -177,7 +206,12 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
                 name="exam_duration"
                 type="number"
                 value={data.exam_duration}
-                onChange={(e) => setData("exam_duration", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === "" || Number.parseFloat(value) > 0) {
+                    setData("exam_duration", value)
+                  }
+                }}
                 required
                 className="w-full h-10 px-3 border rounded-md"
               />
@@ -198,7 +232,27 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
                         name={`price_${duration}`}
                         type="number"
                         value={data[`price_${duration}` as keyof typeof data] as string}
-                        onChange={(e) => setData(`price_${duration}` as keyof typeof data, e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value === "" || Number.parseFloat(value) >= 0) {
+                            setData(`price_${duration}` as keyof typeof data, value)
+
+                            // If sale price exists, validate it against the new price
+                            const salePrice = data[`on_sale_${duration}` as keyof typeof data] as string
+                            if (
+                              salePrice &&
+                              salePrice !== "" &&
+                              Number.parseFloat(salePrice) >= Number.parseFloat(value)
+                            ) {
+                              setError(
+                                `on_sale_${duration}` as keyof typeof errors,
+                                "Sale price must be less than original price",
+                              )
+                            } else {
+                              clearErrors(`on_sale_${duration}` as keyof typeof errors)
+                            }
+                          }
+                        }}
                         required
                         className="w-full h-9"
                       />
@@ -208,35 +262,42 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
                       />
                     </div>
 
-                    <div className="flex items-center mt-2">
-                      <Checkbox
+                    <div className="space-y-2">
+                      <InputLabel htmlFor={`on_sale_${duration}`} value="Sale Price (optional)" className="text-sm" />
+                      <TextInput
                         id={`on_sale_${duration}`}
-                        checked={onSaleChecked[duration as keyof typeof onSaleChecked]}
-                        onChange={() => handleOnSaleChange(duration as keyof typeof onSaleChecked)}
-                        className="h-4 w-4"
-                      />
-                      <label htmlFor={`on_sale_${duration}`} className="ml-2 text-sm font-medium">
-                        On Sale
-                      </label>
-                    </div>
+                        name={`on_sale_${duration}`}
+                        type="number"
+                        value={data[`on_sale_${duration}` as keyof typeof data] as string}
+                        onChange={(e) => {
+                          const saleValue = e.target.value
+                          const originalPrice = Number.parseFloat(
+                            data[`price_${duration}` as keyof typeof data] as string,
+                          )
 
-                    {onSaleChecked[duration as keyof typeof onSaleChecked] && (
-                      <div className="space-y-2">
-                        <InputLabel htmlFor={`on_sale_${duration}`} value="Sale Price" className="text-sm" />
-                        <TextInput
-                          id={`on_sale_${duration}`}
-                          name={`on_sale_${duration}`}
-                          type="number"
-                          value={data[`on_sale_${duration}` as keyof typeof data] as string}
-                          onChange={(e) => setData(`on_sale_${duration}` as keyof typeof data, e.target.value)}
-                          className="w-full h-9"
-                        />
-                        <InputError
-                          message={errors[`on_sale_${duration}` as keyof typeof errors]}
-                          className="mt-1 text-xs"
-                        />
-                      </div>
-                    )}
+                          // Clear the error when input changes
+                          clearErrors(`on_sale_${duration}` as keyof typeof errors)
+
+                          // Allow empty value (optional) or non-negative values
+                          if (saleValue === "" || Number.parseFloat(saleValue) >= 0) {
+                            // Check if sale price is greater than original price
+                            if (saleValue !== "" && Number.parseFloat(saleValue) >= originalPrice) {
+                              setError(
+                                `on_sale_${duration}` as keyof typeof errors,
+                                "Sale price must be less than original price",
+                              )
+                            } else {
+                              setData(`on_sale_${duration}` as keyof typeof data, saleValue)
+                            }
+                          }
+                        }}
+                        className="w-full h-9"
+                      />
+                      <InputError
+                        message={errors[`on_sale_${duration}` as keyof typeof errors]}
+                        className="mt-1 text-xs"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

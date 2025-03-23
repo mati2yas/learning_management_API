@@ -160,35 +160,13 @@ class NewPasswordController extends Controller
         // Delete the used PIN
         DB::table('password_resets')->where('email', $request->email)->delete();
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($resetUser) use ($request, &$user) { // Pass $user by reference
-                $resetUser->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
-    
-                $resetUser->tokens()->delete(); // Delete old tokens
-    
-                dispatch(function () use ($resetUser) {
-                    event(new PasswordReset($resetUser));
-                });
-    
-                $user = $resetUser; // Assign the user
-            }
-        );
+        $user->tokens()->delete(); 
 
-       if ($status == Password::PASSWORD_RESET && $user) {
-            return response()->json([
-                'message' => 'Password reset successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken, // Generate token
-                'data' => ['user' => $user],
-            ]);
-        }
-    
         return response()->json([
-            'message' => __($status),
-        ], 500);
+            'message' => 'Password reset successful',
+            'token' => $user->createToken("API TOKEN")->plainTextToken,
+            'data' =>['user' => $user] 
+        ]);
     }
     
 }

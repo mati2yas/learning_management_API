@@ -54,6 +54,12 @@ export const allPermissions = [
   {name: 'delete exams'},
 
   //Subscription view
-  {name: 'can view subscription'}
+  {name: 'can view subscription'},
+  {name: 'can view dashboard'},
+  {name: 'can view courses'},
+  {name: 'can veiw exams'},
+  {name: 'can view exam courses'},
+  {name: 'can view students management'},
+  {name: 'can view workers management'},
 
 ]

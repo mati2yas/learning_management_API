@@ -74,6 +74,12 @@ class UserSeeder extends Seeder
             'delete exams',
 
             'can view subscription',
+            'can view dashboard',
+            'can view courses',
+            'can view exams',
+            'can view exam courses',
+            'can view students management',
+            'can view workers management',
         ];
 
         // Sync all the permissions to the user

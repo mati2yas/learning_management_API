@@ -43,10 +43,6 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name.includes("subscription")),
   },
   {
-    title: "can view subscriptions",
-    permissions: allPermissions.filter((p) => p.name === "can view subscription"),
-  },
-  {
     title: "Quizzes",
     permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),
   },
@@ -74,6 +70,10 @@ const permissionGroups = [
     title: "Unban User",
     permissions: allPermissions.filter((p) => p.name === "can unban"),
   },
+  {
+    title: "views",
+    permissions: allPermissions.filter((p) => p.name.includes('can view'))
+  }
 
   
 ]

@@ -61,7 +61,13 @@ class PermissionSeeder extends Seeder
                 ['name' => 'update exams'],
                 ['name' => 'delete exams'],
 
-                ['name' => 'can view subscription']
+                ['name' => 'can view subscription'],
+                ['name' => 'can view dashboard'],
+                ['name' => 'can view courses'],
+                ['name' => 'can view exams'],
+                ['name' => 'can view exam courses'],
+                ['name' => 'can view students management'],
+                ['name' => 'can view workers management'],
             ];
         
 

@@ -85,9 +85,9 @@ class CourseResource extends JsonResource
             'on_sale_one_year' => $this->on_sale_one_year,
 
             // Include whether the course is paid, saved, or liked by the current user
-            'paid' => $user ? $this->isPaidByUser($user->id) : false,
-            'saved' => $user ? $this->isSavedByUser($user->id) : false,
-            'liked' => $user ? $this->isLikedByUser($user->id) : false,
+            'is_paid' => $user ? $this->isPaidByUser($user->id) : false,
+            'is_saved' => $user ? $this->isSavedByUser($user->id) : false,
+            'is_liked' => $user ? $this->isLikedByUser($user->id) : false,
 
             // Add likes_count and saves_count
             'likes_count' => $this->likes()->count(),

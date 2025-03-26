@@ -32,46 +32,58 @@ export default function Authenticated({
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink
-                                    prefetch
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    Dashboard
-                                </NavLink>
 
-                                <NavLink
-                                    prefetch
-                                    href={route('courses.index')}  
-                                    active={route().current('courses.index')} 
-                                >
-                                    Courses
-                                </NavLink>
 
-                                {/* <NavLink
-                                    prefetch
-                                    href={route('exams.index')}  
-                                    active={route().current('exams.index')} 
-                                >
-                                    Exams
-                                </NavLink> */}
+                                {
+                                    auth?.user?.permissions?.includes("can view dashboard") && (
+                                        <NavLink
+                                        prefetch
+                                        href={route('dashboard')}
+                                        active={route().current('dashboard')}
+                                        >
+                                            Dashboard
+                                        </NavLink>
+                                    )
+                                }
 
-                                <NavLink
-                                    prefetch
-                                    href={route('exams-new.index')}  
-                                    active={route().current('exams.index')} 
-                                >
-                                    Exams
-                                </NavLink>
+
+                                {
+                                    auth?.user?.permissions?.includes("can view courses") && (
+                                        <NavLink
+                                        prefetch
+                                        href={route('courses.index')}  
+                                        active={route().current('courses.index')} 
+                                        >
+                                            Courses
+                                        </NavLink>
+                                    )
+                                }
+
+
+                                {
+                                    auth?.user?.permissions?.includes("can view exams") && (
+                                        <NavLink
+                                        prefetch
+                                        href={route('exams-new.index')}  
+                                        active={route().current('exams.index')} 
+                                        >
+                                            Exams
+                                        </NavLink>
+                                    )
+                                }
   
 
-                                <NavLink
-                                    prefetch
-                                    href={route('exam-courses.index')}  
-                                    active={route().current('exam-courses.index')} 
-                                >
-                                    Exam Courses
-                                </NavLink>
+                                {
+                                    auth?.user?.permissions?.includes("can view exam courses") && (
+                                        <NavLink
+                                        prefetch
+                                        href={route('exam-courses.index')}  
+                                        active={route().current('exam-courses.index')} 
+                                    >
+                                        Exam Courses
+                                    </NavLink>
+                                    )
+                                }
 
                                 
                                 {
@@ -86,23 +98,32 @@ export default function Authenticated({
                                    ) 
                                 }
 
-
-                                <NavLink
+                                {
+                                   auth?.user?.permissions?.includes("can view students management") && (
+                                    <NavLink
                                     prefetch
                                     href={route('student-managements.index')}  
                                     active={route().current('student-managements.index')} 
-                                >
-                                    Students Management
-                                </NavLink>
+                                    >
+                                        Students Management
+                                    </NavLink>
+                                   ) 
+                                }
 
-
-                                <NavLink
+                                {
+                                   auth?.user?.permissions?.includes("can view workers management") && (
+                                    <NavLink
                                     prefetch
                                     href={route('user-managements.index')}  
                                     active={route().current('user-managements.index')} 
-                                >
-                                    Workers Management
-                                </NavLink>
+                                    >
+                                        Workers Management
+                                    </NavLink>
+                                   ) 
+                                }
+ 
+
+
                             </div>
                         </div>
 
@@ -201,23 +222,115 @@ export default function Authenticated({
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            cacheFor={'10s'}
-                            prefetch
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
 
-                        <ResponsiveNavLink
-                            prefetch
-                            cacheFor={'20s'}
-                            href={route('courses.index')}
-                            active={route().current('courses.index')}
-                        >
-                            Courses
-                        </ResponsiveNavLink>
+                        {
+                            auth?.user?.permissions?.includes("can view dashboard") && (
+
+                            <ResponsiveNavLink
+                                cacheFor={'10s'}
+                                prefetch
+                                href={route('dashboard')}
+                                active={route().current('dashboard')}
+                            >
+                                Dashboard
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+
+                        {
+                            auth?.user?.permissions?.includes("can view courses") && (
+
+                            <ResponsiveNavLink
+                                prefetch
+                                cacheFor={'20s'}
+                                href={route('courses.index')}
+                                active={route().current('courses.index')}
+                            >
+                                Courses
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+                        
+                        {
+                            auth?.user?.permissions?.includes("can view exams") && (
+
+                            <ResponsiveNavLink
+                                cacheFor={'20s'}
+                                prefetch
+                                href={route('exams-new.index')}
+                                active={route().current('exams.index')}
+                            >
+    
+                                Exams 
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+
+                        {
+                            auth?.user?.permissions?.includes("can view exam courses") && (
+
+
+                            <ResponsiveNavLink
+                                cacheFor={'20s'}
+                                prefetch
+                                href={route('exam-courses.index')}
+                                active={route().current('exam-courses.index')}
+                            >
+                                Exam Courses
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+                        
+                        
+                        {
+                            auth?.user?.permissions?.includes("can view subscription") && (
+
+
+                            <ResponsiveNavLink
+                                prefetch
+                                cacheFor={'10s'}
+                                href={route('subscriptions.index')}
+                                active={route().current('subscriptions.index')}
+                            >
+                                Subscription
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+
+                        {
+                            auth?.user?.permissions?.includes("can view workers management") && (
+
+
+                            <ResponsiveNavLink
+                                prefetch
+                                cacheFor={'30s'}
+                                href={route('user-managements.index')}
+                                active={route().current('user-managements.index')}
+                            >
+                                Workers Management
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+
+                        {
+                            auth?.user?.permissions?.includes("can view students management") && (
+
+                            <ResponsiveNavLink
+                                prefetch cacheFor={'10s'}
+                                href={route('student-managements.index')}
+                                active={route().current('student-managements.index')}
+                            >
+                                Students Management
+                            </ResponsiveNavLink>
+                            ) 
+                        }
+
+
 
                         {/* <ResponsiveNavLink
                             cacheFor={'20s'}
@@ -228,51 +341,11 @@ export default function Authenticated({
                             Exams
                         </ResponsiveNavLink> */}
 
-                        <ResponsiveNavLink
-                            cacheFor={'20s'}
-                            prefetch
-                            href={route('exams-new.index')}
-                            active={route().current('exams.index')}
-                        >
-
-                            Exams 
-                        </ResponsiveNavLink>
-
-                        <ResponsiveNavLink
-                            cacheFor={'20s'}
-                            prefetch
-                            href={route('exam-courses.index')}
-                            active={route().current('exam-courses.index')}
-                        >
-                            Exam Courses
-                        </ResponsiveNavLink>
-
-                        <ResponsiveNavLink
-                            prefetch
-                            cacheFor={'10s'}
-                            href={route('subscriptions.index')}
-                            active={route().current('subscriptions.index')}
-                        >
-                            Subscription
-                        </ResponsiveNavLink>
 
 
-                        <ResponsiveNavLink
-                            prefetch
-                            cacheFor={'30s'}
-                            href={route('user-managements.index')}
-                            active={route().current('user-managements.index')}
-                        >
-                            Workers Management
-                        </ResponsiveNavLink>
+                        
 
-                        <ResponsiveNavLink
-                            prefetch cacheFor={'10s'}
-                            href={route('student-managements.index')}
-                            active={route().current('student-managements.index')}
-                        >
-                            Students Management
-                        </ResponsiveNavLink>
+
 
                     </div>
 

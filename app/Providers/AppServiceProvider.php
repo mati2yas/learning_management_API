@@ -26,9 +26,11 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         Model::preventLazyLoading();
         Model::unguard();
+        
         Gate::before(function ($user, $ability) {
-            return $user->hasTokenPermission($ability) ?: null;
+            return $user->hasPermissionTo($ability) ?: null;
         });
+        
         Inertia::share([
             'flash' => function () {
                 return [
@@ -38,5 +40,6 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
         ]);
+
     }
 }

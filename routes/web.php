@@ -36,52 +36,52 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth','verified'])->group(function () {
 
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
-    Route::resource('courses', CourseController::class);
+Route::middleware(['auth', 'verified'])->group(function () {
     
-    Route::resource('chapters', ChapterController::class);
+    Route::get('/dashboard', DashboardController::class)
+        ->middleware(['permission:can view dashboard'])
+        ->name('dashboard');
 
-    Route::resource('contents', ContentController::class);
+    Route::resource('courses', CourseController::class)
+        ->middleware(['permission:can view courses']);
 
-    Route::resource('quizzes', QuizController::class);
+    Route::resource('exams', ExamController::class)
+        ->middleware(['permission:can view exams']);
 
-    Route::resource('youtube-contents', YoutubeContentController::class);
+    Route::resource('exams-new', ExamNewController::class)
+        ->middleware(['permission:can view exams']);
 
-    Route::resource('file-contents', FileContentController::class);
+    Route::resource('user-managements', UserManagementController::class)
+        ->middleware(['permission:can view workers management']);
 
-    Route::resource('quiz-questions', QuizQuesitonController::class);
+    Route::resource('student-managements', StudentManagementController::class)
+        ->middleware(['permission:can view students management']);
 
-    Route::resource('exams', ExamController::class);
+    Route::post('student-managements/ban', [StudentManagementController::class, 'ban'])
+        ->middleware(['permission:can ban'])
+        ->name('student-managements.ban');
 
-    Route::resource('exams-new', ExamNewController::class);
+    Route::post('student-managements/unban', [StudentManagementController::class, 'unBan'])
+        ->middleware(['permission:can unban'])
+        ->name('student-managements.unban');
 
-    Route::resource('exam-questions', ExamQuestionController::class);
+    Route::resource('subscriptions', SubscriptionController::class)
+        ->middleware(['permission:can view subscription']);
 
-    Route::resource('user-managements', UserManagementController::class);
+    Route::post('/subscription-rejection/{subscriptionId}', [SubscriptionController::class, 'rejection'])
+        ->middleware(['permission:can view subscription'])
+        ->name('subscriptions.reject');
 
-    Route::resource('student-managements', StudentManagementController::class);
+    Route::post('/subscription-approve/{subscriptionId}', [SubscriptionController::class, 'approve'])
+        ->middleware(['permission:can view subscription'])
+        ->name('subscriptions.approve');
 
-    Route::post('student-managements/ban',[StudentManagementController::class, 'ban'])->name('student-managements.ban');
-
-    Route::post('student-managements/unban',[StudentManagementController::class, 'unBan'])->name('student-managements.unban');
-
-    Route::resource('subscriptions', SubscriptionController::class);
-
-    Route::resource('exam-courses', ExamCourseController::class);
+    Route::resource('exam-courses', ExamCourseController::class)
+        ->middleware(['permission:can view exam courses']);
 
     Route::resource('carousel-contents', CarouselContentController::class);
-
-    Route::resource('exam-details', ExamDetailController::class );
-
-    
-
-    Route::post('/subscription-rejection/{subscriptionId}', [SubscriptionController::class, 'rejection'])->name('subscriptions.reject');
-
-    Route::post('/subscription-approve/{subscriptionId}', [SubscriptionController::class, 'approve'])->name('subscriptions.approve');
-
+    Route::resource('exam-details', ExamDetailController::class);
     Route::resource('/banks', BankController::class);
 });
 

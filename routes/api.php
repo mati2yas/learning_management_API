@@ -134,10 +134,11 @@ Route::post('/logout', [SessionController::class, 'logout'])->middleware('auth:s
 
 Route::delete('/user-delete', [SessionController::class, 'destroy'])->middleware('auth:sanctum');
 
+
 Route::post('/user-update', [SessionController::class, 'update'])->middleware('auth:sanctum');
 
-
 Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])->middleware('auth:sanctum');
+
 
 Route::resource('carousel-contents-api', CarouselContentController::class);
 

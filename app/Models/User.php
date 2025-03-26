@@ -42,6 +42,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * @return array<string, string>
      */
 
+     public function hasTokenPermission($ability)
+     {
+         return $this->tokenCan($ability);
+     }
+
     public function saves(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Save::class);

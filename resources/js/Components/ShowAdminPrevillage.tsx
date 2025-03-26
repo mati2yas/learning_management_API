@@ -42,8 +42,6 @@ const permissionGroups: PermissionGroup[] = [
     title: "Subscriptions",
     permissions: allPermissions.filter((p) => p.name.includes("subscription")),
   },
-  
-
   {
     title: "Quizzes",
     permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),

@@ -46,6 +46,23 @@ const allPermissions = [
   { name: "add worker" },
   { name: "update worker"},
   { name: "delete worker"},
+
+  {name: 'can ban'},
+  {name: 'can unban'},
+
+  // Exams
+  {name: 'add exams'},
+  {name: 'update exams'},
+  {name: 'delete exams'},
+
+  //Subscription view
+  {name: 'can view subscription'},
+  {name: 'can view dashboard'},
+  {name: 'can view courses'},
+  {name: 'can view exams'},
+  {name: 'can view exam courses'},
+  {name: 'can view students management'},
+  {name: 'can view workers management'},
 ]
 
 const permissionGroups = [
@@ -70,8 +87,16 @@ const permissionGroups = [
     permissions: allPermissions.filter((p) => p.name.includes("quizzes") || p.name.includes("quiz questions")),
   },
   {
-    title: "Exams",
+    title: "Exams Questions",
     permissions: allPermissions.filter((p) => p.name.includes("exam questions")),
+  },
+  {
+    title: "Exams Courses",
+    permissions: allPermissions.filter((p) => p.name.includes("exam courses")),
+  },
+  {
+    title: "Exams",
+    permissions: allPermissions.filter((p) => p.name.includes("exams")),
   },
   {
     title: "Workers management",
@@ -89,6 +114,10 @@ const permissionGroups = [
     title: "Unban User",
     permissions: allPermissions.filter((p) => p.name === "can unban"),
   },
+  {
+    title: "views",
+    permissions: allPermissions.filter((p) => p.name.includes('can view'))
+  }
 ]
 
 interface FormData {

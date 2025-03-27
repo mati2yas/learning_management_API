@@ -159,8 +159,8 @@ export function CreateCourseAlert() {
           ) &&
           data.stream === null
         ) {
-          newErrors.stream = "Stream is required for Grade 11 and 12"
-          isValid = false
+          // newErrors.stream = "Stream is required for Grade 11 and 12"
+          // isValid = false
         }
       }
     }

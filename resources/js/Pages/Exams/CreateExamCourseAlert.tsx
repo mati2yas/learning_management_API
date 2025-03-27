@@ -43,7 +43,7 @@ const CreateExamCourseAlert = ({
 
   const addChapter = useCallback(() => {
     setChapters((prev) => {
-      if (prev.length < 30) {
+      if (prev.length < 50) {
         return [...prev, { title: "", sequence_order: prev.length + 1 }]
       }
       return prev
@@ -290,13 +290,13 @@ const CreateExamCourseAlert = ({
                 type="button"
                 variant="outline"
                 onClick={addChapter}
-                disabled={chapters.length >= 30}
+                disabled={chapters.length >= 50}
                 className="w-full"
               >
                 Add Chapter
               </Button>
-              {chapters.length >= 30 && (
-                <p className="text-sm text-muted-foreground mt-2">Maximum of 30 chapters allowed.</p>
+              {chapters.length >= 50 && (
+                <p className="text-sm text-muted-foreground mt-2">Maximum of 50 chapters allowed.</p>
               )}
             </div>
           </div>

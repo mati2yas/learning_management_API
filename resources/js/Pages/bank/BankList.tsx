@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Button } from "@/Components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/Components/ui/collapsible"
-import { ChevronDown, ChevronUp, Building, CreditCard } from "lucide-react"
+import { ChevronDown, ChevronUp, Building, CreditCard, PersonStandingIcon } from "lucide-react"
 
 const LazyCreateBankAlert = lazy(() => import("./CreateBankAlert"))
 const LazyEditBankAlert = lazy(() => import("./EditBankAlert"))
@@ -12,6 +12,7 @@ interface Bank {
   id: number
   bank_name: string
   bank_account_number: number
+  account_name: string
 }
 
 interface BankListProps {
@@ -62,6 +63,10 @@ export function BankList({ banks }: BankListProps) {
                         <div className="flex items-center">
                           <Building className="h-4 w-4 mr-2 text-muted-foreground" />
                           <p className="font-semibold">{bank.bank_name}</p>
+                        </div>
+                        <div className="flex items-center">
+                          <PersonStandingIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <p className="font-semibold">{bank.account_name}</p>
                         </div>
                         <div className="flex items-center">
                           <CreditCard className="h-4 w-4 mr-2 text-muted-foreground" />

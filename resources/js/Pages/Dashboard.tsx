@@ -26,7 +26,7 @@ interface DashboardProps {
   users: number
   canAdd: boolean
   carouselContents: CarouselContent[]
-  banks: {id: number, bank_name: string, bank_account_number: number }[]
+  banks: {id: number, bank_name: string, bank_account_number: number, account_name: string }[]
 }
 
 export default function Dashboard({

@@ -21,6 +21,7 @@ interface Bank {
   id: number
   bank_name: string
   bank_account_number: number
+  account_name: string
 }
 
 interface EditBankAlertProps {
@@ -35,6 +36,7 @@ const EditBankAlert = ({ bank }: EditBankAlertProps) => {
     _method: "PATCH",
     bank_name: bank.bank_name,
     bank_account_number: bank.bank_account_number,
+    account_name: bank.account_name
   })
 
   const submit: FormEventHandler = (e) => {
@@ -93,6 +95,22 @@ const EditBankAlert = ({ bank }: EditBankAlertProps) => {
                 <p className="text-sm font-medium text-destructive">{errors.bank_account_number}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bank_account_number">Account Name</Label>
+              <Input
+                id="bank_account_name"
+                value={data.account_name}
+                onChange={(e) => setData("account_name", e.target.value)}
+                placeholder="Enter account name"
+                required
+              />
+              {errors.account_name && (
+                <p className="text-sm font-medium text-destructive">{errors.account_name}</p>
+              )}
+            </div>
+
+
           </div>
 
           <div className="flex justify-end gap-x-2 pt-4">

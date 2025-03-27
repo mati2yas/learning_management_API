@@ -18,6 +18,7 @@ const CreateBankAlert = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const { data, setData, post, processing, errors, reset } = useForm({
+    account_name: "",
     bank_name: "",
     bank_account_number: "",
   })
@@ -51,6 +52,7 @@ const CreateBankAlert = () => {
 
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-4">
+
             <div className="space-y-2">
               <Label htmlFor="bank_name">Bank Name</Label>
               <Input
@@ -76,6 +78,23 @@ const CreateBankAlert = () => {
                 <p className="text-sm font-medium text-destructive">{errors.bank_account_number}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bank_account_number">Account Name</Label>
+              <Input
+                id="bank_account_name"
+                value={data.account_name}
+                onChange={(e) => setData("account_name", e.target.value)}
+                placeholder="Enter account name"
+                required
+              />
+              {errors.account_name && (
+                <p className="text-sm font-medium text-destructive">{errors.account_name}</p>
+              )}
+            </div>
+
+
+
           </div>
 
           <div className="flex justify-end gap-x-2 pt-4">

@@ -18,6 +18,7 @@ class BankController extends Controller
     public function store(Request $request)
     {
         $attrs = $request->validate([
+            'account_name' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|numeric|digits_between:6,20|unique:banks,bank_account_number',
         ]);
@@ -33,6 +34,7 @@ class BankController extends Controller
     public function update(Request $request, Bank $bank)
     {
         $attrs = $request->validate([
+            'account_name' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|numeric|digits_between:6,20|unique:banks,bank_account_number,' . $bank->id,
         ]);

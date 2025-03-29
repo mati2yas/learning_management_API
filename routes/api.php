@@ -228,10 +228,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             'notifications' => $request->user()->notifications
         ]);
     });
-    
-
-
-
 
     Route::post('toggle-save/{course_id}', function (string $course_id, Request $request) {
 

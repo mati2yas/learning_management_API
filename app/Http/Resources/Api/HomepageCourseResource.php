@@ -64,7 +64,7 @@ class HomepageCourseResource extends JsonResource
         // Check if the thumbnail starts with "/id", append the base URL if true
         return $this->thumbnail && strpos($this->thumbnail, '/id') === 0
             ? 'https://picsum.photos' . $this->thumbnail
-            : $this->thumbnail;
+            : url($this->thumbnail);
     }
 
     /**

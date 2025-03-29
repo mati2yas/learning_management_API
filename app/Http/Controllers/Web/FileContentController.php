@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\FileContent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FileContentController extends Controller
 {
@@ -39,7 +40,7 @@ class FileContentController extends Controller
 
         if ($request->hasFile('file_url')) {
             $path = $request->file('file_url')->store('contents', 'public'); // Store in "storage/app/public/contents"
-            $attrs['file_url'] = $path; // Add the path to attributes to save in the database
+            $attrs['file_url'] = Storage::url($path); // Add the path to attributes to save in the database
         }
         
         FileContent::create($attrs);

@@ -31,7 +31,7 @@ class ChapterContentResource extends JsonResource
                 $documents[$fileContent->id] = [
                     'id' => $fileContent->id,
                     'title' => $fileContent->title,
-                    'file_url' => $fileContent->file_url,
+                    'file_url' => url($fileContent->file_url),
                 ];
             }
         }

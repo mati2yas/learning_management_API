@@ -111,9 +111,8 @@ export function CreateCourseAlert() {
   }
 
   const handleStreamChange = (value: string) => {
-    const streamValue = value === "none" ? null : value
-    setData("stream", streamValue)
-    setStream(streamValue)
+    setData("stream", value)
+    setStream(value)
   }
 
   const selectedCategory = useMemo(
@@ -357,7 +356,7 @@ export function CreateCourseAlert() {
                     <div>
                       <InputLabel htmlFor="stream" value="Stream" />
                       <Select
-                        value={data.stream || "none"}
+                        value={data.stream || "common"}
                         onValueChange={(e) => {
                           handleStreamChange(e)
                         }}
@@ -366,7 +365,7 @@ export function CreateCourseAlert() {
                           <SelectValue placeholder="Select Stream" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">Common</SelectItem>
+                          <SelectItem value="common">Common</SelectItem>
                           <SelectItem value="natural">Natural</SelectItem>
                           <SelectItem value="social">Social</SelectItem>
                         </SelectContent>

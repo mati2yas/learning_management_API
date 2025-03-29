@@ -77,6 +77,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(['permission:can view subscription'])
         ->name('subscriptions.approve');
 
+    Route::resource('exam-questions', ExamQuestionController::class);
+
+    Route::resource('chapters', ChapterController::class);
+
+    Route::resource('contents', ContentController::class);
+
+    Route::resource('youtube-contents', YoutubeContentController::class);
+
+    Route::resource('file-contents', FileContentController::class);
+
+    Route::resource('quizzes', QuizController::class);
+
+    Route::resource('quiz-questions', QuizQuesitonController::class);
+
     Route::resource('exam-courses', ExamCourseController::class)
         ->middleware(['permission:can view exam courses']);
 

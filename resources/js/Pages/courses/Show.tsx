@@ -40,6 +40,7 @@ const Show = ({
 }: ShowCourseProps) => {
 
 
+  console.log(course)
   const gradeName = grades.find((grade) => grade.id === Number(course.grade_id))?.grade_name || "N/A"
 
   const { flash } = usePage().props as unknown as { flash: { success?: string } };

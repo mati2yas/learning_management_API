@@ -21,7 +21,7 @@ export interface Course{
   on_sale_one_year: number;
   created_at: string;
   updated_at: string;
-  stream: null |"natural"|"social"
+  stream: null |"natural"|"social"|"common"
   created_by:{
     name: string;
   } 

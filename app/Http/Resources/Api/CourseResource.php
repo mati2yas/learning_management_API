@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class CourseResource extends JsonResource
 {
@@ -34,7 +35,7 @@ class CourseResource extends JsonResource
             // Modify the thumbnail logic to append the prefix only if the string starts with "/id"
             'thumbnail' => $this->thumbnail && str_starts_with($this->thumbnail, '/id')
                 ? 'https://picsum.photos' . $this->thumbnail
-                : $this->thumbnail,
+                : url(Storage::url($this->thumbnail)),
 
             // Include category, department, and grade when loaded
             'category' => $this->whenLoaded('category', function () {
@@ -53,7 +54,6 @@ class CourseResource extends JsonResource
                 return [
                     'id' => $this->grade->id,
                     'grade_name' => $this->grade->grade_name,
-                    'stream' => $this->grade->stream,
                 ];
             }),
 
@@ -74,7 +74,7 @@ class CourseResource extends JsonResource
                     'batch_name' => $this->batch->batch_name,
                 ];
             }),
-
+            'stream' => $this->stream ? $this->stream : null,
             'price_one_month' => $this->price_one_month,
             'on_sale_month' => $this->on_sale_month,
             'price_three_month' => $this->price_three_month,

@@ -133,6 +133,7 @@ export interface IndexProps {
     filters: {
       category: string;
       search: string;
+      sort: string
     };
     canAdd: boolean
     session: string

@@ -1,5 +1,7 @@
 "use client"
 
+import { DropdownMenuTrigger } from "@/Components/ui/dropdown-menu"
+
 import type React from "react"
 import { Head, Link, router, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
@@ -8,14 +10,13 @@ import { Button } from "@/Components/ui/button"
 import { Card, CardContent } from "@/Components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import { Badge } from "@/Components/ui/badge"
-import { Eye, Search, Calendar, ChevronDown, Edit2, Pencil, Trash2 } from "lucide-react"
+import { Eye, Search, Calendar, ChevronDown, Pencil, Trash2, SortAsc, SortDesc, Filter } from "lucide-react"
 import { Input } from "@/Components/ui/input"
 import { useState, useEffect } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/Components/ui/dropdown-menu"
@@ -26,6 +27,7 @@ import DeleteExamAlert from "./DeleteExamAlert"
 import ViewLink from "@/Components/ViewLink"
 import BackLink from "@/Components/BackLink"
 import PermissionAlert from "@/Components/PermissionAlert"
+
 
 interface ShowProps {
   exams: {
@@ -45,6 +47,7 @@ interface ShowProps {
     course_id?: number | null
     year_id?: number | null
     search?: string
+    sort?: string | null
   }
   examTypeId: number
   examTypeName: string
@@ -66,7 +69,6 @@ const Show = ({
   canDelete,
   canUpdate,
 }: ShowProps) => {
-
   const { flash } = usePage().props as unknown as { flash: { success?: string } }
   const [searchTerm, setSearchTerm] = useState(filters.search || "")
   const [viewType, setViewType] = useState<"table" | "cards">("cards")
@@ -82,6 +84,7 @@ const Show = ({
             search: searchTerm,
             course_id: filters.course_id,
             year_id: filters.year_id,
+            sort: filters.sort,
           },
           {
             preserveState: true,
@@ -103,6 +106,7 @@ const Show = ({
         course_id: courseId,
         year_id: filters.year_id,
         search: filters.search,
+        sort: filters.sort,
       },
       {
         preserveState: true,
@@ -117,6 +121,24 @@ const Show = ({
       window.location.pathname,
       {
         year_id: yearId,
+        course_id: filters.course_id,
+        search: filters.search,
+        sort: filters.sort,
+      },
+      {
+        preserveState: true,
+        preserveScroll: true,
+      },
+    )
+  }
+
+  // Handle sort selection
+  const handleSortSelect = (sortOrder: string | null) => {
+    router.get(
+      window.location.pathname,
+      {
+        sort: sortOrder,
+        year_id: filters.year_id,
         course_id: filters.course_id,
         search: filters.search,
       },
@@ -160,6 +182,20 @@ const Show = ({
     return <span>{formatPrice(regular)}</span>
   }
 
+  // Get sort icon based on current sort
+  const getSortIcon = () => {
+    if (filters.sort === "asc") return <SortAsc className="h-4 w-4" />
+    if (filters.sort === "desc") return <SortDesc className="h-4 w-4" />
+    return <Filter className="h-4 w-4" />
+  }
+
+  // Get sort label based on current sort
+  const getSortLabel = () => {
+    if (filters.sort === "asc") return "A to Z"
+    if (filters.sort === "desc") return "Z to A"
+    return "Sort"
+  }
+
   return (
     <AuthenticatedLayout
       header={
@@ -168,11 +204,11 @@ const Show = ({
 
           <div className="flex items-center gap-2">
             <BackLink href={route("exams-new.index")} text="Back to Exam Type" />
-            {
-              canAdd ?  <CreateExamAlert examCourses={courses} examYears={years} exam_type_id={examTypeId} /> : <PermissionAlert children={"Add Exam"} permission={"can add an exam"}  className="p-2 text-xs"                
-              />
-            }
-           
+            {canAdd ? (
+              <CreateExamAlert examCourses={courses} examYears={years} exam_type_id={examTypeId} />
+            ) : (
+              <PermissionAlert children={"Add Exam"} permission={"can add an exam"} className="p-2 text-xs" />
+            )}
           </div>
         </div>
       }
@@ -211,7 +247,7 @@ const Show = ({
             </div>
           </div>
 
-          {/* Year Filter and Search */}
+          {/* Year Filter, Sort Filter, and Search */}
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative w-full sm:w-64">
@@ -250,8 +286,34 @@ const Show = ({
                       {year.year}
                     </DropdownMenuItem>
                   ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Alphabetical Sort Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-1">
+                    {getSortIcon()}
+                    <span className="hidden sm:inline">{getSortLabel()}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Sort Alphabetically</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={clearFilters}>Clear All Filters</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSortSelect(null)}>Default</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSortSelect("asc")}
+                    className={filters.sort === "asc" ? "bg-muted" : ""}
+                  >
+                    <SortAsc className="h-4 w-4 mr-2" /> A to Z
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleSortSelect("desc")}
+                    className={filters.sort === "desc" ? "bg-muted" : ""}
+                  >
+                    <SortDesc className="h-4 w-4 mr-2" /> Z to A
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -275,7 +337,7 @@ const Show = ({
           </div>
 
           {/* Active Filters Display */}
-          {(filters.course_id || filters.year_id || filters.search) && (
+          {(filters.course_id || filters.year_id || filters.search || filters.sort) && (
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Active filters:</span>
 
@@ -301,6 +363,20 @@ const Show = ({
                     size="icon"
                     className="h-4 w-4 p-0 ml-1"
                     onClick={() => handleYearSelect(null)}
+                  >
+                    <span className="sr-only">Remove</span>×
+                  </Button>
+                </Badge>
+              )}
+
+              {filters.sort && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <span>Sort: {filters.sort === "asc" ? "A to Z" : "Z to A"}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-4 w-4 p-0 ml-1"
+                    onClick={() => handleSortSelect(null)}
                   >
                     <span className="sr-only">Remove</span>×
                   </Button>
@@ -374,22 +450,28 @@ const Show = ({
                               <Eye className="h-4 w-4" />
                             </Link>
 
-                            {
-                              canUpdate ? <EditExamAlert exam={exam} examCourses={courses} examYears={years} /> : <PermissionAlert children={"Edit"} buttonVariant={'outline'}
-                              className="p-2 text-xs"
-                              buttonSize={'sm'}
-                              permission='update an exam'
-                                icon={<Pencil className="h-4 w-4 mr-1" />} />
-                            }
-
-                            {
-                              canDelete ? <DeleteExamAlert id={exam.id} /> : <PermissionAlert children={"Delete"} permission={"delete an exam"} icon={<Trash2 className="h-4 w-4 mr-1" />}                       
+                            {canUpdate ? (
+                              <EditExamAlert exam={exam} examCourses={courses} examYears={years} />
+                            ) : (
+                              <PermissionAlert
+                                children={"Edit"}
+                                buttonVariant={"outline"}
+                                className="p-2 text-xs"
+                                buttonSize={"sm"}
+                                permission="update an exam"
+                                icon={<Pencil className="h-4 w-4 mr-1" />}
                               />
-                            }
+                            )}
 
-                            
-
-
+                            {canDelete ? (
+                              <DeleteExamAlert id={exam.id} />
+                            ) : (
+                              <PermissionAlert
+                                children={"Delete"}
+                                permission={"delete an exam"}
+                                icon={<Trash2 className="h-4 w-4 mr-1" />}
+                              />
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -452,19 +534,28 @@ const Show = ({
                         <div className="flex justify-end gap-2">
                           <ViewLink href={route("exam-details.show", exam.id)} />
 
-                          {
-                              canUpdate ? <EditExamAlert exam={exam} examCourses={courses} examYears={years} /> : <PermissionAlert children={"Edit"} buttonVariant={'outline'}
+                          {canUpdate ? (
+                            <EditExamAlert exam={exam} examCourses={courses} examYears={years} />
+                          ) : (
+                            <PermissionAlert
+                              children={"Edit"}
+                              buttonVariant={"outline"}
                               className="p-2 text-xs"
-                              buttonSize={'sm'}
-                              permission='update an exam'
-                                icon={<Pencil className="h-4 w-4 mr-1" />} />
-                            }
-
-                          {
-                            canDelete ? <DeleteExamAlert id={exam.id} /> : <PermissionAlert children={"Delete"} permission={"delete an exam"} icon={<Trash2 className="h-4 w-4 mr-1" />}                       
+                              buttonSize={"sm"}
+                              permission="update an exam"
+                              icon={<Pencil className="h-4 w-4 mr-1" />}
                             />
-                          }
+                          )}
 
+                          {canDelete ? (
+                            <DeleteExamAlert id={exam.id} />
+                          ) : (
+                            <PermissionAlert
+                              children={"Delete"}
+                              permission={"delete an exam"}
+                              icon={<Trash2 className="h-4 w-4 mr-1" />}
+                            />
+                          )}
                         </div>
                       </div>
                     </CardContent>

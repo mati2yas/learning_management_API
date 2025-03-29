@@ -42,20 +42,30 @@ class CourseController extends Controller
             $query->where('course_name', 'like', '%' . $request->search . '%');
         }
     
-        $courses = $query->latest()->paginate(16);
+        // Handle alphabetical sorting
+        if ($request->filled('sort')) {
+            if ($request->sort === 'asc') {
+                $query->orderBy('course_name', 'asc');
+            } elseif ($request->sort === 'desc') {
+                $query->orderBy('course_name', 'desc');
+            }
+        } else {
+            $query->latest(); // Default sorting by creation date
+        }
+    
+        $courses = $query->paginate(16);
     
         return Inertia::render('courses/Index', [
             'categories' => Category::all(),
             'grades' => Grade::all(),
             'departments' => Department::all(),
             'batches' => Batch::all(),
-            'courses' => CourseResource::collection($courses) , // Pagination metadata is preserved
-            'filters' => $request->only(['category', 'search']),
+            'courses' => CourseResource::collection($courses),
+            'filters' => $request->only(['category', 'search', 'sort']), // Include sort in filters
             'canAdd' => Auth::user()->hasDirectPermission('add courses'),
             'session' => session('success'),
         ]);
     }
-    
 
     /**
      * Show the form for creating a new resource.
@@ -77,7 +87,7 @@ class CourseController extends Controller
             'grade_id' => 'nullable',
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
-            'stream' => 'nullable|in:natural,social',
+            'stream' => 'nullable|in:natural,social,common',
             'price_one_month' => 'required|numeric|min:0|max:100000',
             'on_sale_one_month' => 'nullable|numeric|min:0|max:100000',
             'price_three_month' => 'required|numeric|min:0|max:100000',
@@ -174,7 +184,7 @@ class CourseController extends Controller
             'grade_id' => 'nullable',
             'department_id' => 'nullable',
             'batch_id' => 'nullable',
-            'stream' => 'nullable|in:natural,social',
+            'stream' => 'nullable|in:natural,social,common',
             'price_one_month' => 'required|numeric|max:100000',
             'on_sale_one_month' => 'nullable|numeric|max:100000',
             'price_three_month' => 'required|numeric|max:100000',

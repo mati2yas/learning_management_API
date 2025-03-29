@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\CarouselContentResource;
 use App\Models\CarouselContent;
 use Illuminate\Http\Request;
 
@@ -13,9 +14,11 @@ class CarouselContentController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'data' => CarouselContent::where('status', 'active')->get(), 
-        ]);
+        // return response()->json([
+        //     'data' => CarouselContent::where('status', 'active')->get(), 
+        // ]);
+
+        return CarouselContentResource::collection(CarouselContent::where('status', 'active')->get());
     }
 
     /**

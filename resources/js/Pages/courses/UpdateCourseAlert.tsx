@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { type FormEventHandler, useState, useEffect } from "react"
@@ -26,7 +24,7 @@ import { Card, CardContent } from "@/Components/ui/card"
 import InputLabel from "@/Components/InputLabel"
 import InputError from "@/Components/InputError"
 import { fetchGrades, fetchDepartments, fetchBatches } from "@/api/courseManagement"
-import { router } from "@inertiajs/react"
+
 
 interface UpdateCourseAlertProps {
   categories: Category[]
@@ -45,6 +43,7 @@ export function UpdateCourseAlert({
   batches: initialBatches,
   thumbnail,
 }: UpdateCourseAlertProps) {
+  
   const [isOpen, setIsOpen] = useState(false)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(thumbnail)
   const [fileSizeError, setFileSizeError] = useState<string | null>(null)
@@ -152,9 +151,9 @@ export function UpdateCourseAlert({
   }
 
   const handleStreamChange = (value: string) => {
-    const streamValue = value === "none" ? null : value
-    setData("stream", streamValue as "natural" | "social" | null)
-    setStream(streamValue)
+    
+    setData("stream", value as "natural" | "social" | "common")
+    setStream(value)
   }
 
   const validateForm = () => {
@@ -188,17 +187,7 @@ export function UpdateCourseAlert({
           newErrors.grade_id = "Grade is required for this category"
           isValid = false
         }
-        if (
-          grades.some(
-            (grade) =>
-              grade.id.toString() === data.grade_id &&
-              (grade.grade_name === "Grade 11" || grade.grade_name === "Grade 12"),
-          ) &&
-          data.stream === null
-        ) {
-          newErrors.stream = "Stream is required for Grade 11 and 12"
-          isValid = false
-        }
+
       }
     }
 
@@ -253,7 +242,7 @@ export function UpdateCourseAlert({
       return // Stop form submission if validation fails
     }
 
-    router.patch(route("courses.update", course.id), data, {
+    post(route("courses.update", course.id), {
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
@@ -360,7 +349,7 @@ export function UpdateCourseAlert({
                   <div>
                     <InputLabel htmlFor="stream" value="Stream" />
                     <Select
-                      value={data.stream || "none"}
+                      value={data.stream || "common"}
                       onValueChange={(e) => {
                         handleStreamChange(e)
                       }}
@@ -369,7 +358,7 @@ export function UpdateCourseAlert({
                         <SelectValue placeholder="Select Stream" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="common">Common</SelectItem>
                         <SelectItem value="natural">Natural</SelectItem>
                         <SelectItem value="social">Social</SelectItem>
                       </SelectContent>

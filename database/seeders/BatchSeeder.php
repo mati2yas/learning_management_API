@@ -22,22 +22,23 @@ class BatchSeeder extends Seeder
 
             foreach ($departments as $department) {
                 $years = [];
-
-                // Determine the years based on the department name
                 if (str_ends_with($department->department_name, 'Engineering')) {
                     if ($department->department_name === 'Pre-Engineering') {
-                        $years = ['Freshman', '2nd Year'];
+                        $years = ['1st Year', '2nd Year'];
                     } else {
-                        $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                        $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
                     }
                 } elseif (str_starts_with($department->department_name, 'Medicine')) {
-                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
                 } elseif ($department->department_name === 'Pharmacy') {
-                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
                 } elseif($department->department_name === 'Freshman'){
-                    $years = ['Freshman'];
+                    $years = ['1st Year'];
+                } elseif($department->department_name === "Common Courses" ){
+                    $years =['1st Year'];
+
                 }else {
-                    $years = ['Freshman', '2nd Year', '3rd Year', '4th Year'];
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
                 }
 
                 // Create batches for the department

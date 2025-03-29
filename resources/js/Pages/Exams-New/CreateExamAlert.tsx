@@ -76,10 +76,7 @@ export function CreateExamAlert({ examCourses, examYears, exam_type_id }: Create
       isValid = false
     }
 
-    if (!data.exam_duration) {
-      newErrors.exam_duration = "Duration is required"
-      isValid = false
-    } else if (Number.parseFloat(data.exam_duration) <= 0) {
+    if (Number.parseFloat(data.exam_duration) <= 0) {
       newErrors.exam_duration = "Duration must be greater than 0"
       isValid = false
     }

@@ -16,11 +16,6 @@ class ExamCourseController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(ExamCourse::all());
-        // return Inertia::render('Exams/ExamCourseList',[
-        //     'examCourses' => ExmamCourse::all(),
-        // ]);
-
         $query= ExamCourse::query();
 
         if ($request->filled('examType')) {
@@ -31,7 +26,9 @@ class ExamCourseController extends Controller
             $query->where('course_name', 'like', '%' . $request->search . '%');
         }
 
-        $exam_courses = $query->with(['examGrade','examType','examChapters'])->latest()->get();
+        
+
+        $exam_courses = $query->with(['examGrade','examType','examChapters'])->orderBy('course_name','asc')->get();
 
         // dd($exam_courses);
 

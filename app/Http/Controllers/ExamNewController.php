@@ -60,7 +60,7 @@ class ExamNewController extends Controller
             'exam_type_id' => 'required',
             'exam_course_id' => 'required',
             'exam_year_id' => 'required',
-            'exam_duration' => 'required',
+            'exam_duration' => 'nullable',
             'price_one_month' => 'required|numeric|max:999999.99',
             'price_three_month' => 'required|numeric|max:999999.99',
             'price_six_month' => 'required|numeric|max:999999.99',
@@ -88,15 +88,16 @@ class ExamNewController extends Controller
         $search = $request->input('search');
         $courseId = $request->input('course_id');
         $yearId = $request->input('year_id');
+        $sort = $request->input('sort'); // Get sort parameter
     
         // Base query for all exams under the given exam type
-        $baseQuery = Exam::where('exam_type_id', $examType->id);
+        $baseQuery = Exam::where('exams.exam_type_id', $examType->id); // Specify table name
     
         // Retrieve all distinct courses and years related to this exam type
-        $allCourses = ExamCourse::where('exam_type_id', $examType->id)->get();
-
-        // dd($allCourses);
-
+        $allCourses = ExamCourse::where('exam_type_id', $examType->id)
+                        ->orderBy('course_name', 'asc')
+                        ->get();
+    
         $allYears = ExamYear::all();
     
         // Apply filters to the query
@@ -109,21 +110,32 @@ class ExamNewController extends Controller
         }
     
         if ($courseId) {
-            $query->where('exam_course_id', $courseId);
+            $query->where('exams.exam_course_id', $courseId); // Specify table name
         }
     
         if ($yearId) {
-            $query->where('exam_year_id', $yearId);
+            $query->where('exams.exam_year_id', $yearId); // Specify table name
+        }
+    
+        // Join with exam_courses table to enable sorting by course name
+        $query->join('exam_courses', 'exams.exam_course_id', '=', 'exam_courses.id')
+              ->select('exams.*');
+    
+        // Apply sorting based on the sort parameter
+        if ($sort === 'asc') {
+            $query->orderBy('exam_courses.course_name', 'asc');
+        } elseif ($sort === 'desc') {
+            $query->orderBy('exam_courses.course_name', 'desc');
+        } else {
+            // Default sorting (latest first)
+            $query->orderBy('exams.created_at', 'desc');
         }
     
         // Fetch filtered exams with pagination
-        $exams = $query->latest()->paginate(10);
+        $exams = $query->paginate(10);
     
         // Collect unique courses and years from the filtered exams
         $filteredCourses = $exams->pluck('examCourse')->unique('id')->values();
-
-        // dd($filteredCourses);
-
         $filteredYears = $exams->pluck('examYear')->unique('id')->values();
     
         return Inertia::render('Exams-New/Show', [
@@ -137,6 +149,7 @@ class ExamNewController extends Controller
                 'search' => $search,
                 'course_id' => $courseId,
                 'year_id' => $yearId,
+                'sort' => $sort, // Include sort in filters
             ],
             'examTypeId' => $id,
             'canAdd' => Auth::user()->hasDirectPermission('add exams'),
@@ -144,10 +157,6 @@ class ExamNewController extends Controller
             'canDelete' => Auth::user()->hasDirectPermission('delete exams')
         ]);
     }
-    
-    
-    
-    
 
     /**
      * Show the form for editing the specified resource.
@@ -170,7 +179,7 @@ class ExamNewController extends Controller
             'exam_type_id' => 'required',
             'exam_course_id' => 'required',
             'exam_year_id' => 'required',
-            'exam_duration' => 'required',
+            'exam_duration' => 'nullable',
             'price_one_month' => 'required|numeric|max:999999.99',
             'price_three_month' => 'required|numeric|max:999999.99',
             'price_six_month' => 'required|numeric|max:999999.99',

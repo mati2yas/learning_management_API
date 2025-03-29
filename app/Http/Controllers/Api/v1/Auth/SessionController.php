@@ -53,7 +53,13 @@ class SessionController extends Controller
             'message' => 'Admin User Registered Successfully. Email Verification link sent',
             'token' => $user->createToken("API TOKEN")->plainTextToken,
             'data'=>[
-                'user'=> $user,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
+                    'bio' => $user->bio,
+                ],
             ]
         ]);
         
@@ -86,7 +92,7 @@ class SessionController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'avatar' => $avatarPath ?? null // Set default avatar if none uploaded
+            'avatar' => $avatarPath ? Storage::url($avatarPath) : null // Set default avatar if none uploaded
         ]);
     
         $studentApi = Role::where('name', 'student')->where('guard_name', 'api')->first();
@@ -118,7 +124,15 @@ class SessionController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Student User Created Successfully. Email verification link sent.',
-            'data' => ['user' => $user],
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
+                    'bio' => $user->bio,
+                ],
+            ],
         ]);
     }
     
@@ -166,7 +180,15 @@ class SessionController extends Controller
                 'status' => true,
                 'message' => 'Student logged in successfully',
                 'token' => $user->createToken("API TOKEN")->plainTextToken,
-                'data' => ['user' => $user],
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
+                        'bio' => $user->bio,
+                    ],
+                ],
             ]);
     
         } catch (\Throwable $th) {
@@ -234,7 +256,13 @@ class SessionController extends Controller
             'message' => 'User Credentials Updated Successfully',
             'token' => $user->createToken("API TOKEN")->plainTextToken,
             'data' => [
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
+                    'bio' => $user->bio,
+                ],
             ]
         ]);
     }

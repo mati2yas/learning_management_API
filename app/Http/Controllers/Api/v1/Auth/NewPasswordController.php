@@ -165,7 +165,15 @@ class NewPasswordController extends Controller
         return response()->json([
             'message' => 'Password reset successful',
             'token' => $user->createToken("API TOKEN")->plainTextToken,
-            'data' =>['user' => $user] 
+            'data' =>[
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
+                    'bio' => $user->bio,
+                ],
+            ] 
         ]);
     }
     

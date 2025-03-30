@@ -168,6 +168,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
               (item) =>
                 auth?.user?.permissions?.includes(item.permission) && (
                   <Link
+                    prefetch
                     key={item.route}
                     href={route(item.route)}
                     className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
@@ -200,6 +201,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
             )}
             <div className={`flex ${collapsed ? "flex-col" : "ml-auto"} space-y-1 ${collapsed ? "" : "space-x-2"}`}>
               <Link
+                prefetch
                 href={route("profile.edit")}
                 className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                 aria-label="Profile"
@@ -207,6 +209,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 <User size={collapsed ? 20 : 16} />
               </Link>
               <Link
+                
                 href={route("logout")}
                 method="post"
                 as="button"

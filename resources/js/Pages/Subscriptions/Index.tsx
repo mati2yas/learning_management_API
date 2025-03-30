@@ -58,7 +58,7 @@ const Index = ({subscriptions,subscriptionRequests, filters }:SubscriptionIndexP
     <Authenticated
         header={
           <div className='flex justify-between'>
-            <h1 className=' font-bold'>Subscription Requests</h1>
+            <h1 className='text-2xl font-bold'>Subscription Requests</h1>
         </div>
         }
       >

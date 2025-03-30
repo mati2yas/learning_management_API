@@ -45,13 +45,12 @@ const Show = ({
 
   const { flash } = usePage().props as unknown as { flash: { success?: string } };
 
-  console.log(flash.success)
 
   return (
     <AuthenticatedLayout
       header={
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Course Details</h1>
+          <h1 className="text-2xl font-bold">Course Details</h1>
         </div>
       }
     >

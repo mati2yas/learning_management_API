@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class HomepageCourseResource extends JsonResource
 {
@@ -64,7 +65,7 @@ class HomepageCourseResource extends JsonResource
         // Check if the thumbnail starts with "/id", append the base URL if true
         return $this->thumbnail && strpos($this->thumbnail, '/id') === 0
             ? 'https://picsum.photos' . $this->thumbnail
-            : url($this->thumbnail);
+            : url(Storage::url($this->thumbnail));
     }
 
     /**

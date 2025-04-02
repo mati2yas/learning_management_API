@@ -1,6 +1,6 @@
-import { Head, usePage } from "@inertiajs/react"
+import { Head, Link, usePage } from "@inertiajs/react"
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
-import { BookOpen, Users, GraduationCap, Building, Clock, UserCheck, Pencil, Trash2, Building2 } from "lucide-react"
+import { BookOpen, Users, GraduationCap, Building, Clock, UserCheck, Pencil, Trash2, Building2, ArrowLeft } from "lucide-react"
 import { EnhancedTableDemo } from "@/Components/TableDemo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs"
@@ -14,6 +14,7 @@ import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import PermissionAlert from "@/Components/PermissionAlert"
 import { SessionToast } from "@/Components/SessionToast"
+import { Button } from "@/Components/ui/button"
 
 
 dayjs.extend(relativeTime)
@@ -39,8 +40,6 @@ const Show = ({
   canUpdateChapters,
 }: ShowCourseProps) => {
 
-
-  console.log(course)
   const gradeName = grades.find((grade) => grade.id === Number(course.grade_id))?.grade_name || "N/A"
 
   const { flash } = usePage().props as unknown as { flash: { success?: string } };
@@ -51,6 +50,12 @@ const Show = ({
       header={
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Course Details</h1>
+
+          <Link prefetch href={route('courses.index')}>
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
+            </Button>
+          </Link>
         </div>
       }
     >

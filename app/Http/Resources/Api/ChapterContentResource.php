@@ -39,6 +39,7 @@ class ChapterContentResource extends JsonResource
         }
 
         return [
+            'order' => $this->order,
             'videos' => array_values($videos),  // Remove duplicate video entries
             'documents' => array_values($documents),  // Remove duplicate document entries
             'quizzes' => $this->quizzes->map(fn($quiz) => [

@@ -24,6 +24,7 @@ class ChapterContentResource extends JsonResource
                     'id' => $youtubeContent->id,
                     'title' => $youtubeContent->title,
                     'url' => $youtubeContent->url,
+                    'order' => $youtubeContent->youtube_number,
                 ];
             }
 
@@ -32,6 +33,7 @@ class ChapterContentResource extends JsonResource
                     'id' => $fileContent->id,
                     'title' => $fileContent->title,
                     'file_url' => url($fileContent->file_url),
+                    'order' => $fileContent->file_number,
                 ];
             }
         }

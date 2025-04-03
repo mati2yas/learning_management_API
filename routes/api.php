@@ -25,6 +25,7 @@ use App\Models\Chapter;
 use App\Models\Content;
 use App\Models\Course;
 use App\Models\Department;
+use App\Models\Exam;
 use App\Models\ExamChapter;
 use App\Models\ExamCourse;
 use App\Models\ExamGrade;
@@ -493,19 +494,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     
     Route::get('exams/exam-courses/{examType}', function($examType) {
-
         $examType = ExamType::with('exams.paidExams')->where('name', $examType)->first();
     
         if (!$examType) {
             return response()->json(['message' => 'Exam type not found'], 404);
         }
     
-        return ExamCourseTypeResource::collection(
-            ExamCourse::where('exam_type_id', $examType->id)
-                ->with('examQuestions.examYear')
-                ->get()
-        );
+        // Fetch distinct courses related to this exam type
+        $examCourses = Exam::where('exam_type_id', $examType->id)
+            ->with('examQuestions.examYear', 'examCourse','examYear')
+            ->get()
+            ->groupBy('examCourse.id');  // Group exams by `examCourse`
+    
+        return ExamCourseTypeResource::collection($examCourses);
     });
+    
 
     Route::get('exams/exam-questions-year/{exam_course_id}/{exam_year_id}', function ($exam_course_id, $exam_year_id) {
 

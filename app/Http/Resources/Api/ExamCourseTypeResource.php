@@ -9,54 +9,43 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExamCourseTypeResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         $user = $request->user();
+
+        // Ensure $this is a collection
+        $exams = collect($this->resource);
+        $firstExam = $exams->first();
+
         return [
-            'id' => $this->id,
-            'course_name' => $this->course_name,
-            'exam_years' => $this->getUniqueExamYears($user),
+            'id' => $firstExam->examCourse->id,
+            'course_name' => optional($firstExam->examCourse)->course_name,
+            'exam_years' => $this->getGroupedExamYears($exams, $user),
         ];
     }
 
-    /**
-     * Extract unique exam years with their respective exam question count.
-     */
-    private function getUniqueExamYears(User $user): array
+    private function getGroupedExamYears($exams, User $user): array
     {
-        return $this->examQuestions
+        return $exams
             ->groupBy('exam_year_id')
-            ->map(function ($questions, $yearId) use ($user) {
-                $firstQuestion = $questions->first(); // Get the first question safely
-    
-                if (!$firstQuestion) {
+            ->map(function ($exams, $yearId) use ($user) {
+                $firstExam = $exams->first();
+
+                if (!$firstExam) {
                     return [
                         'id' => $yearId,
                         'year_name' => null,
-                        'exam_sheet_id' => null,
                         'exam_questions_count' => 0,
-                        'is_paid' => false,
-                        'subscription_status' => null,
-                        'is_pending' => false,
-                        'is_approved' => false,
-                        'is_rejected' => false,
-                    ];
-                }
-    
-                $examYear = $firstQuestion->examYear; // Get examYear
-                $exam = Exam::find($firstQuestion->exam_id); // Get exam instance
-    
-                if (!$exam) {
-                    return [
-                        'id' => $yearId,
-                        'year_name' => optional($examYear)->year,
                         'exam_sheet_id' => null,
-                        'exam_questions_count' => $questions->count(),
+                        'exam_duration' => null,
+                        'price_one_month' => null,
+                        'price_three_month' => null,
+                        'price_six_month' => null,
+                        'price_one_year' => null,
+                        'on_sale_one_month' => null,
+                        'on_sale_three_month' => null,
+                        'on_sale_six_month' => null,
+                        'on_sale_one_year' => null,
                         'is_paid' => false,
                         'subscription_status' => null,
                         'is_pending' => false,
@@ -64,42 +53,30 @@ class ExamCourseTypeResource extends JsonResource
                         'is_rejected' => false,
                     ];
                 }
-    
-                $isPaid = $exam->paidExams()->where('user_id', $user->id)->exists();
-    
-                // Fetch user's latest subscription request for this exam
-                $subscription = $exam->subscriptionRequests()
-                    ->where('user_id', $user->id)
-                    ->latest()
-                    ->first();
-    
-                // Get subscription status
-                $subscriptionStatus = $subscription ? $subscription->status : null;
-    
-                // Boolean values based on subscription status
-                $isPending = $subscriptionStatus === 'Pending';
-                $isApproved = $subscriptionStatus === 'Approved';
-                $isRejected = $subscriptionStatus === 'Rejected';
-    
+
+                $isPaid = $firstExam->paidExams()->where('user_id', $user->id)->exists();
+                $subscription = $firstExam->subscriptionRequests()->where('user_id', $user->id)->latest()->first();
+                $subscriptionStatus = $subscription?->status;
+
                 return [
                     'id' => $yearId,
-                    'year_name' => optional($examYear)->year,
-                    'exam_sheet_id' => $exam->id,
-                    'exam_questions_count' => $questions->count(),
-                    'exam_duration' => $exam->exam_duration,
-                    'price_one_month' => $exam->price_one_month,
-                    'price_three_month' => $exam->price_three_month,
-                    'price_six_month' => $exam->price_six_month,
-                    'price_one_year' => $exam->price_one_year,
-                    'on_sale_one_month' => $exam->on_sale_one_month,
-                    'on_sale_three_month' => $exam->on_sale_three_month,
-                    'on_sale_six_month' => $exam->on_sale_six_month,
-                    'on_sale_one_year' => $exam->on_sale_one_year,
+                    'year_name' => optional($firstExam->examYear)->year,
+                    'exam_questions_count' => $exams->sum(fn ($exam) => $exam->examQuestions->count()),
+                    'exam_sheet_id' => $firstExam->id,
+                    'exam_duration' => $firstExam->exam_duration,
+                    'price_one_month' => $firstExam->price_one_month,
+                    'price_three_month' => $firstExam->price_three_month,
+                    'price_six_month' => $firstExam->price_six_month,
+                    'price_one_year' => $firstExam->price_one_year,
+                    'on_sale_one_month' => $firstExam->on_sale_one_month,
+                    'on_sale_three_month' => $firstExam->on_sale_three_month,
+                    'on_sale_six_month' => $firstExam->on_sale_six_month,
+                    'on_sale_one_year' => $firstExam->on_sale_one_year,
                     'is_paid' => $isPaid,
                     'subscription_status' => $subscriptionStatus,
-                    'is_pending' => $isPending,
-                    'is_approved' => $isApproved,
-                    'is_rejected' => $isRejected,
+                    'is_pending' => $subscriptionStatus === 'Pending',
+                    'is_approved' => $subscriptionStatus === 'Approved',
+                    'is_rejected' => $subscriptionStatus === 'Rejected',
                 ];
             })
             ->values()

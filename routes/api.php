@@ -470,7 +470,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('exams/exam-years/{examTypeName}', function($examTypeName){
 
-        $types = ['matric','ministry', 'ngat','exit'];
+        // $types = ['matric','ministry', 'ngat','exit'];
     
         $examTypeRecord = ExamType::where('name',$examTypeName)->first();
     
@@ -493,7 +493,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
 
     
-    Route::get('exams/exam-courses/{examType}', function($examType) {
+    Route::get('exams/exam-courses-years/{examType}', function($examType) {
         $examType = ExamType::with('exams.paidExams')->where('name', $examType)->first();
     
         if (!$examType) {

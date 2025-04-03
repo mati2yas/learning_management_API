@@ -28,7 +28,7 @@ class ExamDetailController extends Controller
 
         $exam_chapters = ExamCourse::findOrFail($exam->exam_course_id)->examChapters;
 
-        // dd($exam_chapters);
+        $query->where('exam_id', $exam->id);
 
         if ($request->filled(key: 'search')) {
             $query->where('question_text', 'like', '%' . $request->search . '%');

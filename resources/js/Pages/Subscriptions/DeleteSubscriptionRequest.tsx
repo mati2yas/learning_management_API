@@ -39,7 +39,6 @@ const DeleteSubscriptionRequest = ({ id, name }: DeleteSubscriptionRequestProps)
   const handleDelete: FormEventHandler = (e) => {
     e.preventDefault();
 
-    console.log(data)
     if (!data.password.trim()) {
       setData("password", "")
       return

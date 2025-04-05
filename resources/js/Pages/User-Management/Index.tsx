@@ -44,8 +44,6 @@ interface IndexProps{
 
 function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: IndexProps) {
   queryParams = queryParams || {}
-
-  console.log(users)
   
   const searchFieldChanged = (name: string, value: any) => {
     if (value) {
@@ -75,9 +73,10 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
     <Authenticated
         header={
           <div className='flex justify-between'>
-            <h1 className=' font-bold'>User Management</h1>
+            <h1 className=' font-bold text-xl'>User Management</h1>
             {
-              canAdd ?   <Link prefetch href={route('user-managements.create')}>Add User</Link> : <PermissionAlert children={'Add Worker'} permission={'can add a worker'} buttonVariant={'outline'} />
+              canAdd ?   
+              <Link prefetch className='p-2 text-xs text-white border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground bg-customBlue' href={route('user-managements.create')}>Add User</Link> : <PermissionAlert children={'Add Worker'} permission={'can add a worker'} buttonVariant={'outline'} />
             }
           
         </div>

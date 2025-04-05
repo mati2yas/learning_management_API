@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
         // Loop through permissions and redirect to the first matching route
         foreach ($redirectRoutes as $permission => $route) {
             if ($user->hasPermissionTo($permission)) {
-                return redirect()->intended($route);
+                return redirect($route);
             }
         }
     

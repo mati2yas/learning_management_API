@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\EmailVerificationSend;
-use App\Jobs\SendCustomVerificationEmail;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -176,10 +175,16 @@ class SessionController extends Controller
                 ], 403);
             }
     
+            // Delete all previous tokens (logout from other devices/sessions)
+            $user->tokens()->delete();
+    
+            // Create and return new token
+            $newToken = $user->createToken("API TOKEN")->plainTextToken;
+    
             return response()->json([
                 'status' => true,
                 'message' => 'Student logged in successfully',
-                'token' => $user->createToken("API TOKEN")->plainTextToken,
+                'token' => $newToken,
                 'data' => [
                     'user' => [
                         'id' => $user->id,
@@ -198,6 +203,7 @@ class SessionController extends Controller
             ], 500);
         }
     }
+    
 
 
     public function update(Request $request)
@@ -250,11 +256,18 @@ class SessionController extends Controller
             'bio' => $request->bio,
             'avatar' => $avatarPath
         ]);
+
+
+        // Delete all previous tokens (logout from other devices/sessions)
+        $user->tokens()->delete();
+
+        // Create and return new token
+        $newToken = $user->createToken("API TOKEN")->plainTextToken;
     
         return response()->json([
             'status' => true,
             'message' => 'User Credentials Updated Successfully',
-            'token' => $user->createToken("API TOKEN")->plainTextToken,
+            'token' => $newToken,
             'data' => [
                 'user' => [
                     'id' => $user->id,

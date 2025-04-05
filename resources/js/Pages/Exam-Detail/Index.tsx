@@ -44,7 +44,6 @@ const Index = ({
   exam_chapters,
   filters,
 }: IndexProps) => {
-  console.log("examChapters", exam_chapters)
 
   const { data, setData } = useForm({
     search: filters?.search || "",
@@ -57,13 +56,18 @@ const Index = ({
   const [filteredExamChapters, setFilteredExamChapters] = useState<ExamChapter[]>([])
 
   useEffect(() => {
-    fetchExamChapters(exam.exam_course_id?.toString() || "")
-  }, [])
+    if (data.examGrade) {
+      fetchExamChapters(exam.exam_course_id?.toString() || "", data.examGrade)
+    } else {
+      setFilteredExamChapters([])
+    }
+  }, [data.examGrade])
+  
 
-  const fetchExamChapters = useCallback(async (examCourseId: string) => {
+  const fetchExamChapters = useCallback(async (examCourseId: string, gradeId: string) => {
     if (!examCourseId) return
     try {
-      const response = await axios.get(`/api/exam-chapters/${examCourseId}`)
+      const response = await axios.get(`/api/exam-courses-chapters/${examCourseId}/${gradeId}`)
       setFilteredExamChapters(response.data)
     } catch (error) {
       console.error("Error fetching exam chapters:", error)
@@ -182,7 +186,7 @@ const Index = ({
               </Select>
             )}
 
-            <Select value={data.examChapter} onValueChange={handleExamChapterChange}>
+            <Select value={data.examChapter} onValueChange={handleExamChapterChange} disabled={!data.examGrade}>
               <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Select Chapter" />
               </SelectTrigger>

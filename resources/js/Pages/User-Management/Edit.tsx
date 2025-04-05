@@ -1,12 +1,12 @@
 
 
 import { type FormEventHandler, useState } from "react"
-import { Head, useForm } from "@inertiajs/react"
+import { Head, Link, useForm } from "@inertiajs/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { Button } from "@/Components/ui/button"
-import { Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { GroupedPermissions } from "./GroupedPermission"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { allPermissions } from '@/constants/allPermissions';
@@ -108,7 +108,15 @@ export default function Edit({ user }: EditUser) {
     <Authenticated
       header={
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Edit User</h1>
+          <h1 className="text-xl font-bold">Edit User</h1>
+          <Link
+            prefetch
+            className="p-2 text-xs  border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground flex "
+            href={route("user-managements.index")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4"/>
+            Back
+          </Link>
         </div>
       }
     >

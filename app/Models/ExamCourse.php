@@ -32,3 +32,9 @@ class ExamCourse extends Model
         return $this->hasMany(ExamQuestion::class);
     }
 }
+
+
+
+
+
+

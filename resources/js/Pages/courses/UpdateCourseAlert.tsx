@@ -1,5 +1,4 @@
 import type React from "react"
-
 import { type FormEventHandler, useState, useEffect } from "react"
 import { Button } from "@/Components/ui/button"
 import { useForm } from "@inertiajs/react"
@@ -13,7 +12,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import type { Category, Grade, Department, Batch } from "@/types"
 import type { Course } from "@/types/course"
@@ -250,7 +248,7 @@ export function UpdateCourseAlert({
         window.location.reload()
       },
       onError: (errors: any) => {
-        console.log("Validation errors:", errors)
+        console.error("Validation errors:", errors)
       },
     })
   }

@@ -76,7 +76,6 @@ export function SubscriptionRequestsTable({subscriptionRequests}: SubscriptionRe
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>
-                
               </Link>
               <DeleteSubscriptionRequest id={request.id} name={""} />
             </TableCell>

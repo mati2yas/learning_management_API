@@ -1,12 +1,10 @@
-"use client"
-
 import { type FormEventHandler, useState } from "react"
-import { Head, useForm, usePage } from "@inertiajs/react"
+import { Head, Link, useForm, usePage } from "@inertiajs/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
 import { Button } from "@/Components/ui/button"
-import { Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import { GroupedPermissions } from "./GroupedPermission"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { ErrorToast } from "@/Components/ErrorToast"
@@ -154,16 +152,13 @@ export default function Create() {
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
-    console.log(data)
 
     post(route("user-managements.store"),{
       onSuccess: () => {
-        // toast('A course has been created')
-       // Only close on successful submission
         reset();
     },
       onError:(errors)=>{
-        console.log('validaitonError',errors)
+        console.error('validaitonError',errors)
       }
     })
 
@@ -173,7 +168,16 @@ export default function Create() {
     <Authenticated
       header={
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Add User</h1>
+          <h1 className="text-xl font-bold">Add User</h1>
+
+          <Link
+            prefetch
+            className="p-2 text-xs  border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground flex "
+            href={route("user-managements.index")}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4"/>
+            Back
+          </Link>
         </div>
       }
     >

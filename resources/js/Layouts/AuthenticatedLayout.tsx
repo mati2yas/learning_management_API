@@ -1,5 +1,3 @@
-"use client"
-
 import { type PropsWithChildren, type ReactNode, useState, useEffect } from "react"
 import { Link, usePage } from "@inertiajs/react"
 import {
@@ -66,6 +64,22 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
     }
 
+    if (routeName === "subscriptions.index") {
+      // Check if current URL contains these patterns
+      const currentUrl = window.location.pathname
+      const relatedPatterns = [ "/subscriptions/"]
+
+      return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
+    }
+
+    if (routeName === "user-managements.index") {
+      // Check if current URL contains these patterns
+      const currentUrl = window.location.pathname
+      const relatedPatterns = [ "/user-managements/"]
+
+      return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
+    }
+
     if (routeName === "exams-new.index") {
         // Check if current URL contains these patterns
         const currentUrl = window.location.pathname
@@ -85,7 +99,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       icon: <LayoutDashboard size={20} />,
     },
     {
-      name: "Courses",
+      name: "Courses Management",
       route: "courses.index",
       permission: "can view courses",
       icon: <BookOpen size={20} />,

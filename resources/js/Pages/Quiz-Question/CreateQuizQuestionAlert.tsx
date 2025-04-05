@@ -19,18 +19,6 @@ interface CreateQuizQuestionAlertProps {
   title: string
 }
 
-interface QuestionData {
-  id: number
-  question_number: number
-  text: string
-  text_explanation: string
-  video_explanation_url: string
-  options: string[]
-  answer: string[]
-  image_explanation_url: string | null
-  question_image_url: string | null
-}
-
 const generateUniqueId = () => {
   return Math.floor(Math.random() * 1000000)
 }
@@ -178,8 +166,6 @@ const CreateQuizQuestionAlert = ({ quizId, title }: CreateQuizQuestionAlertProps
     if (!validateForm()) {
       return
     }
-
-    // console.log("Submitting data:", data)
 
     post(route("quiz-questions.store"), {
       

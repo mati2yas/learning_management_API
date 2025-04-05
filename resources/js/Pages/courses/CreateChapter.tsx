@@ -88,7 +88,7 @@ const CreateChapter = ({id, course_name}:CreateChapterAlertProps) => {
             </div>
 
             <div className="mb-4">
-              <InputLabel htmlFor="description" value="Chapter Description" />
+              <InputLabel htmlFor="description" value="Chapter Description (optional)" />
               <Textarea
                 id="description"
                 name="description"

@@ -15,11 +15,6 @@ const Index = ({ exam_types }: ExamIndexProps) => {
 
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
-  // Function to get a random number for placeholder stats
-  const getRandomStat = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min
-  }
-
   // Function to get icon config based on exam type name
   const getIconConfig = (name: string) => {
     const configs = [
@@ -71,7 +66,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
         </div>
       }
     >
-      <Head title="Exams New" />
+      <Head title="Exams Mangement" />
       {flash.success && <SessionToast message={flash.success} />}
       {flash.error && <ErrorToast message={flash.error} />}
 
@@ -103,9 +98,6 @@ const Index = ({ exam_types }: ExamIndexProps) => {
                         <div>
                           <h3 className="text-xl font-bold text-gray-900 dark:text-white">{examType.name}</h3>
                           <div className="flex gap-2 mt-2">
-                            <Badge variant="outline" className={`${accentColor} ${textColor}`}>
-                              ID: {examType.id}
-                            </Badge>
                             <Badge variant="outline" className={`${accentColor} ${textColor}`}>
                               {examType.total_years} {examType.total_years === 1 ? "Year" : "Years"}
                             </Badge>

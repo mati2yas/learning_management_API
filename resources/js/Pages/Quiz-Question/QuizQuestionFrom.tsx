@@ -141,20 +141,6 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
 
 
       <div className="space-y-2">
-        <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
-        <Input
-          id={`image_explanation_url_${index}`}
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
-        />
-        {question.image_explanation_url && (
-          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
-        )}
-        <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
-      </div>
-
-      <div className="space-y-2">
         <Label>Answer Type</Label>
         <RadioGroup value={answerType} onValueChange={handleAnswerTypeChange}>
           <div className="flex flex-col space-y-2">
@@ -239,6 +225,20 @@ const QuizQuestionForm: React.FC<QuizQuestionFormProps> = ({
           onChange={(e) => updateQuestion(index, "text_explanation", e.target.value)}
         />
         <InputError>{errors[`questions.${index}.text_explanation`]}</InputError>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
+        <Input
+          id={`image_explanation_url_${index}`}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
+        />
+        {question.image_explanation_url && (
+          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
+        )}
+        <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
       </div>
 
       <div className="space-y-2">

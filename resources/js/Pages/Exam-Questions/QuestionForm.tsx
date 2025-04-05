@@ -71,14 +71,14 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
         </div>
 
         <div className="space-y-2">
-        <Label htmlFor={`question_text_${index}`}>Question Text</Label>
-        <Textarea
-        id={`question_text_${index}`}
-        value={question.question_text}
-        onChange={(e) => updateQuestion(index, "question_text", e.target.value)}
-        required
-        />
-        <InputError message={errors[`questions.${index}.question_text`]} />
+          <Label htmlFor={`question_text_${index}`}>Question Text</Label>
+          <Textarea
+          id={`question_text_${index}`}
+          value={question.question_text}
+          onChange={(e) => updateQuestion(index, "question_text", e.target.value)}
+          required
+          />
+          <InputError message={errors[`questions.${index}.question_text`]} />
         </div>
 
         <div className="space-y-2">
@@ -95,64 +95,29 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
           <InputError>{errors[`questions.${index}.question_image`]}</InputError>
         </div>
 
-        <div className="space-y-2">
-        <Label htmlFor={`text_explanation_${index}`}>Explanation (optional)</Label>
-        <Textarea
-        id={`text_explanation_${index}`}
-        value={question.text_explanation}
-        onChange={(e) => updateQuestion(index, "text_explanation", e.target.value)}
-        required
-        />
-        <InputError message={errors[`questions.${index}.text_explanation`]} />
-        </div>
-
-        <div className="space-y-2">
-        <Label htmlFor={`video_explanation_url_${index}`}>Video Explanation URL (optional)</Label>
-        <Input
-          id={`video_explanation_url_${index}`}
-          type="url"
-          value={question.video_explanation_url}
-          onChange={(e) => updateQuestion(index, "video_explanation_url", e.target.value)}
-          />
-          <InputError message={errors[`questions.${index}.video_explanation_url`]} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
-          <Input
-          id={`image_explanation_url_${index}`}
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
-          />
-          {question.image_explanation_url && (
-          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
-          )}
-          <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
-        </div>
-
+          
         <div className="space-y-2">
           <Label>Options</Label>
           <div className="space-y-2">
-          {question.options.map((option, optionIndex) => (
-            <div key={optionIndex} className="flex items-center space-x-2">
-              <Textarea
-              className=" max-w-[720px]"
-                value={option}
-                onChange={(e) => updateOption(optionIndex, e.target.value)}
-                placeholder={`Option ${optionIndex + 1}`}
-                required
-              />
-              <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(optionIndex)}>
-                <X className="h-4 w-4" />
+              {question.options.map((option, optionIndex) => (
+                <div key={optionIndex} className="flex items-center space-x-2">
+                  <Textarea
+                  className=" max-w-[720px]"
+                    value={option}
+                    onChange={(e) => updateOption(optionIndex, e.target.value)}
+                    placeholder={`Option ${optionIndex + 1}`}
+                    required
+                  />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => removeOption(optionIndex)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addOption}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Option
               </Button>
-            </div>
-          ))}
-          <Button type="button" variant="outline" onClick={addOption}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Option
-          </Button>
-        </div>
+          </div>
           <InputError message={errors[`questions.${index}.options`]} />
         </div>
 
@@ -165,15 +130,15 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
             updateQuestion(index, "answer", value === "multiple" ? [] : "")
           }}
           >
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="single" id={`single_${index}`} />
-          <Label htmlFor={`single_${index}`}>Single Choice</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="multiple" id={`multiple_${index}`} />
-          <Label htmlFor={`multiple_${index}`}>Multiple Choice</Label>
-        </div>
-        </RadioGroup>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="single" id={`single_${index}`} />
+            <Label htmlFor={`single_${index}`}>Single Choice</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="multiple" id={`multiple_${index}`} />
+            <Label htmlFor={`multiple_${index}`}>Multiple Choice</Label>
+          </div>
+          </RadioGroup>
         </div>
 
         <div className="space-y-2">
@@ -207,6 +172,43 @@ const QuestionForm: React.FC<QuestionFormProps> = ({ index, question, updateQues
           )}
           <InputError message={errors[`questions.${index}.answer`]} />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`text_explanation_${index}`}>Explanation (optional)</Label>
+          <Textarea
+          id={`text_explanation_${index}`}
+          value={question.text_explanation}
+          onChange={(e) => updateQuestion(index, "text_explanation", e.target.value)}
+          required
+          />
+          <InputError message={errors[`questions.${index}.text_explanation`]} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`image_explanation_url_${index}`}>Image Explanation</Label>
+          <Input
+          id={`image_explanation_url_${index}`}
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e, "image_explanation_url")}
+          />
+          {question.image_explanation_url && (
+          <img src={question.image_explanation_url || "/placeholder.svg"} alt="Explanation" className="mt-2 max-w-xs" />
+          )}
+          <InputError>{errors[`questions.${index}.image_explanation_url`]}</InputError>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`video_explanation_url_${index}`}>Video Explanation URL (optional)</Label>
+          <Input
+            id={`video_explanation_url_${index}`}
+            type="url"
+            value={question.video_explanation_url}
+            onChange={(e) => updateQuestion(index, "video_explanation_url", e.target.value)}
+            />
+            <InputError message={errors[`questions.${index}.video_explanation_url`]} />
+        </div>
+
 
       </div>
     </ScrollArea>

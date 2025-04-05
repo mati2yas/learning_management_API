@@ -67,7 +67,6 @@ interface IndexProps{
 
 const Index = ({users, queryParams={}, success, canBan, canUnBan}: IndexProps) => {
 
-  console.log(users)
 
   queryParams = queryParams || {}
 

@@ -32,10 +32,8 @@ const Show = ({
   batches,
   chaptersCount,
   paidCourses,
-  session,
   canDelete,
   canUpdate,
-  canAddChapters,
   canDeleteChapters,
   canUpdateChapters,
 }: ShowCourseProps) => {

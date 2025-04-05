@@ -62,11 +62,8 @@ interface UserDetailProps {
 
 export default function UserDetailDrawer({ user, canBan, canUnban }: UserDetailProps) {
 
-  console.log(user)
   const [isOpen, setIsOpen] = useState(false)
   const [expandedRequests, setExpandedRequests] = useState<number[]>([])
-
-
 
   const toggleRequestExpansion = (requestId: number) => {
     setExpandedRequests((prev) =>

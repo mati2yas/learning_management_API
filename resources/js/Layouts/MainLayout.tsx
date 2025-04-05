@@ -8,9 +8,10 @@ interface MainLayoutProps {
   pageTitle: string
   children: React.ReactNode
   headerAction?: React.ReactNode
+  navLinks?: React.ReactNode
 }
 
-const MainLayout = ({children, tabTitle, pageTitle, headerAction}: MainLayoutProps) => {
+const MainLayout = ({children, tabTitle, pageTitle, headerAction, navLinks}: MainLayoutProps) => {
 
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
@@ -20,6 +21,7 @@ const MainLayout = ({children, tabTitle, pageTitle, headerAction}: MainLayoutPro
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-semibold">{pageTitle}</h1>
+            {navLinks}
           </div>
 
           <div className="flex gap-2">

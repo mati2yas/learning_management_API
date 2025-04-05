@@ -26,7 +26,6 @@ interface CreateExamQuestionAlertProps {
 
 const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertProps) => {
 
-
   const [isOpen, setIsOpen] = useState(false)
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
 
@@ -102,24 +101,30 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
     clearErrors()
   }
 
-  useEffect(()=>{
-    fetchExamChapters(data.exam_course_id)
-  }, [])
+  // useEffect(()=>{
+  //   fetchExamChapters(data.exam_course_id)
+  // }, [])
 
 
-  const fetchExamChapters = async (courseId: string) => {
+  const fetchExamChapters = async (courseId: string, gradeId: string) => {
     try {
-      const response = await axios.get(`/api/exam-chapters/${courseId}`)
+      const response = await axios.get(`/api/exam-courses-chapters/${courseId}/${gradeId}`)
       setExamChapters(response.data)
     } catch (error) {
       console.error("Error fetching exam chapters:", error)
     }
   }
+  
 
   const handleExamGradeChange = (value: string) => {
     setData({ ...data, exam_grade_id: value })
-   
+  
+    // Only fetch if there's a selected course ID
+    if (data.exam_course_id) {
+      fetchExamChapters(data.exam_course_id, value)
+    }
   }
+  
 
 
   const addQuestion = () => {
@@ -159,11 +164,11 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
       isValid = false
     }
 
-    if (showExamGrade() 
-     && !data.exam_chapter_id) {
-      setError("exam_chapter_id", "Exam chapter is required")
-      isValid = false
-    }
+    // if (showExamGrade() 
+    //  && !data.exam_chapter_id) {
+    //   setError("exam_chapter_id", "Exam chapter is required")
+    //   isValid = false
+    // }
 
     data.questions.forEach((question, index) => {
       if (!question.question_text) {

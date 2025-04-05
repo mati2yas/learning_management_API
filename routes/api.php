@@ -537,7 +537,16 @@ Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_c
 });
 
 
-Route::get('/exam-chapters/{gradeId}', fn($gradeId) => ExamChapter::where('exam_course_id', $gradeId)->get());
+Route::get('/exam-chapters/{courseId}', fn($courseId) => ExamChapter::where('exam_course_id', $courseId)->get());
+
+Route::get('/exam-courses-chapters/{courseId}/{gradeId}', function ($courseId, $gradeId) {
+    return ExamChapter::whereHas('examCourse', function ($query) use ($gradeId) {
+        $query->where('exam_grade_id', $gradeId);
+    })
+    ->where('exam_course_id', $courseId)
+    ->get();
+});
+
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){
     return ExamYear::where('exam_type_id', $examTypeId)->get();

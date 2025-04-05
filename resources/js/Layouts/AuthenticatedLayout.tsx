@@ -91,7 +91,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       icon: <BookOpen size={20} />,
     },
     {
-      name: "Exams",
+      name: "Exams Mangement",
       route: "exams-new.index",
       permission: "can view exams",
       icon: <FileText size={20} />,

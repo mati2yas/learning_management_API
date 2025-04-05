@@ -13,8 +13,6 @@ interface ExamIndexProps {
 
 const Index = ({ exam_types }: ExamIndexProps) => {
 
-  console.log(exam_types)
-
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
   // Function to get a random number for placeholder stats
@@ -66,7 +64,7 @@ const Index = ({ exam_types }: ExamIndexProps) => {
       header={
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-semibold">Exams New</h1>
+            <h1 className="text-2xl font-semibold">Exams Mangement</h1>
           </div>
 
           <div className="flex gap-2"></div>

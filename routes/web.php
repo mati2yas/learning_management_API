@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\ExamCourseController;
 use App\Http\Controllers\ExamNewController;
 use App\Http\Controllers\ProfileController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Web\StudentManagementController;
 use App\Http\Controllers\Web\SubscriptionController;
 use App\Http\Controllers\Web\UserManagementController;
 use App\Http\Controllers\Web\YoutubeContentController;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,11 +42,46 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('/dashboard', DashboardController::class)
-        ->middleware(['permission:can view dashboard'])
         ->name('dashboard');
 
     Route::resource('courses', CourseController::class)
         ->middleware(['permission:can view courses']);
+
+    // Route::resource('departments', DepartmentController::class);
+
+    // Route::middleware(['permission:can view courses'])->group(function () {
+
+    //     Route::redirect('courses', 'courses/general');
+
+    //     Route::get('courses/general',[CourseController::class, 'index'])
+    //     ->name('courses.index');
+
+    //     Route::get('courses', [CourseController::class, 'index']);
+
+    //     Route::get('courses/departments', function () {
+
+    //         $departments = \App\Models\Department::with('category', 'batches')
+    //         ->orderBy('department_name', 'asc') // assuming 'name' is the field for department name
+    //         ->get();
+
+    //         return Inertia::render('courses/Department',[
+    //             'departments' => $departments,
+    //             'category_id' => Category::where('name','university')->first()->id,
+    //         ]);
+
+    //     })->name('courses.departments');
+ 
+    //     Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
+        
+    //     Route::get('courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+    
+    //     Route::patch('courses/{course}', [CourseController::class, 'update'])->name('courses.update');
+    
+    //     Route::delete('courses/{course}', [CourseController::class, 'destroy'])->name('courses.destroy');
+    
+
+    // });
+
 
     Route::resource('exams', ExamController::class)
         ->middleware(['permission:can view exams']);

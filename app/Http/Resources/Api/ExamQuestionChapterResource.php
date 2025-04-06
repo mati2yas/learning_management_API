@@ -4,7 +4,7 @@ namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+
 
 class ExamQuestionChapterResource extends JsonResource
 {
@@ -24,8 +24,8 @@ class ExamQuestionChapterResource extends JsonResource
             "question_text"=> $this->question_text,
             "options" => $this->options,
             "answer" => $this->answer ,
-            "question_image_url" =>  url($this->question_image_url),
-            'image_explanation_url' => url($this->image_explanation_url),
+            "question_image_url" => $this->question_image_url ? url($this->question_image_url) : null,
+            'image_explanation_url' => $this->image_explanation_url ? url($this->image_explanation_url) : null,
             "text_explanation" => $this->text_explanation,
             "video_explanation_url" => $this->video_explanation_url,
         ];

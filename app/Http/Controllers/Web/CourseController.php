@@ -58,7 +58,7 @@ class CourseController extends Controller
         return Inertia::render('courses/Index', [
             'categories' => Category::all(),
             'grades' => Grade::all(),
-            'departments' => Department::all(),
+            'departments' => Department::orderBy('department_name', 'asc')->get(),
             'batches' => Batch::all(),
             'courses' => CourseResource::collection($courses),
             'filters' => $request->only(['category', 'search', 'sort']), // Include sort in filters

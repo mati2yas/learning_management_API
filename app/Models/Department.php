@@ -14,4 +14,12 @@ class Department extends Model
     {
         return $this->hasMany(Course::class);
     }
+
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
+
+    public function batches(){
+        return $this->hasMany(Batch::class);
+    }
 }

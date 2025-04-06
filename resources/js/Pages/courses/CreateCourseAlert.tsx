@@ -224,12 +224,10 @@ export function CreateCourseAlert() {
     })
   }
 
-  // console.log('gardes', grades)
-
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="p-2 text-xs" onClick={() => setIsOpen(true)}>
+        <Button variant="outline" className="bg-[#3B82F6] p-2 text-xs text-white" onClick={() => setIsOpen(true)}>
           Add Course
         </Button>
       </AlertDialogTrigger>

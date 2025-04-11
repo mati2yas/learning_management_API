@@ -455,9 +455,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     
         return ExamQuestionChapterResource::collection($questions);
     });
+    
 
 
     Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
+        
         $questions = ExamQuestion::where('exam_year_id', $exam_year_id)
         ->get();
     
@@ -524,16 +526,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 Route::get('/bank-accounts', fn() => Bank::all());
 
 
-Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id,$exam_year_id) {
+Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id, $exam_year_id) {
 
+    // Fetch exam grades for the given course and year
+    $examGrades = ExamGrade::whereHas('examQuestions', function($query) use ($exam_course_id, $exam_year_id) {
+        $query->where('exam_course_id', $exam_course_id)
+              ->where('exam_year_id', $exam_year_id);
+    })
+    ->with('examQuestions.examChapter.examQuestions') // eager load the necessary relations
+    ->get();
 
-    $examGrades = ExamQuestion::where('exam_course_id', $exam_course_id)->where('exam_year_id', $exam_year_id)
-                    ->with('examGrade.examCourses.examChapters','examGrade.examCourses.examChapters.examQuestions')  // 
-                    ->get()
-                    ->pluck('examGrade') 
-                    ->unique()->filter();   
-                    
-    return ExamGradeResource::collection(resource: $examGrades);
+    // Return the collection of resources
+    return ExamGradeResource::collection($examGrades);
 });
 
 
@@ -589,5 +593,3 @@ Route::get('/batches', function(Request $request){
 // Route::get('/exam-chapters/{id}', fn()=>ExamChapter::find($id));
 
 // Route::get('/exam-courses/{id}', fn()=>ExamCourse::find($id));
-
-

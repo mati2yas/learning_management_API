@@ -1,35 +1,46 @@
 <?php
+
 namespace App\Http\Resources\Api;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExamGradeResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
+    protected $courseId;
+
+    public function __construct($resource, $courseId = null)
+    {
+        parent::__construct($resource);
+        $this->courseId = $courseId;
+    }
+
     public function toArray($request)
     {
         return [
             'id' => $this->id,
-            'grade' => $this->grade,  // 
+            'grade' => $this->grade,
             'chapters' => $this->getChapters(),
         ];
     }
 
     private function getChapters()
     {
-        return $this->examCourses->flatMap(function ($course) {
-            return $course->examChapters->map(function ($chapter) {
-                return [
+        $courseId = request()->route('exam_course_id'); // get from route if passed
+    
+        return $this->examQuestions
+            ->where('exam_course_id', $courseId)
+            ->map(function ($question) {
+                $chapter = $question->examChapter;
+                return $chapter ? [
                     'id' => $chapter->id,
                     'title' => $chapter->title,
-                    'questions_count' => $chapter->examQuestions->count()? $chapter->examQuestions->count() : 0,
-                ];
-            });
-        })->unique('id')->values()->toArray();  // Ensure unique chapters
+                    'questions_count' => $chapter->examQuestions->count() ?: 0,
+                ] : null;
+            })
+            ->filter() // remove nulls
+            ->unique('id')
+            ->values()
+            ->toArray();
     }
+    
 }

@@ -99,13 +99,13 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       icon: <LayoutDashboard size={20} />,
     },
     {
-      name: "Courses Management",
+      name: "Course Management",
       route: "courses.index",
       permission: "can view courses",
       icon: <BookOpen size={20} />,
     },
     {
-      name: "Exams Mangement",
+      name: "Exam Mangement",
       route: "exams-new.index",
       permission: "can view exams",
       icon: <FileText size={20} />,
@@ -123,7 +123,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       icon: <CreditCard size={20} />,
     },
     {
-      name: "Students Management",
+      name: "Student Management",
       route: "student-managements.index",
       permission: "can view students management",
       icon: <Users size={20} />,

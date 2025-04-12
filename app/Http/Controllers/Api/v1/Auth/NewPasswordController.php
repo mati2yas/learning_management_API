@@ -136,7 +136,7 @@ class NewPasswordController extends Controller
         $request->validate([
             'email' => 'required|email',
             'pin' => 'required|digits:6',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         // Get PIN record from DB
@@ -144,7 +144,7 @@ class NewPasswordController extends Controller
 
         // Validate PIN
         if (!$pinRecord || $pinRecord->pin != $request->pin) {
-            return response()->json(['message' => 'Invalid PIN'], 400);
+            return response()->json(['message' => 'Invalid PIN'], 401);
         }
 
         // Check expiration time

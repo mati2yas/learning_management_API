@@ -136,7 +136,7 @@ class NewPasswordController extends Controller
         $request->validate([
             'email' => 'required|email',
             'pin' => 'required|digits:6',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:4|confirmed',
         ]);
 
         // Get PIN record from DB

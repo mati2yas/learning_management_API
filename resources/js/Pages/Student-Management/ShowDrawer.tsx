@@ -130,7 +130,7 @@ export default function UserDetailDrawer({ user, canBan, canUnban }: UserDetailP
                     {request.exam_course && (
                       <p>Exam Courses: {request.exam_course.map((course) => course.course_name).join(", ")}</p>
                     )}
-                    <p>Total Price: ${request.total_price}</p>
+                    <p>Total Price: ETB {request.total_price}</p>
                     <p>Transaction ID: {request.transaction_id}</p>
                     <p>Created: {request.created_at}</p>
                     {request.status === "Approved" && request.subscription && (

@@ -129,7 +129,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
       icon: <Users size={20} />,
     },
     {
-      name: "Workers Management",
+      name: "Worker Management",
       route: "user-managements.index",
       permission: "can view workers management",
       icon: <UserCog size={20} />,

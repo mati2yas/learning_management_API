@@ -357,7 +357,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             return [
                 'exam_sheet_id' => $exam->id,
                 'course_id' => $exam->exam_course_id,
-                'course' => $exam->examCourse->name ?? "chemistry",
+                'course' => $exam->examCourse->course_name ,
                 'exam_type' => $exam->examType->name,
                 'exam_year' => $exam->examYear->year,
                 'exam_year_id' => $exam->exam_year_id,

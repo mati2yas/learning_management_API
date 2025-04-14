@@ -1,3 +1,5 @@
+"use client"
+
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -31,6 +33,7 @@ const CreateExamCourseAlert = ({
   const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>([])
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
+  const [chapterErrors, setChapterErrors] = useState<{ [key: number]: string }>({})
 
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
@@ -52,6 +55,12 @@ const CreateExamCourseAlert = ({
 
   const removeChapter = useCallback((index: number) => {
     setChapters((prev) => prev.filter((_, i) => i !== index))
+    // Also remove any errors for this chapter
+    setChapterErrors((prev) => {
+      const newErrors = { ...prev }
+      delete newErrors[index]
+      return newErrors
+    })
   }, [])
 
   const updateChapter = useCallback((index: number, field: string, value: string) => {
@@ -60,6 +69,15 @@ const CreateExamCourseAlert = ({
       newChapters[index] = { ...newChapters[index], [field]: value }
       return newChapters
     })
+
+    // Clear error for this chapter if it now has a value
+    if (field === "title" && value.trim()) {
+      setChapterErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[index]
+        return newErrors
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -111,8 +129,36 @@ const CreateExamCourseAlert = ({
     }
   }, [data.exam_type_id, data.exam_grade_id, data.stream, fetchExamCourses, getFilteredExamGrades])
 
+  // Validate chapters before submission
+  const validateChapters = useCallback(() => {
+    const newErrors: { [key: number]: string } = {}
+    let isValid = true
+
+    // Only validate if there are chapters
+    if (chapters.length > 0) {
+      chapters.forEach((chapter, index) => {
+        if (!chapter.title.trim()) {
+          newErrors[index] = "Chapter title cannot be empty"
+          isValid = false
+        }
+      })
+    }
+
+    setChapterErrors(newErrors)
+    return isValid
+  }, [chapters])
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
+
+    // First validate chapters
+    if (!validateChapters()) {
+      return // Stop submission if validation fails
+    }
+
+    // Filter out any empty chapters before submission (as an extra precaution)
+    const filteredChapters = chapters.filter((chapter) => chapter.title.trim() !== "")
+    setData("exam_chapters", filteredChapters)
 
     post(route("exam-courses.store"), {
       preserveState: true,
@@ -122,6 +168,7 @@ const CreateExamCourseAlert = ({
         reset()
         setChapters([])
         setIsNewCourse(false)
+        setChapterErrors({})
       },
       onError: (errors) => {
         console.log("validation errors:", errors)
@@ -143,7 +190,6 @@ const CreateExamCourseAlert = ({
           <AlertDialogDescription>Add exam course details and chapters</AlertDialogDescription>
         </AlertDialogHeader>
 
-      
         <ScrollArea className="flex-grow px-6 overflow-y-auto">
           <div className=" pt-4 space-y-4">
             <div className="space-y-2">
@@ -274,16 +320,23 @@ const CreateExamCourseAlert = ({
 
             <div className="space-y-2">
               <Label>Chapters (Optional)</Label>
+              {Object.keys(chapterErrors).length > 0 && (
+                <p className="text-red-500 text-sm">Please fill in all chapter titles or remove empty chapters.</p>
+              )}
               {chapters.map((chapter, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Input
-                    value={chapter.title}
-                    onChange={(e) => updateChapter(index, "title", e.target.value)}
-                    placeholder={`Chapter ${index + 1}`}
-                  />
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div key={index} className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      value={chapter.title}
+                      onChange={(e) => updateChapter(index, "title", e.target.value)}
+                      placeholder={`Chapter ${index + 1}`}
+                      className={chapterErrors[index] ? "border-red-500" : ""}
+                    />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {chapterErrors[index] && <p className="text-red-500 text-xs">{chapterErrors[index]}</p>}
                 </div>
               ))}
               <Button
@@ -301,7 +354,6 @@ const CreateExamCourseAlert = ({
             </div>
           </div>
         </ScrollArea>
- 
 
         <div className="flex justify-end space-x-2 p-6 pt-2 border-t">
           <AlertDialogCancel
@@ -310,11 +362,12 @@ const CreateExamCourseAlert = ({
               reset()
               setChapters([])
               setIsNewCourse(false)
+              setChapterErrors({})
             }}
           >
             Cancel
           </AlertDialogCancel>
-          <Button type="button" disabled={processing} onClick={submit}>
+          <Button type="button" disabled={processing || Object.keys(chapterErrors).length > 0} onClick={submit}>
             Create
           </Button>
         </div>
@@ -324,4 +377,3 @@ const CreateExamCourseAlert = ({
 }
 
 export default CreateExamCourseAlert
-

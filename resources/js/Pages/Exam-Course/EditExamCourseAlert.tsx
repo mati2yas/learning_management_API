@@ -1,3 +1,5 @@
+"use client"
+
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -17,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import { ScrollArea } from "@/Components/ui/scroll-area"
+import { router } from "@inertiajs/react"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -31,6 +34,7 @@ const EditExamCourseAlert = ({
   const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>(examCourse.exam_chapters || [])
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
+  const [chapterErrors, setChapterErrors] = useState<{ [key: number]: string }>({})
 
   const { data, setData, put, processing, errors, reset } = useForm({
     exam_type_id: examCourse.exam_type_id,
@@ -52,6 +56,12 @@ const EditExamCourseAlert = ({
 
   const removeChapter = useCallback((index: number) => {
     setChapters((prev) => prev.filter((_, i) => i !== index))
+    // Also remove any errors for this chapter
+    setChapterErrors((prev) => {
+      const newErrors = { ...prev }
+      delete newErrors[index]
+      return newErrors
+    })
   }, [])
 
   const updateChapter = useCallback((index: number, field: string, value: string) => {
@@ -60,6 +70,15 @@ const EditExamCourseAlert = ({
       newChapters[index] = { ...newChapters[index], [field]: value }
       return newChapters
     })
+
+    // Clear error for this chapter if it now has a value
+    if (field === "title" && value.trim()) {
+      setChapterErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors[index]
+        return newErrors
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -85,20 +104,53 @@ const EditExamCourseAlert = ({
     }
   }, [data.exam_type_id, data.exam_grade_id, data.stream, fetchExamCourses])
 
+  // Validate chapters before submission
+  const validateChapters = useCallback(() => {
+    const newErrors: { [key: number]: string } = {}
+    let isValid = true
+
+    // Only validate if there are chapters
+    if (chapters.length > 0) {
+      chapters.forEach((chapter, index) => {
+        if (!chapter.title.trim()) {
+          newErrors[index] = "Chapter title cannot be empty"
+          isValid = false
+        }
+      })
+    }
+
+    setChapterErrors(newErrors)
+    return isValid
+  }, [chapters])
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
-    put(route("exam-courses.update", examCourse.id), {
-      preserveState: true,
-      preserveScroll: true,
-      onSuccess: () => {
-        setIsOpen(false)
-        reset()
-      },
-      onError: (errors) => {
-        console.log("validation errors:", errors)
-      },
-    })
+    // First validate chapters
+    if (!validateChapters()) {
+      return // Stop submission if validation fails
+    }
+
+    // Filter out any empty chapters before submission (as an extra precaution)
+    const filteredChapters = chapters.filter((chapter) => chapter.title.trim() !== "")
+    setData("exam_chapters", filteredChapters)
+
+    router.put(
+      route("exam-courses.update", examCourse.id),
+      data,
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          setIsOpen(false)
+          reset()
+          setChapterErrors({})
+        },
+        onError: (errors) => {
+          console.log("validation errors:", errors)
+        },
+      }
+    )
   }
 
   const showExamGrade = useMemo(() => {
@@ -239,16 +291,23 @@ const EditExamCourseAlert = ({
 
             <div className="space-y-2">
               <Label>Chapters</Label>
+              {Object.keys(chapterErrors).length > 0 && (
+                <p className="text-red-500 text-sm">Please fill in all chapter titles or remove empty chapters.</p>
+              )}
               {chapters.map((chapter, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Input
-                    value={chapter.title}
-                    onChange={(e) => updateChapter(index, "title", e.target.value)}
-                    placeholder={`Chapter ${index + 1}`}
-                  />
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div key={index} className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      value={chapter.title}
+                      onChange={(e) => updateChapter(index, "title", e.target.value)}
+                      placeholder={`Chapter ${index + 1}`}
+                      className={chapterErrors[index] ? "border-red-500" : ""}
+                    />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {chapterErrors[index] && <p className="text-red-500 text-xs">{chapterErrors[index]}</p>}
                 </div>
               ))}
               <Button
@@ -272,11 +331,12 @@ const EditExamCourseAlert = ({
             onClick={() => {
               setIsOpen(false)
               reset()
+              setChapterErrors({})
             }}
           >
             Cancel
           </AlertDialogCancel>
-          <Button type="submit" disabled={processing} onClick={submit}>
+          <Button type="submit" disabled={processing || Object.keys(chapterErrors).length > 0} onClick={submit}>
             Update
           </Button>
         </div>
@@ -286,4 +346,3 @@ const EditExamCourseAlert = ({
 }
 
 export default EditExamCourseAlert
-

@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
-        Model::preventLazyLoading();
+        Model::preventLazyLoading(false);
         Model::unguard();
         
         Gate::before(function ($user, $ability) {

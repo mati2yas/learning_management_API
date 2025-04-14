@@ -21,18 +21,19 @@ interface CreateMultipleQuizzesAlertProps {
 
 interface QuizData {
   title: string
-  exam_duration: number
+  exam_duration?: number | null // Made duration optional
 }
 
 const MAX_QUIZZES = 10
+const DEFAULT_DURATION = 30
 
 const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzesAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [quizData, setQuizData] = useState<QuizData[]>([{ title: "", exam_duration: 30 }])
+  const [quizData, setQuizData] = useState<QuizData[]>([{ title: "", exam_duration: DEFAULT_DURATION }])
 
   const { data, setData, post, processing, errors, reset } = useForm({
     chapter_id: id,
-    quizzes: [] as { title: string; exam_duration: number }[],
+    quizzes: [] as { title: string; exam_duration?: number | null }[],
   })
 
   useEffect(() => {
@@ -45,14 +46,14 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       .filter((quiz) => quiz.title.trim() !== "")
       .map((quiz) => ({
         title: quiz.title,
-        exam_duration: quiz.exam_duration,
+        exam_duration: quiz.exam_duration || null, // Allow null for duration
       }))
     setData("quizzes", quizzes)
   }
 
   const addQuizData = () => {
     if (quizData.length < MAX_QUIZZES) {
-      setQuizData((prev) => [...prev, { title: "", exam_duration: 30 }])
+      setQuizData((prev) => [...prev, { title: "", exam_duration: DEFAULT_DURATION }])
     }
   }
 
@@ -68,11 +69,15 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
     })
   }
 
-  const updateQuizDuration = (index: number, value: number) => {
+  const updateQuizDuration = (index: number, value: string) => {
     setQuizData((prev) => {
       const newData = [...prev]
-      newData[index] = { 
-        ...newData[index], exam_duration: value }
+      // Allow empty string to represent no duration
+      const duration = value === "" ? null : Number.parseInt(value) || null
+      newData[index] = {
+        ...newData[index],
+        exam_duration: duration,
+      }
       return newData
     })
   }
@@ -85,7 +90,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       .filter((quiz) => quiz.title.trim() !== "")
       .map((quiz) => ({
         title: quiz.title,
-        exam_duration: quiz.exam_duration,
+        exam_duration: quiz.exam_duration || null, // Allow null for duration
       }))
     setData("quizzes", quizzes)
 
@@ -96,7 +101,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       onSuccess: () => {
         setIsOpen(false)
         reset()
-        setQuizData([{ title: "", exam_duration: 30 }])
+        setQuizData([{ title: "", exam_duration: DEFAULT_DURATION }])
       },
       onError: (errors) => {
         console.log("Validation errors:", errors)
@@ -115,7 +120,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>Create Quizzes for {chapter_title}</AlertDialogTitle>
-          <AlertDialogDescription>Add up to {MAX_QUIZZES} quiz titles with duration</AlertDialogDescription>
+          <AlertDialogDescription>Add up to {MAX_QUIZZES} quiz titles with optional duration</AlertDialogDescription>
         </AlertDialogHeader>
 
         <form onSubmit={submit} className="space-y-4">
@@ -141,10 +146,10 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
                   id={`duration-${index}`}
                   type="number"
                   min="1"
-                  value={quiz.exam_duration}
-                  onChange={(e) => updateQuizDuration(index, Number.parseInt(e.target.value) || 0)}
+                  value={quiz.exam_duration === null ? "" : quiz.exam_duration}
+                  onChange={(e) => updateQuizDuration(index, e.target.value)}
                   placeholder="Minutes"
-                  required
+                  // removed required attribute
                 />
               </div>
               {index > 0 && (
@@ -166,7 +171,7 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
               onClick={() => {
                 setIsOpen(false)
                 reset()
-                setQuizData([{ title: "", exam_duration: 30 }])
+                setQuizData([{ title: "", exam_duration: DEFAULT_DURATION }])
               }}
             >
               Cancel
@@ -182,4 +187,3 @@ const CreateMultipleQuizzesAlert = ({ id, chapter_title }: CreateMultipleQuizzes
 }
 
 export default CreateMultipleQuizzesAlert
-

@@ -36,7 +36,7 @@ class QuizController extends Controller
             'chapter_id' => 'required|exists:chapters,id',
             'quizzes' => 'required|array|min:1',
             'quizzes.*.title' => 'required|string|max:255',
-            'quizzes.*.exam_duration' => 'required|integer|min:1', // Add validation for exam_duration
+            'quizzes.*.exam_duration' => 'nullable|integer|min:1', // Add validation for exam_duration
         ]);
     
         $chapter = Chapter::findOrFail($validated['chapter_id']);

@@ -42,7 +42,8 @@ class ExamDetailController extends Controller
             $query->where('exam_grade_id', $request->input('examGrade'));
         }
 
-        $exam_questions = $query->latest()->paginate(perPage: 30);
+        $exam_questions = $query->orderBy('created_at', 'desc')->paginate(perPage: 30);
+
 
         return Inertia::render('Exam-Detail/Index', [
             'exam' => $exam,

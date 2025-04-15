@@ -104,9 +104,9 @@ Route::get('/random-contents', function(){
 
 
 
- Route::get('/random-courses', fn() => 
+ Route::middleware('auth:sanctum')->get('/random-courses', fn() => 
  CourseResource::collection(
-     Course::with(['category', 'grade', 'department', 'batch', 'chapters', 'subscriptionRequests'])
+     Course::with(['category', 'grade', 'department', 'batch', 'chapters', 'subscriptionRequests','paidCourses','saves','likes'])
          ->latest()
          ->take(20)
          ->get()
@@ -324,7 +324,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                 $subscriptionType .= "Exams: " . implode(', ', $examNames);
             }
             
-            if (empty($subscriptionType)) {
+            if (empty($subscripwtionType)) {
                 $subscriptionType = "your subscription";
             }
         
@@ -558,7 +558,7 @@ Route::get('/exam-years/{examTypeId}', function($examTypeId){
 
 Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_type_id', $examYearId)->get());
 
-Route::get('/exam-courses-create/{examTypeId}/{examGradeId}', fn($examTypeId, $examGradeId)=>ExamCourse::where('exam_type_id', $examTypeId)->where('exam_grade_id', $examGradeId)->get());
+Route::get('/exam-courses-create/{examTypeId}', fn($examTypeId)=>ExamCourse::where('exam_type_id', $examTypeId)->get());
 
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
 

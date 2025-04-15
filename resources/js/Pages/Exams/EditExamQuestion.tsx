@@ -17,6 +17,7 @@ import { X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
 import { SessionToast } from "@/Components/SessionToast"
 import { ErrorToast } from "@/Components/ErrorToast"
+import BackLink from "@/Components/BackLink"
 
 interface EditExamQuestionAlertProps {
   exam_grades: ExamGrade[]
@@ -238,7 +239,11 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
   return (
     <Authenticated
       header={
-        <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Edit Exam Question</h2>
+        <div className="flex justify-between">
+            <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Edit Exam Question</h2>
+            <BackLink href={route('exam-details.show', exam.id)} text={'Back'}/>
+        </div>
+
       }
     >
       <Head title="Edit Exam Question" />

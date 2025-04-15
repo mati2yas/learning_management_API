@@ -83,7 +83,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     if (routeName === "exams-new.index") {
         // Check if current URL contains these patterns
         const currentUrl = window.location.pathname
-        const relatedPatterns = [ "/exam-details/", "/exams-new/"]
+        const relatedPatterns = [ "/exam-details/", "/exams-new/","exams"]
   
         return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
       }

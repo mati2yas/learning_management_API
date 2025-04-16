@@ -44,11 +44,11 @@ class HomepageCourseController extends Controller
             $courses = $courses->merge($categoryCourses);
         }
 
-        return response('<h1>Hello, this is an HTML response</h1>', 200)
-         ->header('Content-Type', 'text/html');
+        // return response('<h1>Hello, this is an HTML response</h1>', 200)
+        //  ->header('Content-Type', 'text/html');
 
     
-        // return HomepageCourseResource::collection($courses);
+        return HomepageCourseResource::collection($courses);
     }    
     
 }

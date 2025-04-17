@@ -18,26 +18,37 @@ class CourseResource extends JsonResource
         $user = $request->user();
         $subscriptionStatus = null;
 
+        // dd(vars: $user->subscriptionRequests);
+
         if ($user && $this->relationLoaded('subscriptionRequests')) {
+
             // Get the first subscription request linked to this course (if any)
-            $userSubscriptionRequest = $this->subscriptionRequests->first();
+
+            $userId = $user->id;
+
+            $userSubscriptionRequest = $this->subscriptionRequests
+            ->filter(function ($sr) use ($userId) {
+                return $sr->user_id === $userId;
+            })
+            ->sortByDesc('created_at')->first();
+
+            // dd($userSubscriptionRequest);
+
             
             if ($userSubscriptionRequest && $userSubscriptionRequest->relationLoaded('subscriptions')) {
                 $userSubscription = $userSubscriptionRequest->subscriptions->first();
-                $subscriptionStatus = $userSubscription ? $userSubscription->status : 'inactive';
+                $subscriptionStatus = $userSubscription ? $userSubscription->status : null;
             }
         }
+
+
 
         return [
             'id' => $this->id,
             'course_name' => $this->course_name,
-            
-            // Modify the thumbnail logic to append the prefix only if the string starts with "/id"
             'thumbnail' => $this->thumbnail && str_starts_with($this->thumbnail, '/id')
                 ? 'https://picsum.photos' . $this->thumbnail
                 : url(Storage::url($this->thumbnail)),
-
-            // Include category, department, and grade when loaded
             'category' => $this->whenLoaded('category', function () {
                 return [
                     'id' => $this->category->id,
@@ -106,7 +117,7 @@ class CourseResource extends JsonResource
      */
     protected function isPaidByUser(int $userId): bool
     {
-        return $this->paidCourses()->where('user_id', $userId)->exists();
+        return $this->paidCourses()->where('user_id', $userId)->where('expired', false)->exists();
     }
 
     /**

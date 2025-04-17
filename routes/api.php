@@ -34,6 +34,7 @@ use App\Models\ExamType;
 use App\Models\ExamYear;
 use App\Models\Grade;
 use App\Models\Like;
+use App\Models\PaidCourse;
 use App\Models\PaidExam;
 use App\Models\Quiz;
 use App\Models\Save;
@@ -288,52 +289,65 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         $user->subscriptionRequests()
         ->whereHas('subscriptions', function ($query) {
             $query->where('subscription_end_date', '<', Carbon::today())
-                  ->where('status', 'active');
+                ->where('status', 'active');
         })
         ->with([
-            'subscriptions.subscriptionRequest.courses', // Assuming `courses` is the correct relation name
+            'subscriptions.subscriptionRequest.courses',
             'subscriptions.subscriptionRequest.exams.examCourse',
         ])
         ->get()
         ->pluck('subscriptions')
         ->flatten()
         ->each(function ($subscription) use ($user) {
-            // Update subscription status to expired
+            // 1. Expire the subscription
             $subscription->update(['status' => 'expired']);
-        
-            // Get the subscriptionRequest and iterate over courses and exams
+
+            // 2. Get subscriptionRequest
             $subscriptionRequest = $subscription->subscriptionRequest;
-            
-            // Handle courses
-            $courseNames = $subscriptionRequest->courses->pluck('name')->toArray();
-            
-            // Handle exams
+
+            // 3. Get course IDs and exam IDs
+            $courseIds = $subscriptionRequest->courses->pluck('id')->toArray();
+            $examIds = $subscriptionRequest->exams->pluck('id')->toArray();
+
+            // 4. Mark PaidCourse and PaidExam as expired instead of deleting
+            if (!empty($courseIds)) {
+                PaidCourse::where('user_id', $user->id)
+                    ->whereIn('course_id', $courseIds)
+                    ->update(['expired' => true]);
+            }
+
+            if (!empty($examIds)) {
+                PaidExam::where('user_id', $user->id)
+                    ->whereIn('exam_id', $examIds)
+                    ->update(['expired' => true]);
+            }
+
+            // 5. Create human-readable message
+            $courseNames = $subscriptionRequest->courses->pluck('course_name')->toArray();
             $examNames = $subscriptionRequest->exams->pluck('examCourse.course_name')->toArray();
-            
-            // Determine the appropriate message
+
             $subscriptionType = '';
-            
             if (count($courseNames) > 0) {
                 $subscriptionType .= "Courses: " . implode(', ', $courseNames);
             }
-            
+
             if (count($examNames) > 0) {
                 if ($subscriptionType) {
                     $subscriptionType .= " | ";
                 }
                 $subscriptionType .= "Exams: " . implode(', ', $examNames);
             }
-            
-            if (empty($subscripwtionType)) {
+
+            if (empty($subscriptionType)) {
                 $subscriptionType = "your subscription";
             }
-        
-            // Send notification
+
+            // 6. Notify the user
             $user->APINotifications()->create([
                 'type' => 'subscription',
                 'message' => "Your subscription for {$subscriptionType} has expired.",
             ]);
-        });   
+        });
 
         $paidExams = PaidExam::where('user_id', $user->id)
         ->with([
@@ -352,7 +366,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             $exam = $paidExam->exam;
 
             // Get the user's approved subscription related to this exam
-            $subscription = optional($exam->subscriptionRequests->first()->subscriptions->first());
+            $subscription = optional($exam->subscriptionRequests->first()->subscriptions->sortByDesc('created_at')->first());
 
             return [
                 'exam_sheet_id' => $exam->id,
@@ -372,53 +386,69 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         ]);
     });
 
+
+
     Route::get('/paid-courses', function (Request $request) {
         $user = $request->user(); // Get authenticated user
+
 
         $user->subscriptionRequests()
         ->whereHas('subscriptions', function ($query) {
             $query->where('subscription_end_date', '<', Carbon::today())
-                  ->where('status', 'active');
+                ->where('status', 'active');
         })
         ->with([
-            'subscriptions.subscriptionRequest.courses', // Assuming `courses` is the correct relation name
+            'subscriptions.subscriptionRequest.courses',
             'subscriptions.subscriptionRequest.exams.examCourse',
         ])
         ->get()
         ->pluck('subscriptions')
         ->flatten()
         ->each(function ($subscription) use ($user) {
-            // Update subscription status to expired
+            // 1. Expire the subscription
             $subscription->update(['status' => 'expired']);
-        
-            // Get the subscriptionRequest and iterate over courses and exams
+
+            // 2. Get subscriptionRequest
             $subscriptionRequest = $subscription->subscriptionRequest;
-            
-            // Handle courses
-            $courseNames = $subscriptionRequest->courses->pluck('name')->toArray();
-            
-            // Handle exams
+
+            // 3. Get course IDs and exam IDs
+            $courseIds = $subscriptionRequest->courses->pluck('id')->toArray();
+            $examIds = $subscriptionRequest->exams->pluck('id')->toArray();
+
+            // 4. Mark PaidCourse and PaidExam as expired instead of deleting
+            if (!empty($courseIds)) {
+                PaidCourse::where('user_id', $user->id)
+                    ->whereIn('course_id', $courseIds)
+                    ->update(['expired' => true]);
+            }
+
+            if (!empty($examIds)) {
+                PaidExam::where('user_id', $user->id)
+                    ->whereIn('exam_id', $examIds)
+                    ->update(['expired' => true]);
+            }
+
+            // 5. Create human-readable message
+            $courseNames = $subscriptionRequest->courses->pluck('course_name')->toArray();
             $examNames = $subscriptionRequest->exams->pluck('examCourse.course_name')->toArray();
-            
-            // Determine the appropriate message
+
             $subscriptionType = '';
-            
             if (count($courseNames) > 0) {
                 $subscriptionType .= "Courses: " . implode(', ', $courseNames);
             }
-            
+
             if (count($examNames) > 0) {
                 if ($subscriptionType) {
                     $subscriptionType .= " | ";
                 }
                 $subscriptionType .= "Exams: " . implode(', ', $examNames);
             }
-            
+
             if (empty($subscriptionType)) {
                 $subscriptionType = "your subscription";
             }
-        
-            // Send notification
+
+            // 6. Notify the user
             $user->APINotifications()->create([
                 'type' => 'subscription',
                 'message' => "Your subscription for {$subscriptionType} has expired.",
@@ -445,6 +475,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::get('homepage/courses', HomepageCourseController::class);
+    
     Route::resource('courses', CourseController::class);
 
     Route::get('exams/exam-questions-chapter/{exam_grade_id}/{chapter_id}', function($exam_grade_id, $chapter_id){

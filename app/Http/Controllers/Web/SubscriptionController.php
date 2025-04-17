@@ -102,10 +102,17 @@ class SubscriptionController extends Controller
     public function destroy(string $id, Request $request)
     {
         $subscriptionRequest = SubscriptionRequest::findOrFail($id);
+
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Validate the password
         $request->validate([
             'password' => 'required',
         ]);
+
+
     
         // Check if the password is correct
         if (!Hash::check($request->password, auth()->user()->password)) {
@@ -153,13 +160,18 @@ class SubscriptionController extends Controller
             ]);
     
             // Create PaidCourse for approved courses
-            if($subscriptionRequest->courses->isNotEmpty()){
+// Create or update PaidCourse for approved courses
+            if ($subscriptionRequest->courses->isNotEmpty()) {
                 foreach ($subscriptionRequest->courses as $course) {
-                    $alreadyBought = PaidCourse::where('user_id', $subscriptionRequest->user_id)
+                    $existingPaidCourse = PaidCourse::where('user_id', $subscriptionRequest->user_id)
                         ->where('course_id', $course->id)
-                        ->exists();
-        
-                    if (!$alreadyBought) {
+                        ->first();
+
+                    if ($existingPaidCourse) {
+                        if ($existingPaidCourse->expired) {
+                            $existingPaidCourse->update(['expired' => false]);
+                        }
+                    } else {
                         PaidCourse::create([
                             'user_id' => $subscriptionRequest->user_id,
                             'course_id' => $course->id,
@@ -168,13 +180,18 @@ class SubscriptionController extends Controller
                 }
             }
 
-            if($subscriptionRequest->exams->isNotEmpty()){
+            // Create or update PaidExam for approved exams
+            if ($subscriptionRequest->exams->isNotEmpty()) {
                 foreach ($subscriptionRequest->exams as $exam) {
-                    $alreadyBought = PaidExam::where('user_id', $subscriptionRequest->user_id)
+                    $existingPaidExam = PaidExam::where('user_id', $subscriptionRequest->user_id)
                         ->where('exam_id', $exam->id)
-                        ->exists();
-        
-                    if (!$alreadyBought) {
+                        ->first();
+
+                    if ($existingPaidExam) {
+                        if ($existingPaidExam->expired) {
+                            $existingPaidExam->update(['expired' => false]);
+                        }
+                    } else {
                         PaidExam::create([
                             'user_id' => $subscriptionRequest->user_id,
                             'exam_id' => $exam->id,
@@ -182,13 +199,14 @@ class SubscriptionController extends Controller
                     }
                 }
             }
+
     
             $subscriptionRequest->update(['status' => "Approved"]);
     
-            $superAdmins = User::role('admin')->get();
-            $workers = User::role('worker')->get();
-    
-            $associatedUser = User::findOrFail($subscriptionRequest->user_id);
+            $superAdmins = User::role('admin')->with(['roles.permissions', 'permissions'])->get();
+            $workers = User::role('worker')->with(['roles.permissions', 'permissions'])->get();
+            $associatedUser = User::with(['roles.permissions', 'permissions'])->findOrFail($subscriptionRequest->user_id);
+            
 
             $associatedUser->APINotifications()->create([
                 'type' => 'subscription',
@@ -221,10 +239,10 @@ class SubscriptionController extends Controller
     
             $subscriptionRequest->update(['status' => "Rejected"]);
     
-            $superAdmins = User::role('admin')->get();
-            $workers = User::role('worker')->get();
-    
-            $associatedUser = User::findOrFail($subscriptionRequest->user_id);
+            $superAdmins = User::role('admin')->with(['roles.permissions', 'permissions'])->get();
+            $workers = User::role('worker')->with(['roles.permissions', 'permissions'])->get();
+            $associatedUser = User::with(['roles.permissions', 'permissions'])->findOrFail($subscriptionRequest->user_id);
+            
 
             $associatedUser->APINotifications()->create([
                 'type' => 'subscription',

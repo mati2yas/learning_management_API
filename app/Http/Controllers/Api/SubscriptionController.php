@@ -60,7 +60,7 @@ class SubscriptionController extends Controller
              // Check if user already owns any of the courses
              if (!empty($validatedData['courses'])) {
                  $alreadyBoughtCourses = PaidCourse::where('user_id', $user->id)
-                     ->whereIn('course_id', $validatedData['courses'])
+                     ->whereIn('course_id', $validatedData['courses'])->where('expired', false)
                      ->exists();
                  if ($alreadyBoughtCourses) {
                      return response()->json([
@@ -74,6 +74,7 @@ class SubscriptionController extends Controller
              if (!empty($validatedData['exams'])) {
                  $alreadyBoughtExams = PaidExam::where('user_id', $user->id)
                      ->whereIn('exam_id', $validatedData['exams'])
+                     ->where('expired', false)
                      ->exists();
                  if ($alreadyBoughtExams) {
                      return response()->json([
@@ -249,9 +250,10 @@ class SubscriptionController extends Controller
         ]);
     
         foreach ($subscriptionRequest->courses as $course) {
-            PaidCourse::create([
-                'user_id' => $subscriptionRequest->user_id,
-                'course_id' => $course->id,
+            PaidCourse::updateOrCreate([
+                ['user_id' => $subscriptionRequest->user_id,
+                'course_id' => $course->id],
+                ['expired' => false]
             ]);
         }
     

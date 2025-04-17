@@ -139,6 +139,8 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
 
+
+
     protected function casts(): array
     {
         return [

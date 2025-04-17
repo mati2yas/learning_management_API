@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Http\Resources\Api;
 
 
@@ -16,6 +17,30 @@ class HomepageCourseResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user(); // Get the current user
+
+        $subscriptionStatus = null;
+
+        // dd($user);
+
+        if ($user && $this->relationLoaded('subscriptionRequests')) {
+
+            // Get the first subscription request linked to this course (if any)
+            $userId = $user->id;
+
+            $userSubscriptionRequest = $this->subscriptionRequests
+            ->filter(function ($sr) use ($userId) {
+                return $sr->user_id === $userId;
+            })
+            ->first();
+
+            // dd($userSubscriptionRequest);
+
+            
+            if ($userSubscriptionRequest && $userSubscriptionRequest->relationLoaded('subscriptions')) {
+                $userSubscription = $userSubscriptionRequest->subscriptions->first();
+                $subscriptionStatus = $userSubscription ? $userSubscription->status : null;
+            }
+        }
 
         return [
             'id' => $this->id,
@@ -51,7 +76,9 @@ class HomepageCourseResource extends JsonResource
             ] : null,
             'is_liked' => $user ? $this->isLikedByUser($user->id) : false,
             'is_saved' => $user ? $this->isSavedByUser($user->id) : false,
-             'is_paid' => $user ? $this->isPaidByUser($user->id) : false,
+            'is_paid' => $user ? $this->isPaidByUser($user->id) : false,
+
+            // 'subscription_status' => $user ? $subscriptionStatus : null,
         ];
     }
 
@@ -90,7 +117,7 @@ class HomepageCourseResource extends JsonResource
         return $this->saves()->where('user_id', $userId)->exists();
     }
 
-        /**
+    /**
      * Check if the course is paid by a specific user.
      *
      * @param int $userId
@@ -99,6 +126,6 @@ class HomepageCourseResource extends JsonResource
 
     protected function isPaidByUser(int $userId): bool
     {
-        return $this->paidCourses()->where('user_id', $userId)->exists();
+        return $this->paidCourses()->where('user_id', $userId)->where('expired', false)->exists();
     }
 }

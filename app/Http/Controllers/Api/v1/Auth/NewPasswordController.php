@@ -161,6 +161,7 @@ class NewPasswordController extends Controller
         DB::table('password_resets')->where('email', $request->email)->delete();
 
         $user->tokens()->delete(); 
+        $user->increment('login_count');
 
         return response()->json([
             'message' => 'Password reset successful',
@@ -172,6 +173,7 @@ class NewPasswordController extends Controller
                     'email' => $user->email,
                     'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
                     'bio' => $user->bio,
+                    'login_count' => $user->login_count,
                 ],
             ] 
         ]);

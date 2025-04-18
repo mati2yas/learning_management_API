@@ -105,14 +105,30 @@ Route::get('/random-contents', function(){
 
 
 
- Route::middleware('auth:sanctum')->get('/random-courses', fn() => 
- CourseResource::collection(
-     Course::with(['category', 'grade', 'department', 'batch', 'chapters', 'subscriptionRequests','paidCourses','saves','likes'])
-         ->latest()
-         ->take(20)
-         ->get()
- )
-);
+ Route::middleware('auth:sanctum')->get('/random-courses', function () {
+    $user = request()->user();
+
+    return CourseResource::collection(
+        Course::with([
+            'category',
+            'grade',
+            'department',
+            'batch',
+            'chapters',
+            'paidCourses',
+            'saves',
+            'likes',
+            // Here's the trick: don't filter courses, just filter the relation
+            'subscriptionRequests' => function ($query) use ($user) {
+                $query->where('user_id', $user->id)->with('subscriptions');
+            },
+        ])
+        ->latest()
+        ->take(20)
+        ->get()
+    );
+});
+
 
 Route::post('/delete-user/{id}', function ($id) {
     $user = User::find($id);

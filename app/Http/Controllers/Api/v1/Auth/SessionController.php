@@ -180,6 +180,8 @@ class SessionController extends Controller
     
             // Create and return new token
             $newToken = $user->createToken("API TOKEN")->plainTextToken;
+            
+            $user->increment('login_count');
     
             return response()->json([
                 'status' => true,
@@ -192,6 +194,7 @@ class SessionController extends Controller
                         'email' => $user->email,
                         'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
                         'bio' => $user->bio,
+                        'login_count' => $user->login_count,
                     ],
                 ],
             ]);

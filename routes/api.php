@@ -201,11 +201,25 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::get('/course-search', function (Request $request) {
-        $query = Course::with(['category', 'department', 'grade', 'chapters', 'batch','subscriptionRequests']);
-    
-        if ($request->query('course_name')) {
-            $query->where('course_name', 'like', '%' . $request->query('course_name') . '%');
+        if (!$request->has('course_name') || empty($request->query('course_name'))) {
+            // Return empty collection
+            return CourseResource::collection(collect());
         }
+    
+        $query = Course::with([
+            'category',
+            'department',
+            'grade',
+            'chapters',
+            'batch',
+            'subscriptionRequests' => function ($query) use ($request) {
+                if ($user = $request->user()) {
+                    $query->where('user_id', $user->id)->with('subscriptions');
+                }
+            },
+        ]);
+    
+        $query->where('course_name', 'like', '%' . $request->query('course_name') . '%');
     
         return CourseResource::collection($query->get());
     });

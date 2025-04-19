@@ -619,7 +619,7 @@ Route::get('/exam-years/{examTypeId}', function($examTypeId){
 
 Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_type_id', $examYearId)->get());
 
-Route::get('/exam-courses-create/{examTypeId}', fn($examTypeId)=>ExamCourse::where('exam_type_id', $examTypeId)->get());
+Route::get('/exam-courses-create/{examTypeId}/{examGradeId}', fn($examTypeId, $examGradeId)=>ExamCourse::where('exam_type_id', $examTypeId)->get());
 
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
 

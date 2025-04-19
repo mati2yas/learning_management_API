@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
   Menu,
+  Settings,
 } from "lucide-react"
 import ApplicationLogo from "@/Components/ApplicationLogo"
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink"
@@ -23,7 +24,6 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
   const { auth } = usePage().props as unknown as {
     auth: { user: { name: string; email: string; permissions: string[] } | null }
   }
-
 
   // Handle window resize to automatically collapse sidebar on smaller screens
   useEffect(() => {
@@ -39,6 +39,21 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
+
+  
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    const dropdown = document.getElementById("settings-dropdown")
+    if (dropdown && !dropdown.contains(event.target as Node)) {
+      dropdown.classList.add("hidden")
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside)
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside)
+  }
+}, [])
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed)
@@ -67,7 +82,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     if (routeName === "subscriptions.index") {
       // Check if current URL contains these patterns
       const currentUrl = window.location.pathname
-      const relatedPatterns = [ "/subscriptions/"]
+      const relatedPatterns = ["/subscriptions/"]
 
       return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
     }
@@ -75,64 +90,79 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     if (routeName === "user-managements.index") {
       // Check if current URL contains these patterns
       const currentUrl = window.location.pathname
-      const relatedPatterns = [ "/user-managements/"]
+      const relatedPatterns = ["/user-managements/"]
 
       return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
     }
 
     if (routeName === "exams-new.index") {
-        // Check if current URL contains these patterns
-        const currentUrl = window.location.pathname
-        const relatedPatterns = [ "/exam-details/", "/exams-new/","exams"]
-  
-        return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
-      }
+      // Check if current URL contains these patterns
+      const currentUrl = window.location.pathname
+      const relatedPatterns = ["/exam-details/", "/exams-new/", "exams"]
+
+      return relatedPatterns.some((pattern) => currentUrl.includes(pattern))
+    }
 
     return false
   }
 
-  const navItems = [
+  const navGroups = [
     {
-      name: "Dashboard",
-      route: "dashboard",
-      permission: "can view dashboard",
-      icon: <LayoutDashboard size={20} />,
+      label: "Main",
+      items: [
+        {
+          name: "Dashboard",
+          route: "dashboard",
+          permission: "can view dashboard",
+          icon: <LayoutDashboard size={20} />,
+        },
+      ],
     },
     {
-      name: "Course Management",
-      route: "courses.index",
-      permission: "can view courses",
-      icon: <BookOpen size={20} />,
+      label: "Content",
+      items: [
+        {
+          name: "Course Management",
+          route: "courses.index",
+          permission: "can view courses",
+          icon: <BookOpen size={20} />,
+        },
+        {
+          name: "Exam Mangement",
+          route: "exams-new.index",
+          permission: "can view exams",
+          icon: <FileText size={20} />,
+        },
+        {
+          name: "Exam Courses",
+          route: "exam-courses.index",
+          permission: "can view exam courses",
+          icon: <BookCopy size={20} />,
+        },
+      ],
     },
     {
-      name: "Exam Mangement",
-      route: "exams-new.index",
-      permission: "can view exams",
-      icon: <FileText size={20} />,
-    },
-    {
-      name: "Exam Courses",
-      route: "exam-courses.index",
-      permission: "can view exam courses",
-      icon: <BookCopy size={20} />,
-    },
-    {
-      name: "Subscriptions",
-      route: "subscriptions.index",
-      permission: "can view subscription",
-      icon: <CreditCard size={20} />,
-    },
-    {
-      name: "Student Management",
-      route: "student-managements.index",
-      permission: "can view students management",
-      icon: <Users size={20} />,
-    },
-    {
-      name: "Worker Management",
-      route: "user-managements.index",
-      permission: "can view workers management",
-      icon: <UserCog size={20} />,
+      label: "Administration",
+      items: [
+        {
+          name: "Subscriptions",
+          route: "subscriptions.index",
+          permission: "can view subscription",
+          icon: <CreditCard size={20} />,
+        },
+        {
+          name: "Student Management",
+          route: "student-managements.index",
+          permission: "can view students management",
+          icon: <Users size={20} />,
+        },
+        {
+          name: "Worker Management",
+          route: "user-managements.index",
+          permission: "can view workers management",
+          icon: <UserCog size={20} />,
+        },
+      ],
     },
   ]
 
@@ -177,61 +207,93 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
         </div>
 
         <div className="flex flex-1 flex-col overflow-y-auto py-4">
-          <nav className="flex-1 space-y-1 px-2">
-            {navItems.map(
-              (item) =>
-                auth?.user?.permissions?.includes(item.permission) && (
-                  <Link
-                    prefetch
-                    key={item.route}
-                    href={route(item.route)}
-                    className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
-                      isRouteActive(item.route)
-                        ? "bg-indigo-100 text-indigo-700"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                    } ${collapsed ? "justify-center" : ""}`}
-                  >
-                    <div
-                      className={`${
-                        isRouteActive(item.route) ? "text-indigo-700" : "text-gray-500"
-                      } group-hover:text-gray-900`}
-                    >
-                      {item.icon}
-                    </div>
-                    {!collapsed && <span className="ml-3">{item.name}</span>}
-                  </Link>
-                ),
-            )}
-          </nav>
+          {navGroups.map((group) => (
+            <div key={group.label} className="mb-4">
+              {!collapsed && (
+                <h3 className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  {group.label}
+                </h3>
+              )}
+              <nav className="flex-1 space-y-1 px-2">
+                {group.items.map(
+                  (item) =>
+                    auth?.user?.permissions?.includes(item.permission) && (
+                      <Link
+                        prefetch
+                        key={item.route}
+                        href={route(item.route)}
+                        className={`group flex items-center rounded-md px-3 py-3 text-sm font-medium ${
+                          isRouteActive(item.route)
+                            ? "bg-indigo-100 text-indigo-700"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        } ${collapsed ? "justify-center" : ""}`}
+                      >
+                        <div
+                          className={`${
+                            isRouteActive(item.route) ? "text-indigo-700" : "text-gray-500"
+                          } group-hover:text-gray-900`}
+                        >
+                          {item.icon}
+                        </div>
+                        {!collapsed && <span className="ml-3">{item.name}</span>}
+                      </Link>
+                    ),
+                )}
+              </nav>
+            </div>
+          ))}
         </div>
 
         <div className="border-t border-gray-200 p-4">
-          <div className={`flex items-center ${collapsed ? "justify-center" : ""}`}>
+          <div className={`flex flex-col space-y-3 ${collapsed ? "items-center" : ""}`}>
             {!collapsed && (
               <div className="flex-shrink-0">
                 <div className="text-sm font-medium text-gray-700">{auth.user?.name}</div>
                 <div className="text-xs text-gray-500 truncate">{auth.user?.email}</div>
               </div>
             )}
-            <div className={`flex ${collapsed ? "flex-col" : "ml-auto"} space-y-1 ${collapsed ? "" : "space-x-2"}`}>
-              <Link
-                prefetch
-                href={route("profile.edit")}
-                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Profile"
+
+            {/* Settings dropdown */}
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const dropdown = document.getElementById("settings-dropdown")
+                  if (dropdown) {
+                    dropdown.classList.toggle("hidden")
+                  }
+                }}
+                className={`flex items-center rounded-md p-2 w-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 ${
+                  collapsed ? "justify-center" : ""
+                }`}
               >
-                <User size={collapsed ? 20 : 16} />
-              </Link>
-              <Link
-                
-                href={route("logout")}
-                method="post"
-                as="button"
-                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Log out"
+                <Settings size={collapsed ? 20 : 16} />
+                {!collapsed && <span className="ml-2">Settings</span>}
+              </button>
+
+              {/* Upward dropdown menu */}
+              <div
+                id="settings-dropdown"
+                className="absolute bottom-full left-0 mb-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 hidden z-50"
               >
-                <LogOut size={collapsed ? 20 : 16} />
-              </Link>
+                <Link
+                  prefetch
+                  href={route("profile.edit")}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <User size={16} className="mr-2" />
+                  <span>Profile</span>
+                </Link>
+                <Link
+                  href={route("logout")}
+                  method="post"
+                  as="button"
+                  className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <LogOut size={16} className="mr-2" />
+                  <span>Log out</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -270,20 +332,31 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
           <div className="mt-5 flex flex-1 flex-col overflow-y-auto">
             <nav className="flex-1 space-y-1 px-2">
-              {navItems.map(
-                (item) =>
-                  auth?.user?.permissions?.includes(item.permission) && (
-                    <ResponsiveNavLink
-                      key={item.route}
-                      href={route(item.route)}
-                      active={isRouteActive(item.route)}
-                      className="flex items-center"
-                    >
-                      <span className="mr-3">{item.icon}</span>
-                      {item.name}
-                    </ResponsiveNavLink>
-                  ),
-              )}
+              {navGroups.map((group) => (
+                <div key={group.label} className="mb-4">
+                  {!collapsed && (
+                    <h3 className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      {group.label}
+                    </h3>
+                  )}
+                  <nav className="flex-1 space-y-1 px-2">
+                    {group.items.map(
+                      (item) =>
+                        auth?.user?.permissions?.includes(item.permission) && (
+                          <ResponsiveNavLink
+                            key={item.route}
+                            href={route(item.route)}
+                            active={isRouteActive(item.route)}
+                            className="flex items-center"
+                          >
+                            <span className="mr-3">{item.icon}</span>
+                            {item.name}
+                          </ResponsiveNavLink>
+                        ),
+                    )}
+                  </nav>
+                </div>
+              ))}
             </nav>
           </div>
 
@@ -332,4 +405,6 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     </div>
   )
 }
+
+
 

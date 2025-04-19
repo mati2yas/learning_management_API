@@ -19,8 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-
-declare const route: (name: string, params?: any) => string
+import { router } from "@inertiajs/react"
 
 const CreateExamCourseAlert = ({
   examTypes,
@@ -34,6 +33,7 @@ const CreateExamCourseAlert = ({
   const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [chapterErrors, setChapterErrors] = useState<{ [key: number]: string }>({})
+  const [duplicateError, setDuplicateError] = useState<string | null>(null)
 
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
@@ -84,6 +84,61 @@ const CreateExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
+  const formatCourseTitle = (title: string): string => {
+    if (!title) return ""
+
+    // List of words that should not be capitalized (prepositions, articles, conjunctions)
+    const lowercaseWords = [
+      "a",
+      "an",
+      "the",
+      "and",
+      "but",
+      "or",
+      "for",
+      "nor",
+      "on",
+      "at",
+      "to",
+      "by",
+      "from",
+      "in",
+      "of",
+      "with",
+      "about",
+      "as",
+      "into",
+      "like",
+      "through",
+      "after",
+      "over",
+      "between",
+      "against",
+      "during",
+    ]
+
+    // Split the title into words
+    const words = title.toLowerCase().split(" ")
+
+    // Capitalize each word unless it's in the lowercaseWords list (except for the first word)
+    return words
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) {
+          return word.charAt(0).toUpperCase() + word.slice(1)
+        }
+
+        // Don't capitalize words in the lowercaseWords list
+        if (lowercaseWords.includes(word)) {
+          return word
+        }
+
+        // Capitalize other words
+        return word.charAt(0).toUpperCase() + word.slice(1)
+      })
+      .join(" ")
+  }
+
   const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
     try {
       const response = await axios.get(`/api/exam-courses-create/${examTypeId}/${examGradeId}`, {
@@ -94,6 +149,22 @@ const CreateExamCourseAlert = ({
       console.error("Error fetching exam courses:", error)
     }
   }, [])
+
+  const uniqueExamCourses = useMemo(() => {
+    // Create a map to track unique course names (case insensitive)
+    const courseMap = new Map()
+
+    examCourses.forEach((course) => {
+      const lowerCaseName = course.course_name.toLowerCase()
+      // Only add the first occurrence of each course name
+      if (!courseMap.has(lowerCaseName)) {
+        courseMap.set(lowerCaseName, course)
+      }
+    })
+
+    // Convert the map values back to an array
+    return Array.from(courseMap.values())
+  }, [examCourses])
 
   const showExamGrade = useMemo(() => {
     const selectedExamType = examTypes.find((type) => type.id.toString() === data.exam_type_id)
@@ -151,9 +222,23 @@ const CreateExamCourseAlert = ({
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
+    // Reset duplicate error
+    setDuplicateError(null)
+
     // First validate chapters
     if (!validateChapters()) {
       return // Stop submission if validation fails
+    }
+
+    // Check for duplicate course name if creating a new course
+    if (isNewCourse && data.course_name) {
+      const normalizedNewName = data.course_name.toLowerCase()
+      const duplicateCourse = examCourses.find((course) => course.course_name.toLowerCase() === normalizedNewName)
+
+      if (duplicateCourse) {
+        setDuplicateError("This course name already exists. Please select from the list or choose a different name.")
+        return // Stop submission
+      }
     }
 
     // Filter out any empty chapters before submission (as an extra precaution)
@@ -161,8 +246,6 @@ const CreateExamCourseAlert = ({
     setData("exam_chapters", filteredChapters)
 
     post(route("exam-courses.store"), {
-      preserveState: true,
-      preserveScroll: true,
       onSuccess: () => {
         setIsOpen(false)
         reset()
@@ -277,12 +360,34 @@ const CreateExamCourseAlert = ({
             <div className="space-y-2">
               <Label htmlFor="exam_course">Exam Course</Label>
               {isNewCourse ? (
-                <Input
-                  id="course_name"
-                  value={data.course_name}
-                  onChange={(e) => setData("course_name", e.target.value)}
-                  placeholder="Enter new course name"
-                />
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      id="course_name"
+                      value={data.course_name}
+                      onChange={(e) => {
+                        const formattedName = formatCourseTitle(e.target.value)
+                        setData("course_name", formattedName)
+                        // Clear duplicate error when user types
+                        if (duplicateError) setDuplicateError(null)
+                      }}
+                      placeholder="Enter new course name"
+                      className={duplicateError ? "border-red-500" : ""}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setIsNewCourse(false)
+                        setData("course_name", "")
+                        setDuplicateError(null)
+                      }}
+                    >
+                      Back to selection
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <Select
                   value={data.exam_course_id}
@@ -305,7 +410,7 @@ const CreateExamCourseAlert = ({
                     <SelectValue placeholder="Select or create new course" />
                   </SelectTrigger>
                   <SelectContent>
-                    {examCourses.map((course) => (
+                    {uniqueExamCourses.map((course) => (
                       <SelectItem key={course.id} value={course.id.toString()}>
                         {course.course_name}
                       </SelectItem>
@@ -314,6 +419,7 @@ const CreateExamCourseAlert = ({
                   </SelectContent>
                 </Select>
               )}
+              {duplicateError && <p className="text-red-500 text-sm">{duplicateError}</p>}
               {errors.course_name && <p className="text-red-500 text-sm">{errors.course_name}</p>}
               {errors.exam_course_id && <p className="text-red-500 text-sm">{errors.exam_course_id}</p>}
             </div>

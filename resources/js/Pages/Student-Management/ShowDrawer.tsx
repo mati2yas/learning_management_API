@@ -22,14 +22,20 @@ import AlertBan from "./AlertBan"
 
 dayjs.extend(relativeTime)
 
-export interface User {
-  id: string
-  name: string
+export interface User{
   email: string
-  avatar: string | null
-  bio: string | null
-  subscriptionRequests: SubscriptionRequest[]
+  id: number,
+  bio: string,
+  avatar: string
+  name: string,
   bannedUser: boolean
+  subscriptionRequests: SubscriptionRequest[]
+  created_at: string,
+  updated_at: string,
+  station?: {name: string}
+  creator?: {name: string},
+  updater?: {name: string},
+  permissions: string[]
 }
 
 interface SubscriptionRequest { 

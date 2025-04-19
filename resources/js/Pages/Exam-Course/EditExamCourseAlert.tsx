@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-import { router } from "@inertiajs/react"
+import {  usePage } from "@inertiajs/react"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -32,9 +32,9 @@ const EditExamCourseAlert = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>(examCourse.exam_chapters || [])
-  const [isNewCourse, setIsNewCourse] = useState(false)
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [chapterErrors, setChapterErrors] = useState<{ [key: number]: string }>({})
+  const [duplicateError, setDuplicateError] = useState<string | null>(null)
 
   const { data, setData, put, processing, errors, reset } = useForm({
     exam_type_id: examCourse.exam_type_id,
@@ -44,6 +44,7 @@ const EditExamCourseAlert = ({
     exam_course_id: examCourse.id.toString(),
     stream: examCourse.stream || null,
   })
+
 
   const addChapter = useCallback(() => {
     setChapters((prev) => {
@@ -85,9 +86,64 @@ const EditExamCourseAlert = ({
     setData("exam_chapters", chapters)
   }, [chapters, setData])
 
+  const formatCourseTitle = (title: string): string => {
+    if (!title) return ""
+
+    // List of words that should not be capitalized (prepositions, articles, conjunctions)
+    const lowercaseWords = [
+      "a",
+      "an",
+      "the",
+      "and",
+      "but",
+      "or",
+      "for",
+      "nor",
+      "on",
+      "at",
+      "to",
+      "by",
+      "from",
+      "in",
+      "of",
+      "with",
+      "about",
+      "as",
+      "into",
+      "like",
+      "through",
+      "after",
+      "over",
+      "between",
+      "against",
+      "during",
+    ]
+
+    // Split the title into words
+    const words = title.toLowerCase().split(" ")
+
+    // Capitalize each word unless it's in the lowercaseWords list (except for the first word)
+    return words
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) {
+          return word.charAt(0).toUpperCase() + word.slice(1)
+        }
+
+        // Don't capitalize words in the lowercaseWords list
+        if (lowercaseWords.includes(word)) {
+          return word
+        }
+
+        // Capitalize other words
+        return word.charAt(0).toUpperCase() + word.slice(1)
+      })
+      .join(" ")
+  }
+
   const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
     try {
-      const response = await axios.get(`/api/exam-courses/${examTypeId}`, {
+      const response = await axios.get(`/api/exam-courses-create/${examTypeId}/${examGradeId}`, {
         params: { stream },
       })
       setExamCourses(response.data)
@@ -126,31 +182,43 @@ const EditExamCourseAlert = ({
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
+    // Reset duplicate error
+    setDuplicateError(null)
+
     // First validate chapters
     if (!validateChapters()) {
       return // Stop submission if validation fails
+    }
+
+    // Check for duplicate course name
+    if (data.course_name) {
+      const normalizedNewName = data.course_name.toLowerCase()
+      const duplicateCourse = examCourses.find(
+        (course) => course.course_name.toLowerCase() === normalizedNewName && course.id !== examCourse.id, // Exclude the current course
+      )
+
+      if (duplicateCourse) {
+        setDuplicateError("This course name already exists")
+        return // Stop submission
+      }
     }
 
     // Filter out any empty chapters before submission (as an extra precaution)
     const filteredChapters = chapters.filter((chapter) => chapter.title.trim() !== "")
     setData("exam_chapters", filteredChapters)
 
-    router.put(
-      route("exam-courses.update", examCourse.id),
-      data,
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-          setIsOpen(false)
-          reset()
-          setChapterErrors({})
-        },
-        onError: (errors) => {
-          console.log("validation errors:", errors)
-        },
-      }
-    )
+    put(route("exam-courses.update", examCourse.id),  {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        setIsOpen(false)
+        reset()
+        setChapterErrors({})
+      },
+      onError: (errors) => {
+        console.log("validation errors:", errors)
+      },
+    })
   }
 
   const showExamGrade = useMemo(() => {
@@ -210,7 +278,6 @@ const EditExamCourseAlert = ({
                     setData("exam_grade_id", Number(""))
                   }
                   setData("exam_course_id", "")
-                  setIsNewCourse(false)
                 }}
               >
                 <SelectTrigger>
@@ -283,9 +350,16 @@ const EditExamCourseAlert = ({
               <Input
                 id="course_name"
                 value={data.course_name}
-                onChange={(e) => setData("course_name", e.target.value)}
+                onChange={(e) => {
+                  const formattedName = formatCourseTitle(e.target.value)
+                  setData("course_name", formattedName)
+                  // Clear duplicate error when user types
+                  if (duplicateError) setDuplicateError(null)
+                }}
                 placeholder="Enter course name"
+                className={duplicateError ? "border-red-500" : ""}
               />
+              {duplicateError && <p className="text-red-500 text-sm">{duplicateError}</p>}
               {errors.course_name && <p className="text-red-500 text-sm">{errors.course_name}</p>}
             </div>
 

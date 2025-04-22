@@ -2,11 +2,11 @@ import type React from "react"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import EditExamCourseAlert from "./EditExamCourseAlert"
-import type { ExamCourse, ExamGrade, ExamType } from "@/types"
+import type { ExamGrade, ExamType } from "@/types"
 import DeleteExamCourseAlert from "./DeleteExamCourseAlert"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import { Head, router, useForm } from "@inertiajs/react"
+import { Head, useForm } from "@inertiajs/react"
 import { SessionToast } from "@/Components/SessionToast"
 import ExamChapterView from "./ChapterView"
 import CreateExamCourseAlert from "../Exams/CreateExamCourseAlert"
@@ -15,6 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/Components/ui/input"
 import { Edit2, PlusIcon, Search, Trash2 } from "lucide-react"
 import PermissionAlert from "@/Components/PermissionAlert"
+import { Badge } from "@/Components/ui/badge"
+import { router as route } from "@inertiajs/react"
+// import { console } from "inspector"
 
 interface IndexProps {
   examCourses: any[]
@@ -38,15 +41,14 @@ const Index: React.FC<IndexProps> = ({
   filters,
 }) => {
 
-  console.log(examCourses)
   const { data, setData } = useForm({
     examType: filters?.examType || "",
     search: filters?.search || "",
   })
 
   const updateFilters = (newFilters: Partial<typeof data>) => {
-    router.get(
-      route("exam-courses.index"),
+    route.get(
+      "exam-courses.index",
       { ...data, ...newFilters },
       {
         preserveState: true,
@@ -71,7 +73,6 @@ const Index: React.FC<IndexProps> = ({
 
   return (
     <Authenticated header={<h1 className="text-2xl font-semibold">Exam Courses</h1>}>
-
       <Head title="Exam Courses" />
       {session && <SessionToast message={session} />}
       <div className="py-12">
@@ -104,15 +105,17 @@ const Index: React.FC<IndexProps> = ({
                 </div>
               </div>
 
-              {
-                canAddExamCourse ? <CreateExamCourseAlert examTypes={examTypes} examGrades={examGrades} />: <PermissionAlert children={
-                  'Add Course/Chapter'
-                } permission={"can add course"}   buttonVariant={'outline'} className="p-2 text-xs" icon={<PlusIcon className="w-5 h-5 mr-2" />}       
+              {canAddExamCourse ? (
+                <CreateExamCourseAlert examTypes={examTypes} examGrades={examGrades} />
+              ) : (
+                <PermissionAlert
+                  children={"Add Course/Chapter"}
+                  permission={"can add course"}
+                  buttonVariant={"outline"}
+                  className="p-2 text-xs"
+                  icon={<PlusIcon className="w-5 h-5 mr-2" />}
                 />
-              }
-              
-
-
+              )}
             </div>
 
             <Table>
@@ -120,8 +123,7 @@ const Index: React.FC<IndexProps> = ({
               <TableHeader>
                 <TableRow>
                   <TableHead>Course Name</TableHead>
-                  <TableHead>Grade</TableHead>
-                  <TableHead>Stream</TableHead>
+                  <TableHead>Grades</TableHead>
                   <TableHead>Exam Type</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Updated At</TableHead>
@@ -130,42 +132,63 @@ const Index: React.FC<IndexProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {examCourses?.map((course) => (
-                  <TableRow key={course.id}>
-                    <TableCell>{course.course_name}</TableCell>
-                    <TableCell>{course.exam_grade?.grade}</TableCell>
-                    <TableCell className=" capitalize">{course.stream}</TableCell>
-                    <TableCell>{course.exam_type.name}</TableCell>
-                    <TableCell>{dayjs(course.created_at).fromNow()}</TableCell>
-                    <TableCell>{dayjs(course.updated_at).fromNow()}</TableCell>
-                    <TableCell>
-                      <ExamChapterView
-                        examChapters={course.exam_chapters}
-                        courseName={course.course_name}
-                        examCourseId={course.id}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      {
-                        canUpdateExamCourse ?                       <EditExamCourseAlert examTypes={examTypes} examGrades={examGrades} examCourse={course} /> : <PermissionAlert children={'Edit'} permission={"can edit an exam course"}
-                        buttonSize={'sm'}
-                        buttonVariant={'outline'}
-                        className={'text-green-600 hover:text-green-700 hover:bg-green-50'}
-                        icon={<Edit2 className="h-4 w-4 mr-1" />} />
-                      }
+                {examCourses?.map((course) => {
+                  // Display grades if they're already loaded with the course
+                  const associatedGrades = course.exam_grades || []
 
-                      {
-                        canDeleteExamCourse ?              
-                        <DeleteExamCourseAlert id={course.id} course_name={course.course_name} />: <PermissionAlert children={'Delete'} permission={"can delete an exam course"}
-                        buttonSize={'sm'}
-                        buttonVariant={'outline'}
-                        className={'text-red-600 hover:text-red-700 hover:bg-red-50'}
-                        icon={<Trash2 className="h-4 w-4 mr-1" />} />
-                      }
+                  return (
+                    <TableRow key={course.id}>
+                      <TableCell className="font-medium">{course.course_name}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {associatedGrades.length > 0 ? (
+                            associatedGrades.map((grade: ExamGrade) => (
+                              <Badge key={grade.id} variant="outline" className="mr-1">
+                                Grade {grade.grade}
+                                {grade.stream && <span className="ml-1 capitalize">({grade.stream})</span>}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-gray-500 text-sm">No grades assigned</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{course.exam_type.name}</TableCell>
+                      <TableCell>{dayjs(course.created_at).fromNow()}</TableCell>
+                      <TableCell>{dayjs(course.updated_at).fromNow()}</TableCell>
+                      <TableCell>
+                        
+                        {canUpdateExamCourse ? (
+                          <ExamChapterView examCourse={course} />
+                        ) : (
+                          <PermissionAlert
+                            children={"Edit"}
+                            permission={"can edit an exam course"}
+                            buttonSize={"sm"}
+                            buttonVariant={"outline"}
+                            className={"text-green-600 hover:text-green-700 hover:bg-green-50"}
+                            icon={<Edit2 className="h-4 w-4 mr-1" />}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
 
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        {canDeleteExamCourse ? (
+                          <DeleteExamCourseAlert id={course.id} course_name={course.course_name} />
+                        ) : (
+                          <PermissionAlert
+                            children={"Delete"}
+                            permission={"can delete an exam course"}
+                            buttonSize={"sm"}
+                            buttonVariant={"outline"}
+                            className={"text-red-600 hover:text-red-700 hover:bg-red-50"}
+                            icon={<Trash2 className="h-4 w-4 mr-1" />}
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </div>
@@ -176,4 +199,3 @@ const Index: React.FC<IndexProps> = ({
 }
 
 export default Index
-

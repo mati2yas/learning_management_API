@@ -31,6 +31,12 @@ class ExamCourse extends Model
     {
         return $this->hasMany(ExamQuestion::class);
     }
+
+    public function examGrades()
+    {
+        return $this->belongsToMany(ExamGrade::class, 'exam_course_grade_map', 'exam_course_id', 'exam_grade_id');
+    }
+    
 }
 
 

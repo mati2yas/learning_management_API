@@ -10,6 +10,9 @@ export interface User {
     email: string;
     email_verified_at?: string;
     permissions: string[]
+    avatar: string | null
+    bio: string | null
+    subscriptionRequests: SubscriptionRequest[]
 }
 
 export type PageProps<
@@ -38,6 +41,10 @@ export interface Department {
     id: number;
     department_name: string;
     category_id: number;
+    category: Category
+    batches: Batch[]
+    created_at?: string
+    updated_at?: string
 }
 
 
@@ -184,10 +191,11 @@ export interface ExamCourse{
     exam_type_id: number;
     exam_grade_id: number;
 
-    exam_chapters:{
-        title: string,
-        sequence_order: number
-    }[]
+    // exam_chapters:{
+    //     title: string,
+    //     sequence_order: number
+    // }[]
+    exam_grade: ExamGrade
 
     course_name: string;
     created_at?: string;
@@ -250,6 +258,7 @@ export interface ExamGrade{
     exam_year_id: number
     created_at?: string;
     updated_at?: string;
+    exam_chapters: ExamChapter[]
 }
 
 export interface CarouselContent{

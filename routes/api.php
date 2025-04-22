@@ -224,8 +224,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         return CourseResource::collection($query->get());
     });
 
-
-
     Route::get('/notifications-new', [NotificationController::class, 'index']); // Fetch all notifications
     Route::post('/notifications-new/{id}/read', [NotificationController::class, 'markAsRead']); // Mark as read
     Route::post('/notifications-new/read-all', [NotificationController::class, 'markAllAsRead']); // Mark all as read
@@ -417,7 +415,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
 
-
     Route::get('/paid-courses', function (Request $request) {
         $user = $request->user(); // Get authenticated user
 
@@ -511,12 +508,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('exams/exam-questions-chapter/{exam_grade_id}/{chapter_id}', function($exam_grade_id, $chapter_id){
 
         $questions = ExamQuestion::where('exam_chapter_id', $chapter_id)->where('exam_grade_id', $exam_grade_id)
-        ->with([ 'examChapter.examCourse'])
         ->get();
     
         return ExamQuestionChapterResource::collection($questions);
     });
-    
 
 
     Route::get('exams/exam-questions-year/{exam_year_id}', function($exam_year_id){
@@ -531,6 +526,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('subscription-request', [SubscriptionController::class, 'store']);
 
 
+    /* Checked*/
     Route::get('exams/exam-years/{examTypeName}', function($examTypeName){
 
         // $types = ['matric','ministry', 'ngat','exit'];
@@ -555,7 +551,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     
 
-    
+    /**Checked */
     Route::get('exams/exam-courses-years/{examType}', function($examType) {
         $examType = ExamType::with('exams.paidExams')->where('name', $examType)->first();
     
@@ -573,10 +569,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
     
 
+    /**Checked */
     Route::get('exams/exam-questions-year/{exam_course_id}/{exam_year_id}', function ($exam_course_id, $exam_year_id) {
 
         $questions = ExamQuestion::where('exam_year_id', $exam_year_id)->where('exam_course_id', $exam_course_id)
-            ->with(['examChapter.examCourse'])
             ->get();
 
         return ExamQuestionChapterResource::collection($questions);
@@ -585,6 +581,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 
 Route::get('/bank-accounts', fn() => Bank::all());
+
 
 
 Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_course_id, $exam_year_id) {
@@ -604,14 +601,6 @@ Route::get('exams/exam-grades/{exam_course_id}/{exam_year_id}', function($exam_c
 
 Route::get('/exam-chapters/{courseId}', fn($courseId) => ExamChapter::where('exam_course_id', $courseId)->get());
 
-Route::get('/exam-courses-chapters/{courseId}/{gradeId}', function ($courseId, $gradeId) {
-    return ExamChapter::whereHas('examCourse', function ($query) use ($gradeId) {
-        $query->where('exam_grade_id', $gradeId);
-    })
-    ->where('exam_course_id', $courseId)
-    ->get();
-});
-
 
 Route::get('/exam-years/{examTypeId}', function($examTypeId){
     return ExamYear::where('exam_type_id', $examTypeId)->get();
@@ -619,7 +608,7 @@ Route::get('/exam-years/{examTypeId}', function($examTypeId){
 
 Route::get('/exam-courses/{examYearId}', fn($examYearId)=>ExamCourse::where('exam_type_id', $examYearId)->get());
 
-Route::get('/exam-courses-create/{examTypeId}/{examGradeId}', fn($examTypeId, $examGradeId)=>ExamCourse::where('exam_type_id', $examTypeId)->get());
+Route::get('/exam-courses-create/{examTypeId}', fn($examTypeId)=>ExamCourse::where('exam_type_id', $examTypeId)->get());
 
 Route::get('/exam-grades/{examCourseId}', fn($examCourseId)=>ExamGrade::where('exam_course_id', $examCourseId)->get());
 
@@ -654,3 +643,103 @@ Route::get('/batches', function(Request $request){
 // Route::get('/exam-chapters/{id}', fn()=>ExamChapter::find($id));
 
 // Route::get('/exam-courses/{id}', fn()=>ExamCourse::find($id));
+
+Route::get('/exam-courses-chapters/{courseId}/{gradeId}', function ($courseId, $gradeId) {
+    return ExamChapter::whereHas('examCourse', function ($query) use ($gradeId) {
+        $query->where('exam_grade_id', $gradeId);
+    })
+    ->where('exam_course_id', $courseId)
+    ->get();
+});
+
+
+Route::get('/exam-courses-chapters-questions/{courseId}/{gradeId?}', function ($courseId, $gradeId = null) {
+    $query = ExamChapter::where('exam_course_id', $courseId);
+
+    // If gradeId is provided, add it to the query
+    if ($gradeId) {
+        $query->where('exam_grade_id', $gradeId);
+    }
+
+    return $query->get();
+});
+
+
+
+
+
+Route::get('exam-courses/{exam_course_id}/grades', function ($exam_course_id) {
+    $examCourse = ExamCourse::with('examGrades')->findOrFail($exam_course_id);
+    // dd($examCourse->grades);
+    return $examCourse->examGrades;
+});
+
+Route::get('exam-courses/{exam_course_id}/grades/{exam_grade_id}/chapters', function ($exam_course_id, $exam_grade_id) {
+    $examChapters = ExamChapter::where('exam_grade_id', $exam_grade_id)->where('exam_course_id', $exam_course_id)->get();
+    return $examChapters;
+});
+
+Route::get('exam-courses/{exam_course_id}/chapters', function ($exam_course_id) {
+    $examChapters = ExamChapter::where('exam_course_id', $exam_course_id)->get();
+    return $examChapters;
+});
+
+
+Route::get('/exam-grades', function(){
+    return ExamGrade::all();
+});
+
+
+
+
+Route::put('/exam-chapters/{exam_chapter_id}', function($exam_chapter_id, Request $request){
+    $examChapter = ExamChapter::findOrFail($exam_chapter_id);
+    $examChapter->update([
+        'title' => $request->input('title'),
+        'sequence_order' => $request->input('sequence_order'),
+    ]);
+    return response()->json(['message' => 'Exam chapter updated successfully']);
+});
+
+
+Route::put('/exam-courses/{exam_course_id}/grades', function($exam_course_id, Request $request) {
+    $examCourse = ExamCourse::findOrFail($exam_course_id);
+
+    // Get array of exam_grade_ids from request
+    $gradeIds = $request->input('exam_grade_ids', []);
+
+    // Sync the many-to-many relationship
+    $examCourse->examGrades()->sync($gradeIds);
+
+    return response()->json(['message' => 'Exam course grades updated successfully']);
+});
+
+
+Route::put('/exam-courses/{exam_course_id}', function($exam_course_id) {
+    $examCourse = ExamCourse::findOrFail($exam_course_id);
+    $examCourse->update([
+        'course_name' => request('course_name'),
+    ]);
+    return response()->json(['message' => 'Exam course updated successfully']);
+});
+
+
+
+Route::post('/exam-chapters', function(Request $request){
+
+    // dd($request->all());
+    $examChapter = ExamChapter::create([
+        'title' => $request->input('title'),
+        'sequence_order' => $request->input('sequence_order'),
+        'exam_course_id' => $request->input('exam_course_id'),
+        'exam_grade_id' => $request->input('exam_grade_id'),
+    ]);
+    return response()->json(['message' => 'Exam chapter created successfully']);
+});
+
+
+Route::delete('/exam-chapters/{exam_chapter_id}', function($exam_chapter_id){
+    $examChapter = ExamChapter::findOrFail($exam_chapter_id);
+    $examChapter->delete();
+    return response()->json(['message' => 'Exam chapter deleted successfully']);
+});

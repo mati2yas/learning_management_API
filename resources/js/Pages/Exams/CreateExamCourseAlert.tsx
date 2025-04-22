@@ -1,5 +1,3 @@
-"use client"
-
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -16,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
-import { PlusCircle, X } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { router } from "@inertiajs/react"
@@ -37,7 +35,6 @@ const CreateExamCourseAlert = ({
 
   const { data, setData, post, processing, errors, reset } = useForm({
     exam_type_id: "",
-    exam_grade_id: "",
     course_name: "",
     exam_course_id: "",
     exam_chapters: chapters,
@@ -139,16 +136,21 @@ const CreateExamCourseAlert = ({
       .join(" ")
   }
 
-  const fetchExamCourses = useCallback(async (examTypeId: string, examGradeId: string, stream: string | null) => {
-    try {
-      const response = await axios.get(`/api/exam-courses-create/${examTypeId}/${examGradeId}`, {
-        params: { stream },
-      })
-      setExamCourses(response.data)
-    } catch (error) {
-      console.error("Error fetching exam courses:", error)
-    }
-  }, [])
+  const fetchExamCourses = useCallback(
+    async (examTypeId: string, stream: string | null) => {
+      try {
+        // Only pass stream if the exam type is ESSLCE
+        const isESSLCE = examTypes.find((type) => type.id.toString() === examTypeId)?.name === "ESSLCE"
+        const response = await axios.get(`/api/exam-courses-create/${examTypeId}`, {
+          params: isESSLCE ? { stream } : {},
+        })
+        setExamCourses(response.data)
+      } catch (error) {
+        console.error("Error fetching exam courses:", error)
+      }
+    },
+    [examTypes],
+  )
 
   const uniqueExamCourses = useMemo(() => {
     // Create a map to track unique course names (case insensitive)
@@ -188,17 +190,12 @@ const CreateExamCourseAlert = ({
   }, [data.exam_type_id, examTypes, examGrades])
 
   useEffect(() => {
-    if (data.exam_type_id && data.exam_grade_id) {
-      const selectedGrade = getFilteredExamGrades.find((grade) => grade.id.toString() === data.exam_grade_id)
-      fetchExamCourses(
-        data.exam_type_id,
-        data.exam_grade_id,
-        selectedGrade && (selectedGrade.grade === 11 || selectedGrade.grade === 12) ? data.stream : null,
-      )
+    if (data.exam_type_id) {
+      fetchExamCourses(data.exam_type_id, data.stream)
     } else {
       setExamCourses([])
     }
-  }, [data.exam_type_id, data.exam_grade_id, data.stream, fetchExamCourses, getFilteredExamGrades])
+  }, [data.exam_type_id, data.stream, fetchExamCourses])
 
   // Validate chapters before submission
   const validateChapters = useCallback(() => {
@@ -221,6 +218,9 @@ const CreateExamCourseAlert = ({
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
+
+    // Add this debug line
+    console.log("Submitting form with data:", data)
 
     // Reset duplicate error
     setDuplicateError(null)
@@ -245,18 +245,25 @@ const CreateExamCourseAlert = ({
     const filteredChapters = chapters.filter((chapter) => chapter.title.trim() !== "")
     setData("exam_chapters", filteredChapters)
 
-    post(route("exam-courses.store"), {
-      onSuccess: () => {
-        setIsOpen(false)
-        reset()
-        setChapters([])
-        setIsNewCourse(false)
-        setChapterErrors({})
+    router.post(
+      route("exam-courses.store"),
+      {
+        ...data,
+        exam_chapters: filteredChapters,
       },
-      onError: (errors) => {
-        console.log("validation errors:", errors)
+      {
+        onSuccess: () => {
+          setIsOpen(false)
+          reset()
+          setChapters([])
+          setIsNewCourse(false)
+          setChapterErrors({})
+        },
+        onError: (errors) => {
+          console.log("validation errors:", errors)
+        },
       },
-    })
+    )
   }
 
   return (
@@ -281,7 +288,6 @@ const CreateExamCourseAlert = ({
                 value={data.exam_type_id}
                 onValueChange={(value) => {
                   setData("exam_type_id", value)
-                  setData("exam_grade_id", "")
                   setData("exam_course_id", "")
                   setData("stream", null)
                   setIsNewCourse(false)
@@ -301,61 +307,26 @@ const CreateExamCourseAlert = ({
               {errors.exam_type_id && <p className="text-red-500 text-sm">{errors.exam_type_id}</p>}
             </div>
 
-            {showExamGrade && (
-              <>
+            {data.exam_type_id &&
+              examTypes.find((type) => type.id.toString() === data.exam_type_id)?.name === "ESSLCE" && (
                 <div className="space-y-2">
-                  <Label htmlFor="exam_grade_id">Exam Grade</Label>
+                  <Label htmlFor="stream">Stream (Optional)</Label>
                   <Select
-                    value={data.exam_grade_id}
-                    onValueChange={(value) => {
-                      setData("exam_grade_id", value)
-                      setData("exam_course_id", "")
-                      const selectedGrade = getFilteredExamGrades.find((grade) => grade.id.toString() === value)
-                      setData(
-                        "stream",
-                        selectedGrade && (selectedGrade.grade === 11 || selectedGrade.grade === 12) ? null : null,
-                      )
-                      setIsNewCourse(false)
-                    }}
+                    value={data.stream || ""}
+                    onValueChange={(value) => setData("stream", value === "null" ? null : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Exam Grade" />
+                      <SelectValue placeholder="Select Stream" />
                     </SelectTrigger>
                     <SelectContent>
-                      {getFilteredExamGrades.map((grade) => (
-                        <SelectItem key={grade.id} value={grade.id.toString()}>
-                          Grade - {grade.grade}
-                          {grade.stream ? ` - ${grade.stream}` : ""}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="null">None</SelectItem>
+                      <SelectItem value="natural">Natural</SelectItem>
+                      <SelectItem value="social">Social</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.exam_grade_id && <p className="text-red-500 text-sm">{errors.exam_grade_id}</p>}
+                  {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
                 </div>
-                {getFilteredExamGrades.some(
-                  (grade) => grade.id.toString() === data.exam_grade_id && (grade.grade === 11 || grade.grade === 12),
-                ) && (
-                  <div className="space-y-2">
-                    <Label htmlFor="stream">Stream</Label>
-
-                    <Select
-                      value={data.stream || ""}
-                      onValueChange={(value) => setData("stream", value === "null" ? null : value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Stream" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="null">None</SelectItem>
-                        <SelectItem value="natural">Natural</SelectItem>
-                        <SelectItem value="social">Social</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.stream && <p className="text-red-500 text-sm">{errors.stream}</p>}
-                  </div>
-                )}
-              </>
-            )}
+              )}
 
             <div className="space-y-2">
               <Label htmlFor="exam_course">Exam Course</Label>
@@ -405,6 +376,7 @@ const CreateExamCourseAlert = ({
                       }))
                     }
                   }}
+                  disabled={!data.exam_type_id}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select or create new course" />
@@ -422,41 +394,6 @@ const CreateExamCourseAlert = ({
               {duplicateError && <p className="text-red-500 text-sm">{duplicateError}</p>}
               {errors.course_name && <p className="text-red-500 text-sm">{errors.course_name}</p>}
               {errors.exam_course_id && <p className="text-red-500 text-sm">{errors.exam_course_id}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Chapters (Optional)</Label>
-              {Object.keys(chapterErrors).length > 0 && (
-                <p className="text-red-500 text-sm">Please fill in all chapter titles or remove empty chapters.</p>
-              )}
-              {chapters.map((chapter, index) => (
-                <div key={index} className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      value={chapter.title}
-                      onChange={(e) => updateChapter(index, "title", e.target.value)}
-                      placeholder={`Chapter ${index + 1}`}
-                      className={chapterErrors[index] ? "border-red-500" : ""}
-                    />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChapter(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {chapterErrors[index] && <p className="text-red-500 text-xs">{chapterErrors[index]}</p>}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addChapter}
-                disabled={chapters.length >= 50}
-                className="w-full"
-              >
-                Add Chapter
-              </Button>
-              {chapters.length >= 50 && (
-                <p className="text-sm text-muted-foreground mt-2">Maximum of 50 chapters allowed.</p>
-              )}
             </div>
           </div>
         </ScrollArea>

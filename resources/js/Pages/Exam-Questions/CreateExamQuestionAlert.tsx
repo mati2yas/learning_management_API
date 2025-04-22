@@ -9,7 +9,7 @@ import {
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog"
 import { Button } from "@/Components/ui/button"
-import { type FormEventHandler, useState, useEffect, useMemo } from "react"
+import { type FormEventHandler, useState, useEffect } from "react"
 import { PlusCircle } from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import InputError from "@/Components/InputError"
@@ -19,24 +19,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import axios from "axios"
 import QuestionForm from "./QuestionForm"
 
+
 interface CreateExamQuestionAlertProps {
   exam: Exam
   exam_grades?: ExamGrade[]
 }
 
-const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertProps) => {
-
+const CreateExamQuestionAlert = ({ exam, exam_grades }: CreateExamQuestionAlertProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [examChapters, setExamChapters] = useState<ExamChapter[]>([])
 
   const { data, setData, post, processing, errors, reset, clearErrors, setError } = useForm<
     {
-      exam_id: string,
-      exam_type_id: string, 
+      exam_id: string
+      exam_type_id: string
       exam_year_id: string
       exam_course_id: string
       exam_grade_id: string
-      exam_chapter_id: string
+      exam_chapter_id: string | null
       questions: {
         question_text: string
         question_image_url: string | null
@@ -53,7 +53,7 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
     exam_year_id: exam.exam_year_id.toString(),
     exam_course_id: exam.exam_course_id?.toString() || "",
     exam_grade_id: "",
-    exam_chapter_id: "",
+    exam_chapter_id: null,
     questions: [
       {
         question_text: "",
@@ -68,14 +68,14 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
   })
 
   const showExamGrade = () => {
-    const excludedExamTypes = ["NGAT", "EXIT", "SAT", "UAT", "EXAM"];
-    
-    return !excludedExamTypes.includes(exam.exam_type?.name || "");
+    const excludedExamTypes = ["NGAT", "EXIT", "SAT", "UAT", "EXAM"]
+
+    return !excludedExamTypes.includes(exam.exam_type?.name || "")
   }
 
   const getFilteredExamGrades = () => {
-    const selectedExamType = showExamGrade() 
-    if (!selectedExamType) return 
+    const selectedExamType = showExamGrade()
+    if (!selectedExamType) return
 
     switch (exam.exam_type?.name) {
       case "6th Grade Ministry":
@@ -101,31 +101,51 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
     clearErrors()
   }
 
-  // useEffect(()=>{
-  //   fetchExamChapters(data.exam_course_id)
-  // }, [])
-
-
-  const fetchExamChapters = async (courseId: string, gradeId: string) => {
+  const fetchExamChapters = async (courseId: string, gradeId?: string) => {
     try {
-      const response = await axios.get(`/api/exam-courses-chapters/${courseId}/${gradeId}`)
+      let url = `/api/exam-courses-chapters-questions/${courseId}`
+      // Only append grade ID to the URL if it exists and we're showing exam grades
+      if (gradeId && showExamGrade()) {
+        url += `/${gradeId}`
+      }
+
+      const response = await axios.get(url)
       setExamChapters(response.data)
+   
     } catch (error) {
       console.error("Error fetching exam chapters:", error)
     }
   }
-  
 
   const handleExamGradeChange = (value: string) => {
     setData({ ...data, exam_grade_id: value })
-  
+
     // Only fetch if there's a selected course ID
     if (data.exam_course_id) {
       fetchExamChapters(data.exam_course_id, value)
     }
   }
-  
 
+  const handleChapterChange = (value: string) => {
+    // If "none" is selected, set exam_chapter_id to null
+    if (value === "none") {
+      setData("exam_chapter_id", null)
+    } else {
+      setData("exam_chapter_id", value)
+    }
+  }
+
+  useEffect(() => {
+    if (data.exam_course_id) {
+      // If we don't show exam grade, fetch chapters without grade ID
+      // Otherwise, only fetch if grade ID is selected
+      if (!showExamGrade()) {
+        fetchExamChapters(data.exam_course_id)
+      } else if (data.exam_grade_id) {
+        fetchExamChapters(data.exam_course_id, data.exam_grade_id)
+      }
+    }
+  }, [data.exam_course_id, data.exam_grade_id])
 
   const addQuestion = () => {
     setData("questions", [
@@ -164,11 +184,7 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
       isValid = false
     }
 
-    // if (showExamGrade() 
-    //  && !data.exam_chapter_id) {
-    //   setError("exam_chapter_id", "Exam chapter is required")
-    //   isValid = false
-    // }
+    // Chapter is optional, so we don't validate it
 
     data.questions.forEach((question, index) => {
       if (!question.question_text) {
@@ -196,7 +212,6 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
     return isValid
   }
 
-
   const submit: FormEventHandler = (e) => {
     e.preventDefault()
 
@@ -204,7 +219,9 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
       return
     }
 
-    // console.log(data)
+    // Log the data being sent to the server
+    // console.log("Submitting data:", data)
+
     post(route("exam-questions.store"), {
       preserveScroll: true,
       preserveState: false,
@@ -212,7 +229,7 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
         setIsOpen(false)
         resetForm()
       },
-      onError: (errors) => {
+      onError: (errors: Record<string, string>) => {
         console.log("Validation errors:", errors)
       },
     })
@@ -235,7 +252,6 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
         <ScrollArea className="flex-grow px-6 overflow-y-auto overflow-x-auto">
           <form onSubmit={submit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
               {showExamGrade() && data.exam_year_id && (
                 <div>
                   <InputLabel htmlFor="exam-grade" value="Exam Grade" />
@@ -258,12 +274,16 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
 
               {data.exam_course_id && (
                 <div>
-                  <InputLabel htmlFor="exam-chapter" value="Exam Chapter" />
-                  <Select value={data.exam_chapter_id} onValueChange={(value) => setData("exam_chapter_id", value)}>
+                  <InputLabel htmlFor="exam-chapter" value="Exam Chapter (Optional)" />
+                  <Select
+                    value={data.exam_chapter_id === null ? "none" : data.exam_chapter_id}
+                    onValueChange={handleChapterChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select an exam chapter" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">None (No specific chapter)</SelectItem>
                       {examChapters?.map((chapter) => (
                         <SelectItem key={chapter.id} value={chapter.id.toString()}>
                           {chapter.title}
@@ -271,6 +291,9 @@ const CreateExamQuestionAlert = ({exam, exam_grades }: CreateExamQuestionAlertPr
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Select "None" if the question is not associated with a specific chapter.
+                  </p>
                   <InputError message={errors.exam_chapter_id} className="mt-2" />
                 </div>
               )}

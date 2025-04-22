@@ -128,17 +128,17 @@ useEffect(() => {
           icon: <BookOpen size={20} />,
         },
         {
-          name: "Exam Mangement",
-          route: "exams-new.index",
-          permission: "can view exams",
-          icon: <FileText size={20} />,
-        },
-        {
           name: "Exam Courses",
           route: "exam-courses.index",
           permission: "can view exam courses",
           icon: <BookCopy size={20} />,
         },
+        {
+          name: "Exam Mangement",
+          route: "exams-new.index",
+          permission: "can view exams",
+          icon: <FileText size={20} />,
+        }
       ],
     },
     {

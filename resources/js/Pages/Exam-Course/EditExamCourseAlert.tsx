@@ -1,5 +1,3 @@
-"use client"
-
 import { type FormEventHandler, useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "@inertiajs/react"
 import axios from "axios"
@@ -19,7 +17,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Edit2, X } from "lucide-react"
 import type { ExamCourse, ExamGrade, ExamType } from "@/types"
 import { ScrollArea } from "@/Components/ui/scroll-area"
-import {  usePage } from "@inertiajs/react"
 
 const EditExamCourseAlert = ({
   examTypes,
@@ -30,8 +27,9 @@ const EditExamCourseAlert = ({
   examGrades: ExamGrade[]
   examCourse: ExamCourse
 }) => {
+
   const [isOpen, setIsOpen] = useState(false)
-  const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>(examCourse.exam_chapters || [])
+  const [chapters, setChapters] = useState<{ title: string; sequence_order: number }[]>(examCourse.exam_grade?.exam_chapters || [])
   const [examCourses, setExamCourses] = useState<ExamCourse[]>([])
   const [chapterErrors, setChapterErrors] = useState<{ [key: number]: string }>({})
   const [duplicateError, setDuplicateError] = useState<string | null>(null)

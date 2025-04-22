@@ -1,5 +1,3 @@
-"use client"
-
 import type { Exam } from "@/types"
 import { type FormEventHandler, useState } from "react"
 import { Button } from "@/Components/ui/button"

@@ -17,4 +17,11 @@ class ExamGrade extends Model
     public function examQuestions(){
         return $this->hasMany(ExamQuestion::class);
     }
+
+
+    public function examChapters()
+    {
+        return $this->hasMany(ExamChapter::class);
+    }
+
 }

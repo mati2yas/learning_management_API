@@ -42,7 +42,7 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
     exam_year_id: string,
     exam_course_id: string,
     exam_grade_id: string,
-    exam_chapter_id: string,
+    exam_chapter_id: string | null,
     question_text: string,
     video_explanation_url: string,
     question_image_url: string | null | File,
@@ -236,6 +236,17 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
   const memoizedExamGrades = useMemo(() => exam_grades, [exam_grades])
   const { flash } = usePage().props as unknown as { flash: { success?: string; error?: string } }
 
+
+  
+  const handleChapterChange = (value: string) => {
+    // If "none" is selected, set exam_chapter_id to null
+    if (value === "none") {
+      setData("exam_chapter_id", null)
+    } else {
+      setData("exam_chapter_id", value)
+    }
+  }
+
   return (
     <Authenticated
       header={
@@ -283,15 +294,16 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
 
                     {data.exam_course_id && (
                       <div>
-                        <InputLabel htmlFor="exam-chapter" value="Exam Chapter" />
+                        <InputLabel htmlFor="exam-chapter" value="Exam Chapter (optional)" />
                         <Select
-                          value={data.exam_chapter_id}
-                          onValueChange={(value) => setData("exam_chapter_id", value)}
+                          value={data.exam_chapter_id == null ? "none" : data.exam_chapter_id}
+                          onValueChange={handleChapterChange}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select an exam chapter" />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="none">None (No specific chapter)</SelectItem>
                             {examChapters.map((chapter) => (
                               <SelectItem key={chapter.id} value={chapter.id.toString()}>
                                 {chapter.title}
@@ -299,6 +311,9 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
                             ))}
                           </SelectContent>
                         </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Leave empty if the question is not associated with a specific chapter.
+                        </p>
                         <InputError message={errors.exam_chapter_id} className="mt-2" />
                       </div>
                     )}

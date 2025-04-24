@@ -18,6 +18,7 @@ use App\Http\Resources\Api\QuizResource;
 use App\Http\Resources\Api\ExamGradeResource;
 use App\Http\Resources\Api\ExamQuestionChapterResource;
 use App\Http\Resources\ExamYearResource;
+use App\Jobs\SubscriptionExpiredJob;
 use App\Models\Bank;
 use App\Models\Batch;
 use App\Models\Category;
@@ -43,6 +44,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail;
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/user', function (Request $request) {
     return $request->user();
@@ -87,8 +92,6 @@ Route::get('/chapter-contents/{chapter_id}', function ($chapter_id) {
     // Return the resource
     return new ChapterContentResource($chapter);
 });
-
-
 
 Route::get('/random-contents', function(){
 
@@ -152,7 +155,6 @@ Route::post('/logout', [SessionController::class, 'logout'])->middleware('auth:s
 
 Route::delete('/user-delete', [SessionController::class, 'destroy'])->middleware('auth:sanctum');
 
-
 Route::post('/user-update', [SessionController::class, 'update'])->middleware('auth:sanctum');
 
 Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail'])->middleware('auth:sanctum');
@@ -166,6 +168,57 @@ Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword'])
 Route::post('reset-password', [NewPasswordController::class, 'reset']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+
+    Route::post('/update-email', function(Request $request){
+        $user = $request->user();
+    
+        $attrs = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class)->ignore($user->id),
+            ],
+        ]);
+    
+        if ($attrs->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'errors' => $attrs->errors()
+            ], 401);
+        }
+    
+        // Reset email verification status
+        $user->email = $request->email;
+        $user->email_verified_at = null;
+        $user->save();
+    
+        // Create signed verification URL
+        $webVerificationUrl = URL::temporarySignedRoute(
+            'verification.verify.api',
+            Carbon::now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
+    
+        // Send verification email
+        $emailData = [
+            'user' => $user,
+            'webVerificationUrl' => $webVerificationUrl,
+        ];
+    
+        Mail::send('emails.verify', $emailData, function ($message) use($user) {
+            $message->to($user->email)
+                    ->subject('Verify Your Email Address');
+        });
+    
+        return response()->json([
+            'status' => true,
+            'message' => 'Email updated successfully. Verification email sent.',
+        ]);
+    });
 
     Route::get('/random-courses/{filterType}', function (Request $request, $filterType) {
         $categoryMap = [
@@ -201,6 +254,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
     Route::get('/course-search', function (Request $request) {
+        
         if (!$request->has('course_name') || empty($request->query('course_name'))) {
             // Return empty collection
             return CourseResource::collection(collect());
@@ -375,6 +429,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                 'type' => 'subscription',
                 'message' => "Your subscription for {$subscriptionType} has expired.",
             ]);
+
+            $superAdmins = User::role('admin')->with(['roles.permissions', 'permissions'])->get();
+
+            $workers = User::role('worker')->with(['roles.permissions', 'permissions'])->get();
+
+            dispatch(new SubscriptionExpiredJob(
+                $subscriptionType,
+                $user,
+                $workers,
+                $superAdmins,
+            ));
+
+
         });
 
         $paidExams = PaidExam::where('user_id', $user->id)
@@ -480,6 +547,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
                 'type' => 'subscription',
                 'message' => "Your subscription for {$subscriptionType} has expired.",
             ]);
+
+            $superAdmins = User::role('admin')->with(['roles.permissions', 'permissions'])->get();
+
+            $workers = User::role('worker')->with(['roles.permissions', 'permissions'])->get();
+
+            dispatch(new SubscriptionExpiredJob(
+                $subscriptionType,
+                $user,
+                $workers,
+                $superAdmins,
+            ));
+
         });
     
     
@@ -580,7 +659,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 
+
 Route::get('/bank-accounts', fn() => Bank::all());
+
+
+
 
 
 

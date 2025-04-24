@@ -7,7 +7,8 @@ use App\Models\ExamGrade;
 use App\Models\ExamType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class ExamCourseController extends Controller
 {
@@ -16,6 +17,7 @@ class ExamCourseController extends Controller
      */
     public function index(Request $request)
     {
+        // dd($request->all());
         $query= ExamCourse::query();
 
         if ($request->filled('examType')) {
@@ -117,8 +119,6 @@ class ExamCourseController extends Controller
         return redirect()->route('exam-courses.index')->with('success', 'Exam Course/Chapter added successfully.');
     }
     
-    
-    
 
     /**
      * Display the specified resource.
@@ -187,13 +187,27 @@ class ExamCourseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ExamCourse $examCourse)
+    public function destroy(String $id, Request $request)
     {
+
+        $examCourse = ExamCourse::findOrFail($id);
         $examCourseDeleted = $examCourse->course_name;
+
+        $request->validate([
+            'password' => 'required',
+        ]);
+    
+        // Check if the password is correct
+        if (!Hash::check($request->password, auth()->user()->password)) {
+
+           throw ValidationException::withMessages([
+               'password' => 'Incorrect password.',
+           ]);
+        }
 
         $examCourse->delete();
 
-        return redirect()->route('exam-courses.index')->with('success', 'Exam Course '.$examCourseDeleted.'Chapter updated successfully.');
+        return redirect()->route('exam-courses.index')->with('success', 'Exam Course '.$examCourseDeleted.' Chapter updated successfully.');
 
     }
 }

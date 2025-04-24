@@ -1,7 +1,6 @@
 import type React from "react"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
-import EditExamCourseAlert from "./EditExamCourseAlert"
 import type { ExamGrade, ExamType } from "@/types"
 import DeleteExamCourseAlert from "./DeleteExamCourseAlert"
 import dayjs from "dayjs"
@@ -16,8 +15,7 @@ import { Input } from "@/Components/ui/input"
 import { Edit2, PlusIcon, Search, Trash2 } from "lucide-react"
 import PermissionAlert from "@/Components/PermissionAlert"
 import { Badge } from "@/Components/ui/badge"
-import { router as route } from "@inertiajs/react"
-// import { console } from "inspector"
+import { router } from "@inertiajs/react"
 
 interface IndexProps {
   examCourses: any[]
@@ -47,8 +45,9 @@ const Index: React.FC<IndexProps> = ({
   })
 
   const updateFilters = (newFilters: Partial<typeof data>) => {
-    route.get(
-      "exam-courses.index",
+    console.log(data)
+    router.get(
+      route("exam-courses.index"),
       { ...data, ...newFilters },
       {
         preserveState: true,
@@ -58,10 +57,7 @@ const Index: React.FC<IndexProps> = ({
   }
 
   const handleTypeChange = (value: string) => {
-    setData((prevData) => ({
-      ...prevData,
-      examType: value,
-    }))
+    setData("examType", value)
     updateFilters({ examType: value })
   }
 

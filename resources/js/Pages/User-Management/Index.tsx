@@ -4,7 +4,6 @@ import { Head, Link, router } from '@inertiajs/react'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import dayjs from 'dayjs'
 import realativeTime from 'dayjs/plugin/relativeTime'
-
 import TextInput from '@/Components/TextInput'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { AlertDelete } from './AlertDelete'
@@ -20,7 +19,6 @@ interface user{
   name: string,
   created_at: string,
   updated_at: string,
-  // station?: {name: string}
   creator?: {name: string},
   updater?: {name: string},
   permissions: string[]
@@ -125,7 +123,7 @@ function Index({users, queryParams={}, session, canUpdate, canDelete, canAdd}: I
                       </div>
                     </TableHead>
 
-                    <TableHead onClick={()=> sortChanged('create_at')} className=' text-nowrap'>
+                    <TableHead onClick={()=> sortChanged('created_at')} className=' text-nowrap'>
                       <div className='flex items-center gap-x-1'>
                         <span className='text-nowrap'>Registration Date</span>
                         <div className=' hover:cursor-pointer'>

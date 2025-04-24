@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/Components/ui/dialog"
 import { Button } from "@/Components/ui/button"
-import { Eye, Loader2, Edit, Plus, Save, X, Trash, Pencil } from "lucide-react"
+import { Loader2, Edit, Plus, Save, X, Trash, Pencil} from "lucide-react"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table"
 import type { ExamChapter, ExamCourse, ExamGrade } from "@/types"
@@ -37,9 +37,8 @@ interface ExamChapterViewProps {
   onCourseUpdate?: (updatedCourse: ExamCourse) => void
 }
 
-const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) => {
-  // console.log("Exam Course", examCourse)
-
+const ExamChapterView = ({ examCourse, onCourseUpdate}: ExamChapterViewProps) => {
+  
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [grades, setGrades] = useState<ExamGrade[]>([])
@@ -51,6 +50,31 @@ const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) =
   const [editingChapter, setEditingChapter] = useState<ExamChapter | null>(null)
   const [selectedGrades, setSelectedGrades] = useState<number[]>([])
   const [isAddingChapter, setIsAddingChapter] = useState(false)
+
+
+  const showExamGrade = () => {
+    const excludedExamTypes = ["NGAT", "EXIT", "SAT", "UAT", "EXAM"]
+
+    return !excludedExamTypes.includes(examCourse.exam_type?.name || "")
+  }
+
+  const getFilteredExamGrades = () => {
+    const selectedExamType = showExamGrade()
+    if (!selectedExamType) return
+
+    switch (examCourse.exam_type?.name) {
+      case "6th Grade Ministry":
+        return availableGrades?.filter((grade) => [5, 6].includes(grade.grade))
+      case "8th Grade Ministry":
+        return availableGrades?.filter((grade) => [7, 8].includes(grade.grade))
+      case "ESSLCE":
+        return availableGrades?.filter((grade) => grade.grade >= 9 && grade.grade <= 12)
+      default:
+        return []
+    }
+  }
+
+
   const [newChapter, setNewChapter] = useState<{
     title: string
     sequence_order: number
@@ -60,7 +84,6 @@ const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) =
     sequence_order: 1,
   })
 
-  const [chapters, setChapters] = useState<ExamChapter[]>([])
   const [editingCourseTitle, setEditingCourseTitle] = useState(false)
   const [courseTitle, setCourseTitle] = useState(examCourse.course_name)
 
@@ -338,8 +361,8 @@ const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) =
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-          <Eye className="h-4 w-4 mr-1" />
-          Manage Chapters
+          {/* <PersonStanding className="h-4 w-4 mr-1" /> */}
+          Manage
         </Button>
       </DialogTrigger>
 
@@ -426,9 +449,10 @@ const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) =
 
               {isEditMode && (
                 <div className="mb-4 p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+
                   <h3 className="text-sm font-medium mb-2">Associated Grades</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {availableGrades.map((grade) => (
+                    {getFilteredExamGrades()?.map((grade) => (
                       <div key={grade.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`grade-${grade.id}`}
@@ -442,7 +466,13 @@ const ExamChapterView = ({ examCourse, onCourseUpdate }: ExamChapterViewProps) =
                       </div>
                     ))}
                   </div>
-                  <Button variant="outline" size="sm" className="mt-3" onClick={saveGradeChanges}>
+
+                  <p className="text-sm text-gray-500 mt-2">
+                    Select the grades to associate with this course. You can add or remove chapters for each grade.
+                  </p>
+
+                  
+                  <Button variant="outline" size="sm" className="mt-3" onClick={saveGradeChanges} disabled={Boolean(!getFilteredExamGrades())} >
                     <Save className="h-4 w-4 mr-1" />
                     Save Grade Changes
                   </Button>

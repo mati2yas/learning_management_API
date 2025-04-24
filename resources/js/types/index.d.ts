@@ -196,6 +196,7 @@ export interface ExamCourse{
     //     sequence_order: number
     // }[]
     exam_grade: ExamGrade
+    exam_type: ExamType
 
     course_name: string;
     created_at?: string;

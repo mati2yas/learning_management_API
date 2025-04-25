@@ -155,7 +155,7 @@ const Index: React.FC<IndexProps> = ({
                       <TableCell>
                         
                         {canUpdateExamCourse ? (
-                          <ExamChapterView examCourse={course} />
+                          <ExamChapterView examCourse={course}/>
                         ) : (
                           <PermissionAlert
                             children={"Edit"}

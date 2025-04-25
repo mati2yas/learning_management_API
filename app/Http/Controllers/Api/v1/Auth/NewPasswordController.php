@@ -3,18 +3,13 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendCustomPasswordResetEmail;
-use App\Jobs\SendCustomVerificationEmail;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class NewPasswordController extends Controller
 {
@@ -70,18 +65,6 @@ class NewPasswordController extends Controller
             $message->to($user->email)
                 ->subject('Your Password Reset PIN');
         });
-
-
-        // SendCustomPasswordResetEmail::dispatch($user);
-
-        // $token = Password::createToken($user);
-
-        // return response()->json([
-        //     'status' => 'Success',
-        //     'token' => $token
-        // ], 200);
-
-
 
         return response()->json([
             'status' => 'Success',

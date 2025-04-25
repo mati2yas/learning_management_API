@@ -9,15 +9,14 @@ import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group"
 import { Checkbox } from "@/Components/ui/checkbox"
 import InputError from "@/Components/InputError"
 import { Input } from "@/Components/ui/input"
-import type { ExamChapter, ExamCourse, ExamGrade, ExamType, ExamYear, ExamQuestion, Exam } from "@/types"
+import type { ExamChapter, ExamGrade, ExamQuestion, Exam } from "@/types"
 import InputLabel from "@/Components/InputLabel"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select"
 import Authenticated from "@/Layouts/AuthenticatedLayout"
 import { X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card"
-import { SessionToast } from "@/Components/SessionToast"
-import { ErrorToast } from "@/Components/ErrorToast"
 import BackLink from "@/Components/BackLink"
+import { SessionToast } from "@/Components/SessionToast"
 
 interface EditExamQuestionAlertProps {
   exam_grades: ExamGrade[]
@@ -170,11 +169,6 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
     let isValid = true
     clearErrors()
 
-    // if (data.text_explanation.trim() === "") {
-    //   setError("text_explanation", "Explanation is required")
-    //   isValid = false
-    // }
-
     if (!data.exam_type_id) {
       setError("exam_type_id", "Exam type is required")
       isValid = false
@@ -260,7 +254,7 @@ const EditExamQuestion = ({ exam_grades, question, exam }: EditExamQuestionAlert
       <Head title="Edit Exam Question" />
 
       {/* {flash.success && (<SessionToast message={flash.success }  />)} */}
-      {flash.error && (<ErrorToast message={flash.error} />)}
+      {flash.error && (<SessionToast message={flash.error} />)}
       
       <div className="py-12">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">

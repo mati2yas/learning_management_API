@@ -217,14 +217,6 @@ class SessionController extends Controller
     
         $attrs = Validator::make($request->all(), [
             'name' => 'required|string|max:50',
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($user->id),
-            ],
             // 'password' => ['required', RulesPassword::min(4), 'confirmed'],
             'bio' => 'string|max:250',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
@@ -254,7 +246,6 @@ class SessionController extends Controller
         // Update user details
         $user->update([
             'name' => $request->name,
-            'email' => $request->email,
             // 'password' => $request->password ? Hash::make($request->password) : $user->password, // Hash new password if provided
             'bio' => $request->bio,
             'avatar' => $avatarPath

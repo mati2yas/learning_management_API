@@ -436,6 +436,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
             dispatch(new SubscriptionExpiredJob(
                 $subscriptionType,
+                $user->name,
+                $user->email,
                 $user,
                 $workers,
                 $superAdmins,
@@ -554,6 +556,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
             dispatch(new SubscriptionExpiredJob(
                 $subscriptionType,
+                $user->name,
+                $user->email,
                 $user,
                 $workers,
                 $superAdmins,

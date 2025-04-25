@@ -240,7 +240,9 @@ class SubscriptionController extends Controller
             $subscriptionRequest->update(['status' => "Rejected"]);
     
             $superAdmins = User::role('admin')->with(['roles.permissions', 'permissions'])->get();
+
             $workers = User::role('worker')->with(['roles.permissions', 'permissions'])->get();
+            
             $associatedUser = User::with(['roles.permissions', 'permissions'])->findOrFail($subscriptionRequest->user_id);
             
 

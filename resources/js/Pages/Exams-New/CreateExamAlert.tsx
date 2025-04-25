@@ -26,7 +26,6 @@ interface CreateExamAlertProps {
   exam_type_id: number
 }
 
-declare const route: (name: string, params?: any) => string
 
 export function CreateExamAlert({ examCourses, examYears, exam_type_id }: CreateExamAlertProps) {
   const [isOpen, setIsOpen] = useState(false)

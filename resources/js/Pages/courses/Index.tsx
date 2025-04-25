@@ -58,9 +58,9 @@ const Index: React.FC<IndexProps> = ({ courses, categories, grades, departments,
     <MainLayout tabTitle="Courses" pageTitle="Courses" navLinks={
       <div className="flex gap-4">
         
-        <NavLink prefetch href={route('courses.index')} active={route().current('courses.index')}>Courses</NavLink>
+        {/* <NavLink prefetch href={route('courses.index')} active={route().current('courses.index')}>Courses</NavLink>
 
-        <NavLink prefetch href={route('courses.departments')} active={route().current('courses.departments')}>Departments</NavLink>
+        <NavLink prefetch href={route('courses.departments')} active={route().current('courses.departments')}>Departments</NavLink> */}
        
         </div>
     }

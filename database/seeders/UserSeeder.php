@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     {
         $user = User::create([
             'name' => 'Admin Admin',
-            'email' => 'admin@admin.com',
+            'email' => 'exceletacademy.com',
             'password' => bcrypt('admin@admin@admin'), // Be sure to hash passwords!
             'email_verified_at' => Carbon::now(),
         ]);

@@ -82,6 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // });
 
+    
     Route::resource('exams', ExamController::class)
         ->middleware(['permission:can view exams']);
 

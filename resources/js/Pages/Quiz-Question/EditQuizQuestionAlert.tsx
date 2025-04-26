@@ -64,6 +64,7 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
     }
   }, [isOpen])
 
+  
   const resetForm = () => {
     reset()
     setAnswerType(parsedOptions.length === 0 ? "no_options" : parsedAnswer.length > 1 ? "multiple" : "single")

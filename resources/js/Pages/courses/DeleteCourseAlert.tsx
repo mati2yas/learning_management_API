@@ -24,7 +24,6 @@ interface DeleteCourseAlertProps {
 const DeleteCourseAlert = ({id}: DeleteCourseAlertProps) => {
 
   const [isOpen, setIsOpen] = useState(false)
-
   const {data, setData, post, processing, errors, reset} = useForm({
     _method: "delete",
     password: "",

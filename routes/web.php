@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('courses', CourseController::class)
         ->middleware(['permission:can view courses']);
 
+        
     // Route::resource('departments', DepartmentController::class);
 
     // Route::middleware(['permission:can view courses'])->group(function () {

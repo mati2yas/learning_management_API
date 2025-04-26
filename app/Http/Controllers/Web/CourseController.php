@@ -11,7 +11,9 @@ use App\Models\Department;
 use App\Models\Grade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class CourseController extends Controller
@@ -234,8 +236,29 @@ class CourseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Course $course)
+    public function destroy(String $id, Request $request)
     {
+        $course = Course::findOrFail($id);
+
+        $request->validate([
+            'password' => 'required',
+        ]);
+    
+        // Check if the password is correct
+        if (!Hash::check($request->password, auth()->user()->password)) {
+
+           throw ValidationException::withMessages([
+               'password' => 'Incorrect password.',
+           ]);
+        }
+
+        // Delete the thumbnail if it exists
+        if ($course->thumbnail && Storage::disk('public')->exists($course->thumbnail)) {
+            Storage::disk('public')->delete($course->thumbnail);
+        }
+
+        // Delete the course
+
         $course_name = $course->course_name;
         $course->delete();
         return redirect()->route('courses.index')->with('success', 'Course ' . $course_name . ' deleted successfully');

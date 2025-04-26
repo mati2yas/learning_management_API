@@ -9,4 +9,8 @@ class ExamType extends Model
 {
     /** @use HasFactory<\Database\Factories\ExamTypeFactory> */
     use HasFactory;
+
+    public function exams(){
+        return $this->hasMany(Exam::class);
+    }
 }

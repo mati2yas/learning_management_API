@@ -14,20 +14,31 @@ class BatchSeeder extends Seeder
      */
     public function run(): void
     {
+        Batch::query()->delete();
+
         if (DB::table('batches')->count() == 0) {
             // Retrieve all departments
             $departments = Department::all();
 
             foreach ($departments as $department) {
                 $years = [];
+                if (str_ends_with($department->department_name, 'Engineering')) {
+                    if ($department->department_name === 'Pre-Engineering') {
+                        $years = ['1st Year', '2nd Year'];
+                    } else {
+                        $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                    }
+                } elseif (str_starts_with($department->department_name, 'Medicine')) {
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
+                } elseif ($department->department_name === 'Pharmacy') {
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+                } elseif($department->department_name === 'Freshman'){
+                    $years = ['1st Year'];
+                } elseif($department->department_name === "Common Courses" ){
+                    $years =['1st Year'];
 
-                // Determine the years based on the department name
-                if ($department->department_name === 'Engineering') {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year', '5th Year'];
-                } elseif ($department->department_name === 'Medicine') {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year', '5th Year', '6th Year', '7th Year'];
-                } else {
-                    $years = ['Fresh Man', '2nd Year', '3rd Year', '4th Year'];
+                }else {
+                    $years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
                 }
 
                 // Create batches for the department

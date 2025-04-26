@@ -1,7 +1,4 @@
-"use client"
-
 import * as React from "react"
-import { TrendingUp } from "lucide-react"
 import { Label, Pie, PieChart } from "recharts"
 
 import {
@@ -18,13 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "./ui/chart"
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
+
 
 const chartConfig = {
   visitors: {
@@ -52,9 +43,19 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function CircularChart() {
+interface CourseData {
+  browser: string;
+  visitors: number;
+  fill: string;
+}
+
+interface CircularChartProps {
+  courseData: CourseData[]
+}
+
+export function CircularChart({ courseData }: CircularChartProps) {
   const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
+    return courseData.reduce((acc, curr) => acc + curr.visitors, 0)
   }, [])
 
   return (
@@ -74,7 +75,7 @@ export function CircularChart() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData}
+              data={courseData}
               dataKey="visitors"
               nameKey="browser"
               innerRadius={60}
@@ -95,7 +96,7 @@ export function CircularChart() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalVisitors.toLocaleString() }
                         </tspan>
                         <tspan
                           x={viewBox.cx}
@@ -118,7 +119,7 @@ export function CircularChart() {
           {/* Trending up by 5.2% this month <TrendingUp className="h-4 w-4" /> */}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total courses for the last 6 months
+          Showing total number of courses
         </div>
       </CardFooter>
     </Card>

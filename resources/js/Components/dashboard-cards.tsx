@@ -2,8 +2,9 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Users, CreditCard, ArrowRight } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: number;
   icon: React.ReactNode;
@@ -20,14 +21,16 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, description, ac
     </CardHeader>
     <CardContent>
       <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-      <p className="text-xs text-muted-foreground">{description}</p>
+      <p className="text-xs text-muted-foreground">{description+ ''}</p>
     </CardContent>
-    {actionLabel && onAction && (
+    {actionLabel && (
       <CardFooter>
-        <Button variant="outline" size="sm" className="w-full" onClick={onAction}>
+        <Link prefetch href={route('subscriptions.index')} className="text-sm text-black">
+                  <Button variant="outline" size="sm" className="w-full" onClick={onAction}>
           {actionLabel}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
+        </Link>
       </CardFooter>
     )}
   </Card>
@@ -47,6 +50,7 @@ export const DashboardCards: React.FC<DashboardCardsProps> = ({
   onViewPendingItems 
 }) => {
   return (
+
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <StatCard
         title="Total Users"
@@ -59,8 +63,8 @@ export const DashboardCards: React.FC<DashboardCardsProps> = ({
         value={pendingItems}
         icon={<CreditCard className="h-4 w-4 text-muted-foreground" />}
         description={isPendingPayments ? "Payments awaiting processing" : "Submissions awaiting review"}
-        actionLabel={isPendingPayments ? "View Pending Payments" : "View Pending Submissions"}
-        onAction={onViewPendingItems}
+        actionLabel={"View Pending Payments"}
+        // onAction={onViewPendingItems}
       />
     </div>
   );

@@ -30,11 +30,33 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+    
+        // Get the authenticated user
+        $user = Auth::user();
+    
+        // Define the priority order of redirections based on permissions
+        $redirectRoutes = [
+            'can view dashboard' => route('dashboard'),
+            'can view subscription' => route('subscriptions.index'),
+            'can view courses' => route('courses.index'),
+            'can view exams' => route('exams-new.index'),
+            'can view exam courses' => route('exam-courses.index'),
+            'can view students management' => route('student-managements.index'),
+            'can view workers management' => route('user-managements.index'),
+        ];
+    
+        // Loop through permissions and redirect to the first matching route
+        foreach ($redirectRoutes as $permission => $route) {
+            if ($user->hasPermissionTo($permission)) {
+                return redirect($route);
+            }
+        }
+    
+        // Default fallback if the user has no permissions
+        return redirect()->route('login')->with('error', 'You do not have access to any sections.');
     }
+    
 
     /**
      * Destroy an authenticated session.

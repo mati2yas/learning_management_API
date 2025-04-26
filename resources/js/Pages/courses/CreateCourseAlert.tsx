@@ -75,7 +75,6 @@ export function CreateCourseAlert() {
     try {
       if (selectedCategory.name === "lower_grades" || selectedCategory.name === "higher_grades") {
         const fetchedGrades = await fetchGrades(value)
-        console.log("Fetched grades:", fetchedGrades)
         setGrades(fetchedGrades)
       } else if (selectedCategory.name === "university") {
         const fetchedDepartments = await fetchDepartments(value)

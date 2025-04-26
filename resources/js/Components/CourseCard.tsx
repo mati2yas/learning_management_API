@@ -52,7 +52,6 @@ export function CourseCard({
   topicsCount,
   saves,
   likes,
-  paidCourses,
   price_one_month,
   price_three_month,
   price_six_month,
@@ -61,13 +60,13 @@ export function CourseCard({
   created_by
 }: CourseCardProps) {
 
-  console.log('name', name, price_one_month)
   
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800 border-0 rounded-xl">
       <div
         className="relative h-64 w-full bg-cover bg-center"
         style={{
+          // backgroundImage: `url(${thumbnail?.startsWith("/id") ? `https://picsum.photos${thumbnail}` : "/storage/" + thumbnail})`,
           backgroundImage: `url(${thumbnail?.startsWith("/id") ? `https://picsum.photos${thumbnail}` : "storage/" + thumbnail})`,
         }}
       >

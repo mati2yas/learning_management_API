@@ -3,13 +3,9 @@ import { FormEventHandler, useState } from "react";
 import { Button } from "@/Components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/Components/ui/alert-dialog";
 import { AlertDialogAction, AlertDialogCancel } from "@radix-ui/react-alert-dialog";
-import PrimaryLink from "@/Components/PrimaryLink";
 import { useForm } from "@inertiajs/react";
+import { User } from "./ShowDrawer";
 
-interface User {
-  id: number;
-  name: string;
-}
 
 interface AlertUnbanProps {
   user: User;

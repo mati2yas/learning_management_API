@@ -23,7 +23,6 @@ interface EditQuizQuestionAlertProps {
 }
 
 const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) => {
-  // console.log(quiz_question)
   const [isOpen, setIsOpen] = useState(false)
   const parsedOptions = JSON.parse(quiz_question.options as unknown as string)
   const parsedAnswer = JSON.parse(quiz_question.answer as unknown as string)
@@ -65,6 +64,7 @@ const EditQuizQuestionAlert = ({ quiz_question }: EditQuizQuestionAlertProps) =>
     }
   }, [isOpen])
 
+  
   const resetForm = () => {
     reset()
     setAnswerType(parsedOptions.length === 0 ? "no_options" : parsedAnswer.length > 1 ? "multiple" : "single")
